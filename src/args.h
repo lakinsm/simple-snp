@@ -14,9 +14,8 @@ class Args {
 public:
     Args(int argc, const char *argv[]);
 
-    std::string sam_file_list;
-    std::string best_genomes;
-    std::string output_readcount_file;
+    std::string sam_file_dir;
+    std::string output_dir;
     int threads;
 
 private:

@@ -2,6 +2,7 @@
 #include <glob.h>
 #include <stdio.h>
 #include <iostream>
+#include <string.h>
 
 
 std::vector< std::string > FileFinder::findSamFiles(const std::string &input_path)
