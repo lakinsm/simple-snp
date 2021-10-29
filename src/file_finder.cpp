@@ -19,7 +19,7 @@ std::vector< std::string > FileFinder::findSamFiles(const std::string &input_pat
         std::exit(EXIT_FAILURE);
     }
     else if(return_value == 3) {
-        std::cerr << std::endl << "The specified input directory (" << _args.test_input_directory;
+        std::cerr << std::endl << "The specified input directory (" << input_path;
         std::cerr << ") contains no detectable SAM files with extension .sam" << std::endl << std::endl;
         std::exit(EXIT_FAILURE);
     }
