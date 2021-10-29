@@ -2,7 +2,7 @@ CC := gcc  # main compiler
 # CC := clang --analyze # and comment out the linker last line for sanity
 SRCDIR := src
 BUILDDIR := build
-TARGET := bin/sam_parse_merge
+TARGET := bin/simple_snp
 
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name "*.$(SRCEXT)")
