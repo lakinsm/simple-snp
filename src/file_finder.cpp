@@ -5,6 +5,12 @@
 #include <string.h>
 
 
+FileFinder::FileFinder()
+{
+
+}
+
+
 std::vector< std::string > FileFinder::findSamFiles(const std::string &input_path)
 {
     std::vector< std::string > return_files;
