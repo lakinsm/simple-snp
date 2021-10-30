@@ -16,10 +16,10 @@ public:
     void printInfo();
     void run();
 
-    std::string barcode;
-    std::string genome_select;
     std::string sam_filepath;
-    std::string sam_header;
+    std::string samplename;
+    std::string sam_readgroup;
+    std::string sam_sampleid;
     std::vector< std::string > contents;
     std::set< std::string > seen_headers;
     std::set< std::string > aligned_headers;
@@ -29,7 +29,6 @@ public:
 private:
     ConcurrentBufferQueue* _buffer_q;
 
-    bool _select;
     std::vector< std::string > _parseSamLine(const std::string &sam_line);
 };
 
