@@ -54,7 +54,7 @@ void ParserJob::run()
             if(line.substr(0, 3) == "@SQ") {
                 if(ref_info_present) {
                     std::cerr << "ERROR: Multiple reference contigs are not currently supported. More than one";
-                    " reference contig was found in SAM file: " << sam_filepath << std::endl;
+                    std::cout << " reference contig was found in SAM file: " << sam_filepath << std::endl;
                     std::exit(EXIT_FAILURE);
                 }
 
