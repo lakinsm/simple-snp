@@ -106,9 +106,9 @@ void ParserJob::run()
 
     for(int i = 0; i < 4; ++i) {
         nucleotide_counts.push_back(std::vector< int >(ref_len, 0));
+        qual_sums.push_back(std::vector< long >(ref_len, 0));
+        mapq_sums.push_back(std::vector< long>(ref_len, 0));
     }
-    qual_sums = std::vector< long >(ref_len, 0);
-    mapq_sums = std::vector< long>(ref_len, 0);
 
 //    printInfo();
 
