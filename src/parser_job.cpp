@@ -22,7 +22,7 @@ ParserJob::~ParserJob()
 void ParserJob::printInfo()
 {
     std::cout << std::endl;
-    std::cout << smaplename << '\t' << sam_filepath << std::endl;
+    std::cout << samplename << '\t' << sam_sampleid << '\t' << sam_readgroup << '\t' << sam_filepath << std::endl;
     std::cout << std::endl;
 }
 
@@ -47,7 +47,7 @@ void ParserJob::run()
 
         if(line[0] == '@') {
             if(line.substr(0, 3) == "@RG") {
-                std::sstream ss_rg;
+                std::stringstream ss_rg;
                 std::string rg_part;
                 ss_rg.str(line);
                 std::getline(ss_rg, rg_part, '\t');
