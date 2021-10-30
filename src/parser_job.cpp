@@ -1,6 +1,7 @@
 #include "parser_job.h"
 #include <fstream>
 #include <sstream>
+#include <cassert>
 
 
 ParserJob::ParserJob(const std::string &parameter_string, ConcurrentBufferQueue* buffer_q) : _buffer_q(buffer_q)
@@ -38,6 +39,7 @@ void ParserJob::run()
 
     this_header = "";
     bool headers = false;
+    bool readgroup_present = false;
     while(!headers) {
         std::getline(ifs, line);
 
@@ -55,13 +57,20 @@ void ParserJob::run()
                 sam_readgroup = rg_part.substr(3);
                 std::getline(ss_rg, rg_part);
                 sam_sampleid = rg_part.substr(3);
+                readgroup_present = true;
             }
         }
         else {
             headers = true;
         }
     }
-    printInfo();
+
+    if(!readgroup_present) {
+        std::cerr << "ERROR: Readgroup information (@RG) is not present in SAM file (" << sam_filepath << ").";
+        std::cerr << " @RG ID and SM must be set." << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+//    printInfo();
 
 //    std::vector< std::string > res;
 //    int sam_flag;

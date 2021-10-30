@@ -1,6 +1,7 @@
 #include <libgen.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <cassert>
 #include "args.h"
 
 
@@ -16,6 +17,11 @@ Args::Args(int argc, const char *argv[])
     sam_file_dir = _findFullDirPath(arg_list[1]);
     output_dir = arg_list[2];
     threads = std::stoi(arg_list[3].c_str());
+
+    if(threads < 2) {
+        std::cerr << "ERROR: Threads must be at least 2, provided: " << threads << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
 }
 
 
@@ -35,5 +41,5 @@ void Args::_usage()
     std::cout << "\nUsage:" << std::endl;
     std::cout << "\tsam_parse_merge sam_file_dir/ output_dir/ threads";
     std::cout << std::endl << std::endl;
-    exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE);
 }

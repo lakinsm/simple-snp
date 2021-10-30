@@ -16,10 +16,6 @@ int main(int argc, const char *argv[]) {
     FileFinder file_finder;
     std::vector< std::string > sam_files = file_finder.findSamFiles(args.sam_file_dir);
 
-    for(auto &x : sam_files) {
-        std::cout << x << std::endl;
-    }
-
     DispatchQueue* output_buffer_dispatcher = new DispatchQueue(1, false);
     DispatchQueue* job_dispatcher = new DispatchQueue(args.threads - 1, true);
     ConcurrentBufferQueue* concurrent_q = new ConcurrentBufferQueue(100000);
