@@ -98,67 +98,50 @@ void ParserJob::run()
         std::cerr << " @SQ SN and LN must be present only once (one contig in reference file)." << std::endl;
         std::exit(EXIT_FAILURE);
     }
-    printInfo();
 
-//    std::vector< std::string > res;
-//    int sam_flag;
-//    res = _parseSamLine(line);
-//    if((res.size() == 0) || (res[0].empty())) {
-//        return;
-//    }
-//    if(!seen_headers.count(res[0])) {
-//        reads_processed++;
-//        seen_headers.insert(res[0]);
-//    }
-//    sam_flag = std::stoi(res[1].c_str());
-//    if((sam_flag & 4) == 0) {
-//        if(_select) {
-//            if(res[2] == genome_select) {
-//                contents.push_back(barcode + '|' + line);
-//                if(!aligned_headers.count(res[0])) {
-//                    reads_aligned++;
-//                    aligned_headers.insert(res[0]);
-//                }
-//            }
-//        }
-//        else {
-//            contents.push_back(barcode + '|' + line);
-//            if(!aligned_headers.count(res[0])) {
-//                reads_aligned++;
-//                aligned_headers.insert(res[0]);
-//            }
-//        }
-//    }
-//
-//    while(std::getline(ifs, line)) {
-//        res = _parseSamLine(line);
-//        if(!seen_headers.count(res[0])) {
-//            reads_processed++;
-//            seen_headers.insert(res[0]);
-//        }
-//        sam_flag = std::stoi(res[1].c_str());
-//        if((sam_flag & 4) == 0) {
-//            int temp = sam_flag & 4;
-//            if(_select) {
-//                if(res[2] == genome_select) {
-//                    contents.push_back(barcode + '|' + line);
-//                    if(!aligned_headers.count(res[0])) {
-//                        reads_aligned++;
-//                        aligned_headers.insert(res[0]);
-//                    }
-//                }
-//            }
-//            else {
-//                contents.push_back(barcode + '|' + line);
-//                if(!aligned_headers.count(res[0])) {
-//                    reads_aligned++;
-//                    aligned_headers.insert(res[0]);
-//                }
-//            }
-//        }
-//    }
-//
+    if(ref_len <= 0) {
+        std::cerr << "ERROR: Reference sequence length is not positive, provided: " << ref_len << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+
+    for(int i = 0; i < 4; ++i) {
+        nucleotide_counts.push_back(std::vector< int >(ref_len, 0));
+    }
+    qual_sums = std::vector< long >(ref_len, 0);
+    mapq_sums = std::vector< long>(ref_len, 0);
+
+//    printInfo();
+
+    std::vector< std::string > res;
+    int sam_flag;
+    res = _parseSamLine(line);
+    if((res.size() == 0) || (res[0].empty())) {
+        return;
+    }
+    sam_flag = std::stoi(res[1].c_str());
+    if((sam_flag & 4) == 0) {
+
+    }
+
+    while(std::getline(ifs, line)) {
+        res = _parseSamLine(line);
+        sam_flag = std::stoi(res[1].c_str());
+        if((sam_flag & 4) == 0) {
+
+        }
+    }
+
 //    while(!_buffer_q->tryPush(contents, barcode, reads_processed, reads_aligned)) {}
+}
+
+
+void ParserJob::_addAlignedRead(const std::string &cigar,
+                                const std::string &seq,
+                                const std::string &qual,
+                                const long &pos,
+                                const int &mapq)
+{
+
 }
 
 

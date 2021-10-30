@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include <set>
+#include <unordered_map>
 #include "concurrent_buffer_queue.h"
 
 
@@ -21,15 +21,26 @@ public:
     std::string sam_readgroup;
     std::string sam_sampleid;
     std::string reference_name;
-    std::vector< std::string > contents;
-    std::set< std::string > seen_headers;
-    std::set< std::string > aligned_headers;
+    std::vector< std::vector< int > > nucleotide_counts;
+    std::vector< std::vector< long > > qual_sums;
+    std::vector< std::vector< long > > mapq_sums;
     long ref_len;
 
 private:
     ConcurrentBufferQueue* _buffer_q;
 
+    void _addAlignedRead(const std::string &cigar,
+                         const std::string &seq,
+                         const std::string &qual,
+                         const long &pos,
+                         const int &mapq);
     std::vector< std::string > _parseSamLine(const std::string &sam_line);
+    const unordered_map< char, int > _iupac_map = {
+            {'A', 0},
+            {'C', 1},
+            {'G', 2},
+            {'T', 3}
+    };
 };
 
 #endif //ASFFAST_PARSER_JOB_H
