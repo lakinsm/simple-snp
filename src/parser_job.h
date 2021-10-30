@@ -35,7 +35,7 @@ private:
                          const long &pos,
                          const int &mapq);
     std::vector< std::string > _parseSamLine(const std::string &sam_line);
-    const unordered_map< char, int > _iupac_map = {
+    const std::unordered_map< char, int > _iupac_map = {
             {'A', 0},
             {'C', 1},
             {'G', 2},
