@@ -20,11 +20,11 @@ public:
     std::string samplename;
     std::string sam_readgroup;
     std::string sam_sampleid;
+    std::string reference_name;
     std::vector< std::string > contents;
     std::set< std::string > seen_headers;
     std::set< std::string > aligned_headers;
-    long reads_processed;
-    long reads_aligned;
+    long ref_len;
 
 private:
     ConcurrentBufferQueue* _buffer_q;

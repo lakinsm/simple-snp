@@ -10,6 +10,7 @@ ParserJob::ParserJob(const std::string &parameter_string, ConcurrentBufferQueue*
     ss.str(parameter_string);
     std::getline(ss, sam_filepath, '|');
     std::getline(ss, samplename);
+    ref_len = 0;
 }
 
 
@@ -24,6 +25,7 @@ void ParserJob::printInfo()
 {
     std::cout << std::endl;
     std::cout << samplename << '\t' << sam_sampleid << '\t' << sam_readgroup << '\t' << sam_filepath << std::endl;
+    std::cout << reference_name << '\t' << ref_len << std::endl;
     std::cout << std::endl;
 }
 
@@ -40,6 +42,7 @@ void ParserJob::run()
     this_header = "";
     bool headers = false;
     bool readgroup_present = false;
+    bool ref_info_present = false;
     while(!headers) {
         std::getline(ifs, line);
 
@@ -48,6 +51,25 @@ void ParserJob::run()
         }
 
         if(line[0] == '@') {
+            if(line.substr(0, 3) == "@SQ") {
+                if(ref_info_present) {
+                    std::cerr << "ERROR: Multiple reference contigs are not currently supported. More than one";
+                    " reference contig was found in SAM file: " << sam_filepath << std::endl;
+                    std::exit(EXIT_FAILURE);
+                }
+
+                std::stringstream ss_sq;
+                std::string sq_part;
+                ss_sq.str(line);
+                std::getline(ss_sq, sq_part, '\t');
+                std::getline(ss_sq, sq_part, '\t');
+                reference_name = sq_part.substr(3);
+                std::getline(ss_sq, sq_part);
+                std::string this_len_part = sq_part.substr(3);
+                ref_len = std::stol(this_len_part.c_str());
+                ref_info_present = true;
+            }
+
             if(line.substr(0, 3) == "@RG") {
                 std::stringstream ss_rg;
                 std::string rg_part;
@@ -70,7 +92,13 @@ void ParserJob::run()
         std::cerr << " @RG ID and SM must be set." << std::endl;
         std::exit(EXIT_FAILURE);
     }
-//    printInfo();
+
+    if(!ref_info_present) {
+        std::cerr << "ERROR: Reference sequence information (@SQ) is not present in SAM file (" << sam_filepath << ").";
+        std::cerr << " @SQ SN and LN must be present only once (one contig in reference file)." << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+    printInfo();
 
 //    std::vector< std::string > res;
 //    int sam_flag;
