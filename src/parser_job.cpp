@@ -149,10 +149,9 @@ void ParserJob::run()
     std::string this_nucl_order = "ACGT";
     for(int j = 0; j < 100; ++j) {
         for(int i = 0; i < _iupac_map.size(); ++i) {
-            pos_depth += nucleotide_counts[i][j];
             std::cout << this_nucl_order[i] << ':' << nucleotide_counts[i][j] << " (";
-            std::cout << ((double)qual_sums[i][j] / (double)nucleotide_counts[i][j] << ", ";
-            std::cout << ((double)mapq_sums[i][j] / (double)nucleotide_counts[i][j] << ")" << '\t';
+            std::cout << ((double)qual_sums[i][j] / (double)nucleotide_counts[i][j]) << ", ";
+            std::cout << ((double)mapq_sums[i][j] / (double)nucleotide_counts[i][j]) << ")" << '\t';
         }
         std::cout << std::endl;
     }
