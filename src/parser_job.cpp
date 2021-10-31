@@ -217,15 +217,23 @@ void ParserJob::_writePositionalData()
     std::string outfile_path = _output_dir + "/" + samplename + "_positional_data.tsv";
     std::ofstream ofs(outfile_path);
 
-    ofs << "ReferenceIndex\tA_count,A_avg_qual,A_avg_mapq\tC_count,C_avg_qual,C_avg_mapq\t";
-    ofs << "G_count,G_avg_qual_G_avg_mapq\tT_count,T_avg_qual,T_avg_mapq" << std::endl;
+    ofs << "ReferenceIndex\tA_count,C_count,G_count,T_count\tA_avg_qual,C_avg_qual,G_avg_qual,T_avg_qual\t";
+    ofs << "A_avg_mapq,C_avg_mapq,G_avg_mapq,T_avg_mapq" << std::endl;
 
     for(int j = 0; j < ref_len; ++j) {
-        ofs << (j + 1);
-        for(int i = 0; i < _iupac_map.size(); ++i) {
-            ofs << "\t" << nucleotide_counts[i][j] << ",";
-            ofs << ((double)qual_sums[i][j] / (double)nucleotide_counts[i][j]) << ",";
-            ofs << ((double)mapq_sums[i][j] / (double)nucleotide_counts[i][j]);
+        ofs << (j + 1) << "\t" << nucleotide_counts[0][j];
+        for(int i = 1; i < _iupac_map.size(); ++i) {
+            ofs << "," << nucleotide_counts[i][j] << ",";
+        }
+
+        ofs << "\t" << ((double)qual_sums[0][j] / (double)nucleotide_counts[0][j])
+        for(int i = 1; i < _iupac_map.size(); ++i) {
+            ofs << "," << ((double)qual_sums[i][j] / (double)nucleotide_counts[i][j]);
+        }
+
+        ofs << "\t" << ((double)mapq_sums[0][j] / (double)nucleotide_counts[0][j])
+        for(int i = 1; i < _iupac_map.size(); ++i) {
+            ofs << "," << ((double)mapq_sums[i][j] / (double)nucleotide_counts[i][j]);
         }
         ofs << std::endl;
     }
