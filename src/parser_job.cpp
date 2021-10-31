@@ -111,8 +111,6 @@ void ParserJob::run()
         mapq_sums.push_back(std::vector< long >(ref_len, 0));
     }
 
-//    printInfo();
-
     std::vector< std::string > res;
     int sam_flag;
     res = _parseSamLine(line);
@@ -122,12 +120,12 @@ void ParserJob::run()
     sam_flag = std::stoi(res[0].c_str());
     if(((sam_flag & 4) == 0) and ((sam_flag & 256) == 0) and ((sam_flag & 2048) == 0)) {
         // Primary alignment
-        std::cout << res[0] << std::endl;
-        std::cout << res[1] << std::endl;
-        std::cout << res[2] << std::endl;
-        std::cout << res[3] << std::endl;
-        std::cout << res[4] << std::endl;
-        std::cout << res[5] << std::endl << std::endl;
+//        std::cout << res[0] << std::endl;
+//        std::cout << res[1] << std::endl;
+//        std::cout << res[2] << std::endl;
+//        std::cout << res[3] << std::endl;
+//        std::cout << res[4] << std::endl;
+//        std::cout << res[5] << std::endl << std::endl;
         _addAlignedRead(res[3], res[4], res[5], std::stol(res[1].c_str()), std::stoi(res[2].c_str()));
     }
 
@@ -136,15 +134,29 @@ void ParserJob::run()
         sam_flag = std::stoi(res[0].c_str());
         if(((sam_flag & 4) == 0) and ((sam_flag & 256) == 0) and ((sam_flag & 2048) == 0)) {
             // Primary alignment
-            std::cout << res[0] << std::endl;
-            std::cout << res[1] << std::endl;
-            std::cout << res[2] << std::endl;
-            std::cout << res[3] << std::endl;
-            std::cout << res[4] << std::endl;
-            std::cout << res[5] << std::endl << std::endl;
+//            std::cout << res[0] << std::endl;
+//            std::cout << res[1] << std::endl;
+//            std::cout << res[2] << std::endl;
+//            std::cout << res[3] << std::endl;
+//            std::cout << res[4] << std::endl;
+//            std::cout << res[5] << std::endl << std::endl;
             _addAlignedRead(res[3], res[4], res[5], std::stol(res[1].c_str()), std::stoi(res[2].c_str()));
         }
     }
+
+    printInfo();
+
+    std::string this_nucl_order = "ACGT";
+    for(int j = 0; j < 100; ++j) {
+        for(int i = 0; i < _iupac_map.size(); ++i) {
+            pos_depth += nucleotide_counts[i][j];
+            std::cout << this_nucl_order[i] << ':' << nucleotide_counts[i][j] << " (";
+            std::cout << ((double)qual_sums[i][j] / (double)nucleotide_counts[i][j] << ", ";
+            std::cout << ((double)mapq_sums[i][j] / (double)nucleotide_counts[i][j] << ")" << '\t';
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
 
 //    while(!_buffer_q->tryPush(contents, barcode, reads_processed, reads_aligned)) {}
 }
