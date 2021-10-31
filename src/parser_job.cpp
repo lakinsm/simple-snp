@@ -5,7 +5,10 @@
 #include <ctype.h>
 
 
-ParserJob::ParserJob(const std::string &parameter_string, ConcurrentBufferQueue* buffer_q) : _buffer_q(buffer_q)
+ParserJob::ParserJob(const std::string &parameter_string,
+                     const std::string &output_dir,
+                     ConcurrentBufferQueue* buffer_q)
+                     : _buffer_q(buffer_q), _output_dir(output_dir)
 {
     std::stringstream ss;
     ss.str(parameter_string);
@@ -120,12 +123,6 @@ void ParserJob::run()
     sam_flag = std::stoi(res[0].c_str());
     if(((sam_flag & 4) == 0) and ((sam_flag & 256) == 0) and ((sam_flag & 2048) == 0)) {
         // Primary alignment
-//        std::cout << res[0] << std::endl;
-//        std::cout << res[1] << std::endl;
-//        std::cout << res[2] << std::endl;
-//        std::cout << res[3] << std::endl;
-//        std::cout << res[4] << std::endl;
-//        std::cout << res[5] << std::endl << std::endl;
         _addAlignedRead(res[3], res[4], res[5], std::stol(res[1].c_str()), std::stoi(res[2].c_str()));
     }
 
@@ -134,28 +131,11 @@ void ParserJob::run()
         sam_flag = std::stoi(res[0].c_str());
         if(((sam_flag & 4) == 0) and ((sam_flag & 256) == 0) and ((sam_flag & 2048) == 0)) {
             // Primary alignment
-//            std::cout << res[0] << std::endl;
-//            std::cout << res[1] << std::endl;
-//            std::cout << res[2] << std::endl;
-//            std::cout << res[3] << std::endl;
-//            std::cout << res[4] << std::endl;
-//            std::cout << res[5] << std::endl << std::endl;
             _addAlignedRead(res[3], res[4], res[5], std::stol(res[1].c_str()), std::stoi(res[2].c_str()));
         }
     }
 
-    printInfo();
-
-    std::string this_nucl_order = "ACGT";
-    for(int j = 0; j < 100; ++j) {
-        for(int i = 0; i < _iupac_map.size(); ++i) {
-            std::cout << this_nucl_order[i] << ':' << nucleotide_counts[i][j] << " (";
-            std::cout << ((double)qual_sums[i][j] / (double)nucleotide_counts[i][j]) << ", ";
-            std::cout << ((double)mapq_sums[i][j] / (double)nucleotide_counts[i][j]) << ")" << '\t';
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
+//    printInfo();
 
 //    while(!_buffer_q->tryPush(contents, barcode, reads_processed, reads_aligned)) {}
 }
@@ -227,4 +207,25 @@ std::vector< std::string > ParserJob::_parseSamLine(const std::string &sam_line)
     std::getline(this_ss, this_entry, '\t');  // 10. qual
     ret.push_back(this_entry);
     return ret;
+}
+
+
+void ParserJob::_writePositionalData()
+{
+    std::string outfile_path = _output_dir + "/" + samplename + "_positional_data.tsv";
+    std::ofstream ofs(outfile_path);
+
+    ofs << "ReferenceIndex\tA_count,A_avg_qual,A_avg_mapq\tC_count,C_avg_qual,C_avg_mapq\t";
+    ofs << "G_count,G_avg_qual_G_avg_mapq\tT_count,T_avg_qual,T_avg_mapq" << std::endl;
+
+    for(int j = 0; j < ref_len; ++j) {
+        ofs << (i + 1);
+        for(int i = 1; i < _iupac_map.size(); ++i) {
+            ofs << "\t" << nucleotide_counts[i][j] << ",";
+            ofs << ((double)qual_sums[i][j] / (double)nucleotide_counts[i][j]) << ",";
+            ofs << ((double)mapq_sums[i][j] / (double)nucleotide_counts[i][j]);
+        }
+        ofs << std::endl;
+    }
+    ofs.close();
 }

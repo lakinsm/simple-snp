@@ -10,7 +10,9 @@
 
 class ParserJob {
 public:
-    ParserJob(const std::string &parameter_string, ConcurrentBufferQueue* buffer_q);
+    ParserJob(const std::string &parameter_string,
+              const std::string &output_dir,
+              ConcurrentBufferQueue* buffer_q);
     ~ParserJob();
 
     void printInfo();
@@ -28,6 +30,7 @@ public:
 
 private:
     ConcurrentBufferQueue* _buffer_q;
+    std::string _output_dir;
 
     void _addAlignedRead(const std::string &cigar,
                          const std::string &seq,
@@ -35,6 +38,7 @@ private:
                          const long &pos,
                          const int &mapq);
     std::vector< std::string > _parseSamLine(const std::string &sam_line);
+    void _writePositionalData();
     const std::unordered_map< char, int > _iupac_map = {
             {'A', 0},
             {'C', 1},
