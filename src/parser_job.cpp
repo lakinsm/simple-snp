@@ -219,8 +219,8 @@ void ParserJob::_writePositionalData()
     ofs << "G_count,G_avg_qual_G_avg_mapq\tT_count,T_avg_qual,T_avg_mapq" << std::endl;
 
     for(int j = 0; j < ref_len; ++j) {
-        ofs << (i + 1);
-        for(int i = 1; i < _iupac_map.size(); ++i) {
+        ofs << (j + 1);
+        for(int i = 0; i < _iupac_map.size(); ++i) {
             ofs << "\t" << nucleotide_counts[i][j] << ",";
             ofs << ((double)qual_sums[i][j] / (double)nucleotide_counts[i][j]) << ",";
             ofs << ((double)mapq_sums[i][j] / (double)nucleotide_counts[i][j]);
