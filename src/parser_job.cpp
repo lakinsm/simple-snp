@@ -120,15 +120,7 @@ void ParserJob::run()
         return;
     }
     sam_flag = std::stoi(res[1].c_str());
-    if((sam_flag & 4) == 0) {
-        if((sam_flag & 256) != 0) {
-            // Read is not primary alignment
-            continue;
-        }
-        if((sam_flag & 2048) != 0) {
-            // Alternate alignment
-            continue;
-        }
+    if(((sam_flag & 4) == 0) and ((sam_flag & 256) == 0) and ((sam_flag & 2048) == 0))) {
         // Primary alignment
         _addAlignedRead(res[3], res[4], res[5], std::stol(res[1].c_str()), std::stoi(res[2].c_str()));
     }
@@ -136,16 +128,7 @@ void ParserJob::run()
     while(std::getline(ifs, line)) {
         res = _parseSamLine(line);
         sam_flag = std::stoi(res[1].c_str());
-        if((sam_flag & 4) == 0) {
-            // Read aligned
-            if((sam_flag & 256) != 0) {
-                // Read is not primary alignment
-                continue;
-            }
-            if((sam_flag & 2048) != 0) {
-                // Alternate alignment
-                continue;
-            }
+        if(((sam_flag & 4) == 0) and ((sam_flag & 256) == 0) and ((sam_flag & 2048) == 0))) {
             // Primary alignment
             _addAlignedRead(res[3], res[4], res[5], std::stol(res[1].c_str()), std::stoi(res[2].c_str()));
         }
