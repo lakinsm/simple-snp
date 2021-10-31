@@ -227,7 +227,7 @@ void ParserJob::_writePositionalData()
         }
 
         if(nucleotide_counts[0][j] > 0) {
-            ofs << "\t" << ((double)qual_sums[0][j] / (double)nucleotide_counts[0][j])
+            ofs << "\t" << ((double)qual_sums[0][j] / (double)nucleotide_counts[0][j]);
         }
         else {
             ofs << "\t0";
@@ -235,7 +235,7 @@ void ParserJob::_writePositionalData()
 
         for(int i = 1; i < _iupac_map.size(); ++i) {
             if(nucleotide_counts[i][j] > 0) {
-                ofs << "," << ((double)qual_sums[i][j] / (double)nucleotide_counts[i][j])
+                ofs << "," << ((double)qual_sums[i][j] / (double)nucleotide_counts[i][j]);
             }
             else {
                 ofs << ",0";
@@ -243,7 +243,7 @@ void ParserJob::_writePositionalData()
         }
 
         if(nucleotide_counts[0][j] > 0) {
-            ofs << "\t" << ((double)mapq_sums[0][j] / (double)nucleotide_counts[0][j])
+            ofs << "\t" << ((double)mapq_sums[0][j] / (double)nucleotide_counts[0][j]);
         }
         else {
             ofs << "\t0";
@@ -251,7 +251,7 @@ void ParserJob::_writePositionalData()
 
         for(int i = 1; i < _iupac_map.size(); ++i) {
             if(nucleotide_counts[i][j] > 0) {
-                ofs << "," << ((double)mapq_sums[i][j] / (double)nucleotide_counts[i][j])
+                ofs << "," << ((double)mapq_sums[i][j] / (double)nucleotide_counts[i][j]);
             }
             else {
                 ofs << ",0";
