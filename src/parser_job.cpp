@@ -119,17 +119,29 @@ void ParserJob::run()
     if((res.size() == 0) || (res[0].empty())) {
         return;
     }
-    sam_flag = std::stoi(res[1].c_str());
+    sam_flag = std::stoi(res[0].c_str());
     if(((sam_flag & 4) == 0) and ((sam_flag & 256) == 0) and ((sam_flag & 2048) == 0)) {
         // Primary alignment
+        std::cout << res[0] << std::endl;
+        std::cout << res[1] << std::endl;
+        std::cout << res[2] << std::endl;
+        std::cout << res[3] << std::endl;
+        std::cout << res[4] << std::endl;
+        std::cout << res[5] << std::endl << std::endl;
         _addAlignedRead(res[3], res[4], res[5], std::stol(res[1].c_str()), std::stoi(res[2].c_str()));
     }
 
     while(std::getline(ifs, line)) {
         res = _parseSamLine(line);
-        sam_flag = std::stoi(res[1].c_str());
+        sam_flag = std::stoi(res[0].c_str());
         if(((sam_flag & 4) == 0) and ((sam_flag & 256) == 0) and ((sam_flag & 2048) == 0)) {
             // Primary alignment
+            std::cout << res[0] << std::endl;
+            std::cout << res[1] << std::endl;
+            std::cout << res[2] << std::endl;
+            std::cout << res[3] << std::endl;
+            std::cout << res[4] << std::endl;
+            std::cout << res[5] << std::endl << std::endl;
             _addAlignedRead(res[3], res[4], res[5], std::stol(res[1].c_str()), std::stoi(res[2].c_str()));
         }
     }
