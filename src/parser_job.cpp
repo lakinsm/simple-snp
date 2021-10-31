@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <cassert>
+#include <ctype.h>
 
 
 ParserJob::ParserJob(const std::string &parameter_string, ConcurrentBufferQueue* buffer_q) : _buffer_q(buffer_q)
@@ -104,10 +105,10 @@ void ParserJob::run()
         std::exit(EXIT_FAILURE);
     }
 
-    for(int i = 0; i < 4; ++i) {
+    for(int i = 0; i < _iupac_map.size(); ++i) {
         nucleotide_counts.push_back(std::vector< int >(ref_len, 0));
         qual_sums.push_back(std::vector< long >(ref_len, 0));
-        mapq_sums.push_back(std::vector< long>(ref_len, 0));
+        mapq_sums.push_back(std::vector< long >(ref_len, 0));
     }
 
 //    printInfo();
@@ -120,14 +121,33 @@ void ParserJob::run()
     }
     sam_flag = std::stoi(res[1].c_str());
     if((sam_flag & 4) == 0) {
-
+        if((sam_flag & 256) != 0) {
+            // Read is not primary alignment
+            continue;
+        }
+        if((sam_flag & 2048) != 0) {
+            // Alternate alignment
+            continue;
+        }
+        // Primary alignment
+        _addAlignedRead(res[3], res[4], res[5], std::stol(res[1].c_str()), std::stoi(res[2].c_str()));
     }
 
     while(std::getline(ifs, line)) {
         res = _parseSamLine(line);
         sam_flag = std::stoi(res[1].c_str());
         if((sam_flag & 4) == 0) {
-
+            // Read aligned
+            if((sam_flag & 256) != 0) {
+                // Read is not primary alignment
+                continue;
+            }
+            if((sam_flag & 2048) != 0) {
+                // Alternate alignment
+                continue;
+            }
+            // Primary alignment
+            _addAlignedRead(res[3], res[4], res[5], std::stol(res[1].c_str()), std::stoi(res[2].c_str()));
         }
     }
 
@@ -141,21 +161,64 @@ void ParserJob::_addAlignedRead(const std::string &cigar,
                                 const long &pos,
                                 const int &mapq)
 {
-
+    long read_idx = 0;
+    long target_idx = pos - 1;
+    long cigar_idx = 0;
+    std::string num = "";
+    std::string op = "";
+    while(cigar_idx != cigar.size()) {
+        if(std::isdigit(cigar[cigar_idx])) {
+            num += cigar[cigar_idx];
+        }
+        else {
+            op = cigar[cigar_idx];
+            int numeric_num = std::stoi(num.c_str());
+            if((op == "M") or (op == "=") or (op == "X")) {
+                for(int i = 0; i < numeric_num; ++i) {
+                    nucleotide_counts[_iupac_map.at(seq[read_idx])][target_idx]++;
+                    qual_sums[_iupac_map.at(seq[read_idx])][target_idx] += int(qual[read_idx]);
+                    mapq_sums[_iupac_map.at(seq[read_idx])][target_idx] += mapq;
+                    read_idx++;
+                    target_idx++;
+                }
+            }
+            else if((op == "D") or (op == "N")) {
+                target_idx += numeric_num;
+            }
+            else if((op == "I") or (op == "S")) {
+                read_idx += numeric_num;
+            }
+            num = "";
+        }
+        cigar_idx++;
+    }
 }
 
 
 std::vector< std::string > ParserJob::_parseSamLine(const std::string &sam_line)
 {
+    //      0             1           2     3     4    5
+    // < sam flag, start pos 1-idx, mapq, cigar, seq, qual >
     std::vector< std::string > ret;
     std::stringstream this_ss;
     this_ss.str(sam_line);
     std::string this_entry;
-    std::getline(this_ss, this_entry, '\t');
+    std::getline(this_ss, this_entry, '\t');  // 0. read name
+    std::getline(this_ss, this_entry, '\t');  // 1. sam flag
     ret.push_back(this_entry);
-    std::getline(this_ss, this_entry, '\t');
+    std::getline(this_ss, this_entry, '\t');  // 2. ref name
+    std::getline(this_ss, this_entry, '\t');  // 3. start pos 1-idx
     ret.push_back(this_entry);
-    std::getline(this_ss, this_entry, '\t');
+    std::getline(this_ss, this_entry, '\t');  // 4. mapq
+    ret.push_back(this_entry);
+    std::getline(this_ss, this_entry, '\t');  // 5. cigar
+    ret.push_back(this_entry);
+    std::getline(this_ss, this_entry, '\t');  // 6. rnext
+    std::getline(this_ss, this_entry, '\t');  // 7. pnext
+    std::getline(this_ss, this_entry, '\t');  // 8. tlen
+    std::getline(this_ss, this_entry, '\t');  // 9. seq
+    ret.push_back(this_entry);
+    std::getline(this_ss, this_entry, '\t');  // 10. qual
     ret.push_back(this_entry);
     return ret;
 }
