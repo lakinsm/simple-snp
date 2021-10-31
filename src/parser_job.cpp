@@ -135,6 +135,8 @@ void ParserJob::run()
         }
     }
 
+    _writePositionalData();
+
 //    printInfo();
 
 //    while(!_buffer_q->tryPush(contents, barcode, reads_processed, reads_aligned)) {}

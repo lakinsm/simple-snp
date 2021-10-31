@@ -15,7 +15,7 @@ Args::Args(int argc, const char *argv[])
     }
 
     sam_file_dir = _findFullDirPath(arg_list[1]);
-    output_dir = arg_list[2];
+    output_dir = _findFullDirPath(arg_list[2]);
     threads = std::stoi(arg_list[3].c_str());
 
     if(threads < 2) {
