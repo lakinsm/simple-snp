@@ -223,7 +223,7 @@ void ParserJob::_writePositionalData()
     for(int j = 0; j < ref_len; ++j) {
         ofs << (j + 1) << "\t" << nucleotide_counts[0][j];
         for(int i = 1; i < _iupac_map.size(); ++i) {
-            ofs << "," << nucleotide_counts[i][j] << ",";
+            ofs << "," << nucleotide_counts[i][j];
         }
 
         if(nucleotide_counts[0][j] > 0) {
