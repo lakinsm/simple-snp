@@ -182,7 +182,7 @@ void ParserJob::_addAlignedRead(const std::string &cigar,
             if((op == "M") or (op == "=") or (op == "X")) {
                 for(int i = 0; i < numeric_num; ++i) {
                     nucleotide_counts[_iupac_map.at(seq[read_idx])][target_idx]++;
-                    qual_sums[_iupac_map.at(seq[read_idx])][target_idx] += int(qual[read_idx]);
+                    qual_sums[_iupac_map.at(seq[read_idx])][target_idx] += int(qual[read_idx]) - 33;  // Phred 33
                     mapq_sums[_iupac_map.at(seq[read_idx])][target_idx] += mapq;
                     read_idx++;
                     target_idx++;
