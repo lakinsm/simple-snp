@@ -13,7 +13,7 @@
 
 class ConcurrentBufferQueue {
 public:
-    ConcurrentBufferQueue(const int &max_elements);
+    ConcurrentBufferQueue();
     ~ConcurrentBufferQueue();
 
     void run();
