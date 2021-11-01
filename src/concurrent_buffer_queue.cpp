@@ -32,7 +32,7 @@ bool ConcurrentBufferQueue::tryPush(const std::string &samplename,
                                     const std::vector< std::vector < long > > &mapq_sums)
 {
     std::unique_lock< std::mutex > lock(_mtx);
-    if(all_nucleotide_counts.at(samplename)) {
+    if(all_nucleotide_counts.count(samplename)) {
         std::cerr << "ERROR: Duplicate sample name detected, " << samplename << std::endl;
         std::exit(EXIT_FAILURE);
     }

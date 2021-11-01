@@ -29,8 +29,8 @@ public:
     std::atomic< int > num_completed_jobs = ATOMIC_VAR_INIT(0);
 
     std::map< std::string, std::vector< std::vector< int > > > all_nucleotide_counts;
-    std::map< std::string, std::vector< std::vector< int > > > all_qual_sums;
-    std::map< std::string, std::vector< std::vector< int > > > all_mapq_sums;
+    std::map< std::string, std::vector< std::vector< long > > > all_qual_sums;
+    std::map< std::string, std::vector< std::vector< long > > > all_mapq_sums;
 
 private:
     std::mutex _mtx;
