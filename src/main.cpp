@@ -54,7 +54,7 @@ int main(int argc, const char *argv[]) {
 
     // Each worker thread has written a file with positional counts and info for each sample.  This section is for
     // variant calling across all samples using the thresholds/options specified in args.
-    for(int j = 0; j < reference_seq.size(); ++j) {
+    for(int j = 0; j < fasta_parser.seq.size(); ++j) {
 
     }
 
