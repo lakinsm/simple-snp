@@ -15,6 +15,12 @@ public:
 
     std::string sam_file_dir;
     std::string output_dir;
+    std::string reference_path;
+    int min_intra_sample_alt;
+    int min_inter_sample_alt;
+    int min_intra_sample_depth;
+    int min_inter_sample_depth;
+    double min_alt_frac;
     int threads;
 
 private:

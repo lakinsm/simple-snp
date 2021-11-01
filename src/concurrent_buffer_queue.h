@@ -17,30 +17,23 @@ public:
     ~ConcurrentBufferQueue();
 
     void run();
-    bool pushHeader(const std::string &barcode, const std::string &header);
-    bool tryPush(const std::vector< std::string > &lines,
-                 const std::string &barcode,
-                 const long &reads_processed,
-                 const long &reads_aligned);
-    bool tryPop(std::string &item);
+    bool tryPush(const std::string &samplename,
+                 const std::vector< std::vector< int > > &nucleotide_counts,
+                 const std::vector< std::vector< long > > &qual_sums,
+                 const std::vector< std::vector < long > > &mapq_sums);
 
     std::atomic< bool > all_jobs_enqueued = ATOMIC_VAR_INIT(false);
     std::atomic< bool > all_jobs_consumed = ATOMIC_VAR_INIT(false);
     std::atomic< bool > work_completed = ATOMIC_VAR_INIT(false);
-    std::atomic< bool > headers_enqueued = ATOMIC_VAR_INIT(false);
     std::atomic< int > num_active_jobs = ATOMIC_VAR_INIT(0);
     std::atomic< int > num_completed_jobs = ATOMIC_VAR_INIT(0);
 
-    std::map< std::string, long > total_reads_processed;
-    std::map< std::string, long > aligned_reads_processed;
+    std::map< std::string, std::vector< std::vector< int > > > all_nucleotide_counts;
+    std::map< std::string, std::vector< std::vector< int > > > all_qual_sums;
+    std::map< std::string, std::vector< std::vector< int > > > all_mapq_sums;
 
 private:
-    std::map< std::string, std::string > _headers;
-    std::queue < std::string > _q;
-    std::vector< std::string > _barcode_out_list;
-    std::vector< std::ofstream > _ofs_out;
     std::mutex _mtx;
-    long _max_size;
 };
 
 

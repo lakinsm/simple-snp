@@ -7,6 +7,7 @@
 #include "dispatch_queue.h"
 #include "concurrent_buffer_queue.h"
 #include "file_finder.h"
+#include "fasta_parser.h"
 
 
 int main(int argc, const char *argv[]) {
@@ -16,9 +17,19 @@ int main(int argc, const char *argv[]) {
     FileFinder file_finder;
     std::vector< std::string > sam_files = file_finder.findSamFiles(args.sam_file_dir);
 
+    // Load FASTA reference genome
+    FastaParser fasta_parser(args.reference_path);
+    fasta_parser.parseFasta();
+
+    std::cout << std::endl;
+    std::cout << fasta_parser.header << std::endl;
+    std::cout << fasta_parser.seq.size() << std::endl;
+
+    std::exit(0);
+
     DispatchQueue* output_buffer_dispatcher = new DispatchQueue(1, false);
     DispatchQueue* job_dispatcher = new DispatchQueue(args.threads - 1, true);
-    ConcurrentBufferQueue* concurrent_q = new ConcurrentBufferQueue(100000);
+    ConcurrentBufferQueue* concurrent_q = new ConcurrentBufferQueue();
     output_buffer_dispatcher->dispatch([concurrent_q] () {concurrent_q->run();});
 
     for(int i = 0; i < sam_files.size(); ++i) {
@@ -40,6 +51,12 @@ int main(int argc, const char *argv[]) {
     concurrent_q->all_jobs_enqueued = true;
 
     while(!concurrent_q->work_completed) {}
+
+    // Each worker thread has written a file with positional counts and info for each sample.  This section is for
+    // variant calling across all samples using the thresholds/options specified in args.
+    for(int j = 0; j < reference_seq.size(); ++j) {
+
+    }
 
     delete job_dispatcher;
     delete concurrent_q;
