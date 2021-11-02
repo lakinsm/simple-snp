@@ -102,7 +102,7 @@ int main(int argc, const char *argv[]) {
 
             for(int i = 0; i < population_allele_counts.size(); ++i) {
                 double this_allele_freq = (double)x.second[i][j] / (double)sample_depth;
-                if(this_allele_freq >= args.min_minor_freq) {
+                if((this_allele_freq >= args.min_minor_freq) && (x.second[i][j] >= args.min_intra_sample_alt)) {
                     if(this_nucleotides[i] != fasta_parser.seq[j]) {
                         alts_present_at_pos += this_nucleotides[i];
                         position_has_variant = true;
@@ -132,7 +132,7 @@ int main(int argc, const char *argv[]) {
             std::priority_queue< std::pair< double, std::string > > q;
             for(int i = 0; i < population_allele_counts.size(); ++i) {
                 double this_allele_freq = (double)x.second[i][j] / (double)sample_depth;
-                if(this_allele_freq >= args.min_minor_freq) {
+                if((this_allele_freq >= args.min_minor_freq) && (x.second[i][j] >= args.min_intra_sample_alt)) {
                     std::string var_info;
                     if(this_nucleotides[i] == fasta_parser.seq[j]) {
                         // Reference allele
@@ -140,7 +140,7 @@ int main(int argc, const char *argv[]) {
                     }
                     else {
                         std::size_t found = alts_present_at_pos.find(this_nucleotides[i]);
-                        var_info = std::to_string(found);
+                        var_info = std::to_string(found + 1);
                         var_info += ",";
                     }
 
