@@ -51,6 +51,7 @@ int main(int argc, const char *argv[]) {
     // Each worker thread has written a file with positional counts and info for each sample.  This section is for
     // variant calling across all samples using the thresholds/options specified in args.
     std::ofstream ofs(args.output_dir + "/all_sample_variants.tsv");
+    std::ofstream ofs2(args.output_dir + "/dominant_population_variants.tsv");
     std::vector< std::string > ordered_sample_names;
     for(auto &x : concurrent_q->all_nucleotide_counts) {
         ordered_sample_names.push_back(x.first);
@@ -58,10 +59,13 @@ int main(int argc, const char *argv[]) {
     std::sort(ordered_sample_names.begin(), ordered_sample_names.end());
 
     ofs << "Position";
+    ofs2 << "Position";
     for(int i = 0; i < ordered_sample_names.size(); ++i) {
         ofs << '\t' << ordered_sample_names[i];
+        ofs2 << '\t' << ordered_sample_names[i];
     }
     ofs << std::endl;
+    ofs2 << std::endl;
 
     std::string this_nucleotides = "ACGT";
     std::map< long, std::map< std::string, std::string > > variant_calls;
@@ -93,6 +97,7 @@ int main(int argc, const char *argv[]) {
 
         // Second pass to establish variants present and their codes
         bool position_has_variant = false;
+        bool position_has_major_variant = false;
         std::string alts_present_at_pos = "";
         for(auto &x : concurrent_q->all_nucleotide_counts) {
             long sample_depth = 0;
@@ -106,6 +111,11 @@ int main(int argc, const char *argv[]) {
                     if(this_nucleotides[i] != fasta_parser.seq[j]) {
                         alts_present_at_pos += this_nucleotides[i];
                         position_has_variant = true;
+                    }
+                }
+                if((this_allele_freq >= args.min_major_freq) && (x.second[i][j] >= args.min_intra_sample_alt)) {
+                    if(this_nucleotides[i] != fasta_parser.seq[j]) {
+                        position_has_major_variant = true;
                     }
                 }
             }
@@ -219,9 +229,18 @@ int main(int argc, const char *argv[]) {
             ofs << '\t' << positional_variants.at(ordered_sample_names[i]);
         }
         ofs << std::endl;
+
+        if(position_has_major_variant) {
+            ofs2 << (j + 1);
+            for(int i = 0; i < ordered_sample_names.size(); ++i) {
+                ofs2 << '\t' << positional_variants.at(ordered_sample_names[i]);
+            }
+            ofs2 << std::endl;
+        }
     }
 
     ofs.close();
+    ofs2.close();
     delete job_dispatcher;
     delete concurrent_q;
     delete output_buffer_dispatcher;
