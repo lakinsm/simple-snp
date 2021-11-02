@@ -52,7 +52,7 @@ int main(int argc, const char *argv[]) {
     // variant calling across all samples using the thresholds/options specified in args.
     std::ofstream ofs(args.output_dir + "/all_sample_variants.tsv");
     std::vector< std::string > ordered_sample_names;
-    for(auto &x : all_nucleotide_counts) {
+    for(auto &x : concurrent_q->all_nucleotide_counts) {
         ordered_sample_names.push_back(x.first);
     }
     std::sort(ordered_sample_names.begin(), ordered_sample_names.end());
@@ -159,9 +159,9 @@ int main(int argc, const char *argv[]) {
 
             std::string final_var_info = "";
             if(q.size() == 2) {
-                std::pair< int, std::string > top_var_info1 = q.front();
+                std::pair< int, std::string > top_var_info1 = q.top();
                 q.pop();
-                std::pair< int, std::string > top_var_info2 = q.front();
+                std::pair< int, std::string > top_var_info2 = q.top();
                 std::stringstream ss1, ss2;
 
                 ss1.str(top_var_info1.second);
@@ -187,7 +187,7 @@ int main(int argc, const char *argv[]) {
                 final_var_info += temp1 + "," + temp2 + ":";
             }
             else if(q.size() == 1) {
-                std::pair< int, std::string > top_var_info = q.front();
+                std::pair< int, std::string > top_var_info = q.top();
                 std::stringstream ss;
                 ss.str(top_var_info.second);
                 std::string temp;
