@@ -20,7 +20,7 @@ Args::Args(int argc, const char *argv[])
     min_inter_sample_alt = 7;
     min_inter_sample_depth = 10;
     min_major_freq = 0.5;
-    min_minor_freq = 0.2;
+    min_minor_freq = 0.3;
     threads = 2;
 
     // User-specified required values
@@ -77,7 +77,7 @@ void Args::_usage()
     std::cout << "\t-A\tBetween-sample minimum alternate allele count to call a variant [7]" << std::endl;
     std::cout << "\t-d\tWithin-sample minimum read depth to call a variant [5]" << std::endl;
     std::cout << "\t-D\tBetween-sample minimum read depth to call a variant [10]" << std::endl;
-    std::cout << "\t-f\tMinimum within-sample alternate allele frequency to call a minor variant [0.2]" << std::endl;
+    std::cout << "\t-f\tMinimum within-sample alternate allele frequency to call a minor variant [0.3]" << std::endl;
     std::cout << "\t-f\tMinimum within-sample alternate allele frequency to call a major variant [0.5]" << std::endl;
     std::cout << "\t-t\tThreads to use, minimum 2 [2]" << std::endl;
     std::cout << std::endl << std::endl;

@@ -153,7 +153,7 @@ int main(int argc, const char *argv[]) {
                 }
             }
             if(q.size() > 2) {
-                std::cerr << "Tri-allelic site detected at sample:position, " << x.first << ":" << j << std::endl;
+                std::cerr << "Tri-allelic site detected at sample:position, " << x.first << ":" << (j+1) << std::endl;
                 while(!q.empty()) {
                     std::pair< double, std::string > temp_var_info = q.top();
                     std::cout << temp_var_info.first << '\t' << temp_var_info.second << std::endl;
@@ -190,7 +190,7 @@ int main(int argc, const char *argv[]) {
 
                 std::getline(ss1, temp1, ',');
                 std::getline(ss2, temp2, ',');
-                final_var_info += temp1 + "," + temp2 + ":";
+                final_var_info += temp1 + "," + temp2;
             }
             else if(q.size() == 1) {
                 std::pair< double, std::string > top_var_info = q.top();
@@ -205,11 +205,12 @@ int main(int argc, const char *argv[]) {
                 std::getline(ss, temp, ',');
                 final_var_info += temp + "," + temp + ":";
                 std::getline(ss, temp, ',');
-                final_var_info += temp + "," + temp + ":";
+                final_var_info += temp + "," + temp;
             }
             else {
-                std::cerr << "No major allele detected at sample:position, " << x.first << ":" << j << std::endl;
-                std::exit(EXIT_FAILURE);
+                std::string low_depth_info = "./.:" + std::to_string(sample_depth) + ":.,.:.,.:.,.";
+                positional_variants.insert({x.first, low_depth_info});
+                continue;
             }
             positional_variants.insert({x.first, final_var_info});
         }
