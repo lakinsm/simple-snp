@@ -154,14 +154,20 @@ int main(int argc, const char *argv[]) {
             }
             if(q.size() > 2) {
                 std::cerr << "Tri-allelic site detected at sample:position, " << x.first << ":" << j << std::endl;
+                while(!q.empty()) {
+                    std::pair< double, std::string > temp_var_info = q.top();
+                    std::cout << temp_var_info.first << '\t' << temp_var_info.second << std::endl;
+                    q.pop();
+                }
+                std::cout << std::endl;
                 std::exit(EXIT_FAILURE);
             }
 
             std::string final_var_info = "";
             if(q.size() == 2) {
-                std::pair< int, std::string > top_var_info1 = q.top();
+                std::pair< double, std::string > top_var_info1 = q.top();
                 q.pop();
-                std::pair< int, std::string > top_var_info2 = q.top();
+                std::pair< double, std::string > top_var_info2 = q.top();
                 std::stringstream ss1, ss2;
 
                 ss1.str(top_var_info1.second);
@@ -187,7 +193,7 @@ int main(int argc, const char *argv[]) {
                 final_var_info += temp1 + "," + temp2 + ":";
             }
             else if(q.size() == 1) {
-                std::pair< int, std::string > top_var_info = q.top();
+                std::pair< double, std::string > top_var_info = q.top();
                 std::stringstream ss;
                 ss.str(top_var_info.second);
                 std::string temp;
