@@ -115,6 +115,9 @@ int main(int argc, const char *argv[]) {
                 }
                 if((this_allele_freq >= args.min_major_freq) && (x.second[i][j] >= args.min_intra_sample_alt)) {
                     if(this_nucleotides[i] != fasta_parser.seq[j]) {
+                        std::cout << x.first << '\t' << this_nucleotides[i] << '\t' << fasta_parser.seq[j] << '\t';
+                        std::cout << this_allele_freq << '\t' << args.min_major_freq << '\t' << x.second[i][j] << '\t';
+                        std::cout << args.min_intra_sample_alt << std::endl;
                         position_has_major_variant = true;
                     }
                 }
