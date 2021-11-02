@@ -3,6 +3,8 @@
 #include <sstream>
 #include <algorithm>
 #include <map>
+#include <queue>
+#include <utility>
 #include "args.h"
 #include "dispatch_queue.h"
 #include "concurrent_buffer_queue.h"
@@ -70,7 +72,7 @@ int main(int argc, const char *argv[]) {
 
         // First pass to look at population metrics
         for(int i = 0; i < population_allele_counts.size(); ++i) {
-            for(auto &x : concurrent_q->nucleotide_counts) {
+            for(auto &x : concurrent_q->all_nucleotide_counts) {
                 population_depth += x.second[i][j];
                 population_allele_counts[i] += x.second[i][j];
             }
@@ -92,7 +94,7 @@ int main(int argc, const char *argv[]) {
         // Second pass to establish variants present and their codes
         bool position_has_variant = false;
         std::string alts_present_at_pos = "";
-        for(auto &x : concurrent_q->nucleotide_counts) {
+        for(auto &x : concurrent_q->all_nucleotide_counts) {
             long sample_depth = 0;
             for(int i = 0; i < population_allele_counts.size(); ++i) {
                 sample_depth += x.second[i][j];
@@ -115,7 +117,7 @@ int main(int argc, const char *argv[]) {
 
         // Third pass to assign variants
         std::map< std::string, std::string > positional_variants;
-        for(auto &x : concurrent_q->nucleotide_counts) {
+        for(auto &x : concurrent_q->all_nucleotide_counts) {
             long sample_depth = 0;
             for(int i = 0; i < population_allele_counts.size(); ++i) {
                 sample_depth += x.second[i][j];
@@ -144,9 +146,9 @@ int main(int argc, const char *argv[]) {
 
                     var_info += std::to_string(x.second[i][j]);
                     var_info += ",";
-                    var_info += std::to_string((double)all_qual_sums.at(x.first)[i][j] / (double)x.second[i][j]);
+                    var_info += std::to_string((double)concurrent_q->all_qual_sums.at(x.first)[i][j] / (double)x.second[i][j]);
                     var_info += ",";
-                    var_info += std::to_string((double)all_mapq_sums.at(x.first)[i][j] / (double)x.second[i][j]);
+                    var_info += std::to_string((double)concurrent_q->all_mapq_sums.at(x.first)[i][j] / (double)x.second[i][j]);
                     q.emplace(this_allele_freq, var_info);
                 }
             }
@@ -155,7 +157,7 @@ int main(int argc, const char *argv[]) {
                 std::exit(EXIT_FAILURE);
             }
 
-            std::string final_var_info;
+            std::string final_var_info = "";
             if(q.size() == 2) {
                 std::pair< int, std::string > top_var_info1 = q.front();
                 q.pop();
@@ -190,7 +192,7 @@ int main(int argc, const char *argv[]) {
                 ss.str(top_var_info.second);
                 std::string temp;
                 std::getline(ss, temp, ',');
-                final_var_info += temp + "/" temp + ":";
+                final_var_info += temp + "/" + temp + ":";
                 final_var_info += std::to_string(sample_depth) + ":";
                 std::getline(ss, temp, ',');
                 final_var_info += temp + "," + temp + ":";
