@@ -75,10 +75,20 @@ int main(int argc, const char *argv[]) {
         std::vector< long > population_allele_counts(4, 0);
 
         // First pass to look at population metrics
-        for(int i = 0; i < population_allele_counts.size(); ++i) {
-            for(auto &x : concurrent_q->all_nucleotide_counts) {
+        for(auto &x : concurrent_q->all_nucleotide_counts) {
+            long sample_depth = 0;
+            for(int i = 0; i < population_allele_counts.size(); ++i) {
                 population_depth += x.second[i][j];
-                population_allele_counts[i] += x.second[i][j];
+                sample_depth += x.second[i][j];
+            }
+
+            for(int i = 0; i < population_allele_counts.size(); ++i) {
+                double this_allele_freq = (double)x.second[i][j] / (double)sample_depth;
+                if(this_allele_freq >= args.min_major_freq) {
+                    if(this_nucleotides[i] != fasta_parser.seq[j]) {
+                        population_allele_counts[i] += x.second[i][j];
+                    }
+                }
             }
         }
 
@@ -107,18 +117,17 @@ int main(int argc, const char *argv[]) {
 
             for(int i = 0; i < population_allele_counts.size(); ++i) {
                 double this_allele_freq = (double)x.second[i][j] / (double)sample_depth;
-                if((this_allele_freq >= args.min_minor_freq) && (x.second[i][j] >= args.min_intra_sample_alt)) {
+                if((this_allele_freq >= args.min_minor_freq) && (x.second[i][j] >= args.min_intra_sample_alt) && (sample_depth > args.min_intra_sample_depth)) {
                     if(this_nucleotides[i] != fasta_parser.seq[j]) {
                         alts_present_at_pos += this_nucleotides[i];
                         position_has_variant = true;
                     }
                 }
-                if((this_allele_freq >= args.min_major_freq) && (x.second[i][j] >= args.min_intra_sample_alt)) {
+                if((this_allele_freq >= args.min_major_freq) && (x.second[i][j] >= args.min_intra_sample_alt) && (sample_depth > args.min_intra_sample_depth)) {
                     if(this_nucleotides[i] != fasta_parser.seq[j]) {
                         std::cout << x.first << '\t' << (j+1) << '\t' << '\t' << this_nucleotides[i];
                         std::cout << '\t' << fasta_parser.seq[j] << '\t';
-                        std::cout << this_allele_freq << '\t' << args.min_major_freq << '\t' << x.second[i][j] << '\t';
-                        std::cout << args.min_intra_sample_alt << std::endl;
+                        std::cout << this_allele_freq << '\t' << x.second[i][j] << std::endl;
                         position_has_major_variant = true;
                     }
                 }
