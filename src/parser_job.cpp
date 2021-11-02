@@ -139,7 +139,7 @@ void ParserJob::run()
 
 //    printInfo();
 
-//    while(!_buffer_q->tryPush(contents, barcode, reads_processed, reads_aligned)) {}
+    while(!_buffer_q->tryPush(sam_sampleid, nucleotide_counts, qual_sums, mapq_sums)) {}
 }
 
 
