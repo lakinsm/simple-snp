@@ -19,7 +19,8 @@ Args::Args(int argc, const char *argv[])
     min_intra_sample_depth = 5;
     min_inter_sample_alt = 7;
     min_inter_sample_depth = 10;
-    min_alt_frac = 0.5;
+    min_major_freq = 0.5;
+    min_minor_freq = 0.2;
     threads = 2;
 
     // User-specified required values
@@ -37,8 +38,10 @@ Args::Args(int argc, const char *argv[])
             min_intra_sample_depth = std::stoi(arg_list[++i].c_str());
         else if(arg_list[i] == "-D")
             min_inter_sample_depth = std::stoi(arg_list[++i].c_str());
+        else if(arg_list[i] == "-F")
+            min_major_freq = std::stod(arg_list[++i].c_str());
         else if(arg_list[i] == "-f")
-            min_alt_frac = std::stod(arg_list[++i].c_str());
+            min_minor_freq = std::stod(arg_list[++i].c_str());
         else if(arg_list[i] == "-t")
             threads = std::stoi(arg_list[++i].c_str());
         else {
@@ -74,7 +77,8 @@ void Args::_usage()
     std::cout << "\t-A\tBetween-sample minimum alternate allele count to call a variant [7]" << std::endl;
     std::cout << "\t-d\tWithin-sample minimum read depth to call a variant [5]" << std::endl;
     std::cout << "\t-D\tBetween-sample minimum read depth to call a variant [10]" << std::endl;
-    std::cout << "\t-f\tMinimum within-sample alternate allele frequency to call a variant [0.5]" << std::endl;
+    std::cout << "\t-f\tMinimum within-sample alternate allele frequency to call a minor variant [0.2]" << std::endl;
+    std::cout << "\t-f\tMinimum within-sample alternate allele frequency to call a major variant [0.5]" << std::endl;
     std::cout << "\t-t\tThreads to use, minimum 2 [2]" << std::endl;
     std::cout << std::endl << std::endl;
     std::exit(EXIT_FAILURE);

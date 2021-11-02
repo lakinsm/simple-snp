@@ -20,7 +20,8 @@ public:
     int min_inter_sample_alt;
     int min_intra_sample_depth;
     int min_inter_sample_depth;
-    double min_alt_frac;
+    double min_major_freq;
+    double min_minor_freq;
     int threads;
 
 private:
