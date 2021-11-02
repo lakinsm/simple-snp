@@ -19,8 +19,8 @@ Args::Args(int argc, const char *argv[])
     min_intra_sample_depth = 5;
     min_inter_sample_alt = 7;
     min_inter_sample_depth = 10;
-    min_major_freq = 0.5;
-    min_minor_freq = 0.3;
+    min_major_freq = 0.7;
+    min_minor_freq = 0.4;
     threads = 2;
 
     // User-specified required values
