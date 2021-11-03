@@ -56,8 +56,18 @@ int main(int argc, const char *argv[]) {
     std::ofstream vcf(args.output_dir + "/dominant_population_variants.vcf");
 
     // VCF Writer
+    std::string command_string = "simple_snp " + args.sam_file_dir + " " + args.output_dir + " " + args.reference_path;
+    command_string += " -t " + std::to_string(args.threads) + " -a " + std::to_string(args.min_intra_sample_alt);
+    command_string += " -A " << std::to_string(args.min_inter_sample_alt) + " -d " + std::to_string(args.min_intra_sample_depth);
+    command_string += " -D " << std::to_string(args.min_inter_sample_depth) + " -f " + std::to_string(args.min_minor_freq);
+    command_string += " -F " << std::to_string(args.min_major_freq);
+    std::vector< std::string > contig_names = {fasta_parser.header};
+    std::vector< long > contig_lens = {(long)fasta_parser.seq.size()};
     VcfWriter vcf_writer(vcf);
-    vcf_writer.writeHeaders(args.reference_path);
+    vcf_writer.writeHeaders(args.reference_path,
+                            command_string,
+                            contig_names,
+                            contig_lens);
     vcf_writer.writeSamples(ordered_sample_names);
 
     std::vector< std::string > ordered_sample_names;
