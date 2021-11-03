@@ -68,7 +68,7 @@ int main(int argc, const char *argv[]) {
     command_string += " -F " + std::to_string(args.min_major_freq);
     std::vector< std::string > contig_names = {fasta_parser.header};
     std::vector< long > contig_lens = {(long)fasta_parser.seq.size()};
-    std::string vcf_path = args.output_dir + "/dominant_population_variants.vcf"
+    std::string vcf_path = args.output_dir + "/dominant_population_variants.vcf";
     VcfWriter vcf_writer(vcf_path);
     vcf_writer.open();
     vcf_writer.writeHeaders(args.reference_path,
