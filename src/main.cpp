@@ -53,7 +53,6 @@ int main(int argc, const char *argv[]) {
     // variant calling across all samples using the thresholds/options specified in args.
     std::ofstream ofs(args.output_dir + "/all_sample_variants.tsv");
     std::ofstream ofs2(args.output_dir + "/dominant_population_variants.tsv");
-    std::ofstream vcf(args.output_dir + "/dominant_population_variants.vcf");
 
     std::vector< std::string > ordered_sample_names;
     for(auto &x : concurrent_q->all_nucleotide_counts) {
@@ -69,7 +68,8 @@ int main(int argc, const char *argv[]) {
     command_string += " -F " + std::to_string(args.min_major_freq);
     std::vector< std::string > contig_names = {fasta_parser.header};
     std::vector< long > contig_lens = {(long)fasta_parser.seq.size()};
-    VcfWriter vcf_writer(vcf);
+    VcfWriter vcf_writer(args.output_dir + "/dominant_population_variants.vcf");
+    vcf_writer.open();
     vcf_writer.writeHeaders(args.reference_path,
                             command_string,
                             contig_names,
@@ -404,7 +404,7 @@ int main(int argc, const char *argv[]) {
 
     ofs.close();
     ofs2.close();
-    vcf.close();
+    vcf_writer.close();
     delete job_dispatcher;
     delete concurrent_q;
     delete output_buffer_dispatcher;

@@ -33,7 +33,7 @@ struct vcfLineData {
 
 class VcfWriter {
 public:
-    VcfWriter(std::ofstream &ofs);
+    VcfWriter(std::string &vcf_path);
 
     void writeHeaders(const std::string &reference_path,
                       const std::string &commandline,
@@ -42,8 +42,11 @@ public:
     void writeSamples(const std::vector< std::string > &samplenames);
     void writeSampleData(const vcfLineData &vcf_line_data,
                          const std::map< std::string, std::string > &vcf_variants);
+    void open();
+    void close();
 
 private:
+    std::string _vcf_path;
     std::ofstream _ofs;
     std::vector< std::string > _sample_order;
 };

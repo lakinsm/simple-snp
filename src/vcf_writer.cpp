@@ -3,12 +3,9 @@
 #include <cassert>
 
 
-VcfWriter::VcfWriter(std::ofstream &ofs) : _ofs(std::move(ofs))
+VcfWriter::VcfWriter(std::string &vcf_path) : _vcf_path(vcf_path)
 {
-    if(!_ofs.good()) {
-        std::cerr << "ERROR: VCF ofstream handle broken." << std::endl;
-        std::exit(EXIT_FAILURE);
-    }
+
 }
 
 
@@ -112,4 +109,19 @@ void VcfWriter::writeSampleData(const vcfLineData &vcf_line_data,
         _ofs << '\t' << vcf_variants.at(_sample_order[i]);
     }
     _ofs << std::endl;
+}
+
+void VcfWriter::open()
+{
+    _ofs.open(_vcf_path);
+    if(!_ofs.is_open()) {
+        std::cerr << "ERROR: VCF ofstream handle broken." << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+}
+
+
+void VcfWriter::close()
+{
+    _ofs.close();
 }
