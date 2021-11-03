@@ -51,7 +51,7 @@ void VcfWriter::writeHeaders(const std::string &reference_path,
     _ofs << "##INFO=<ID=CIGAR,Number=A,Type=String,Description=\"The extended CIGAR representation of each ";
     _ofs << "alternate allele\">" << std::endl;
     _ofs << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\"" << std::endl;
-    _ofs << "##FORMAT=<ID=GQ,Number=A,Type=Float,Description=\"Genotype quality (avgerage PHRED score of alleles observed)\""
+    _ofs << "##FORMAT=<ID=GQ,Number=A,Type=Float,Description=\"Genotype quality (avgerage PHRED score of alleles observed)\"";
     _ofs << std::endl;
     _ofs << "##FORMAT=<ID=DP,Number=1,Type=Integer,Description=\"Read depth\"" << std::endl;
     _ofs << "##FORMAT=<ID=AD,Number=R,Type=Integer,Description=\"Number of observation for each allele\"" << std::endl;
@@ -91,7 +91,7 @@ void VcfWriter::writeSampleData(const vcfLineData &vcf_line_data,
         _ofs << ',' << std::to_string(vcf_line_data.af[i]);
     }
     _ofs << ';';
-    _ofs << "AO=" << std::to_string(vcf_line_data.alt[0]);
+    _ofs << "AO=" << std::to_string(vcf_line_data.ao[0]);
     for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
         _ofs << ',' << std::to_string(vcf_line_data.ao[i]);
     }

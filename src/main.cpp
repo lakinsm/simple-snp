@@ -173,7 +173,8 @@ int main(int argc, const char *argv[]) {
             vcf_line_data.type.push_back("snp");
             vcf_line_data.cigar.push_back("1X");
             vcf_line_data.af.push_back(0);
-            vcf_line_data.alt.push_back(alts_present_at_pos[i]);
+            vcf_line_data.alt.push_back("");
+            vcf_line_data.alt[i] += alts_present_at_pos[i];
             vcf_line_data.ao.push_back(0);
             vcf_line_data.mqm.push_back(0);
             vcf_line_data.alt_ns.push_back(0);
