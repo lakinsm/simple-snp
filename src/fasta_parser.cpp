@@ -3,6 +3,7 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 
 
 FastaParser::FastaParser(const std::string &fasta_filepath) : _fasta_path(fasta_filepath)
@@ -28,7 +29,7 @@ void FastaParser::parseFasta()
         std::exit(EXIT_FAILURE);
     }
 
-    header = temp_line.substr(1);
+    header = temp_line.substr(1, temp_line.find(' '));
     std::getline(ifs, temp_line);
     while((!ifs.eof()) && (temp_line[0] != '>')) {
         seq += temp_line;

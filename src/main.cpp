@@ -10,6 +10,7 @@
 #include "concurrent_buffer_queue.h"
 #include "file_finder.h"
 #include "fasta_parser.h"
+#include "vcf_writer.h"
 
 
 int main(int argc, const char *argv[]) {
@@ -52,6 +53,13 @@ int main(int argc, const char *argv[]) {
     // variant calling across all samples using the thresholds/options specified in args.
     std::ofstream ofs(args.output_dir + "/all_sample_variants.tsv");
     std::ofstream ofs2(args.output_dir + "/dominant_population_variants.tsv");
+    std::ofstream vcf(args.output_dir + "/dominant_population_variants.vcf");
+
+    // VCF Writer
+    VcfWriter vcf_writer(vcf);
+    vcf_writer.writeHeaders(args.reference_path);
+    vcf_writer.writeSamples(ordered_sample_names);
+
     std::vector< std::string > ordered_sample_names;
     for(auto &x : concurrent_q->all_nucleotide_counts) {
         ordered_sample_names.push_back(x.first);
@@ -106,6 +114,9 @@ int main(int argc, const char *argv[]) {
         }
 
         // Second pass to establish variants present and their codes
+        vcfLineData vcf_line_data;
+        vcf_line_data.dp = 0;
+
         bool position_has_variant = false;
         bool position_has_major_variant = false;
         std::string alts_present_at_pos = "";
@@ -114,6 +125,8 @@ int main(int argc, const char *argv[]) {
             for(int i = 0; i < population_allele_counts.size(); ++i) {
                 sample_depth += x.second[i][j];
             }
+
+            vcf_line_data.dp += sample_depth;
 
             for(int i = 0; i < population_allele_counts.size(); ++i) {
                 double this_allele_freq = (double)x.second[i][j] / (double)sample_depth;
@@ -138,8 +151,27 @@ int main(int argc, const char *argv[]) {
             continue;
         }
 
+        vcf_line_data.chom = fasta_parser.header;
+        vcf_line_data.ref = fasta_parser.seq[j];
+        vcf_line_data.pos = j+1;
+        vcf_line_data.qual = 0;
+        vcf_line_data.ns = 0;
+        vcf_line_data.ro = 0;
+        vcf_line_data.mqmr = 0;
+        vcf_line_data.ac = 0;
+        for(int i = 0; i < alts_present_at_pos.size(); ++i) {
+            vcf_line_data.type.push_back("snp");
+            vcf_line_data.cigar.push_back("1X");
+            vcf_line_data.af.push_back(0);
+            vcf_line_data.alt.push_back(alts_present_at_pos[i]);
+            vcf_line_data.ao.push_back(0);
+            vcf_line_data.mqm.push_back(0);
+            vcf_line_data.alt_ns.push_back(0);
+        }
+
         // Third pass to assign variants
         std::map< std::string, std::string > positional_variants;
+        std::map< std::string, std::string > vcf_variants;
         for(auto &x : concurrent_q->all_nucleotide_counts) {
             long sample_depth = 0;
             for(int i = 0; i < population_allele_counts.size(); ++i) {
@@ -147,19 +179,27 @@ int main(int argc, const char *argv[]) {
             }
 
             if(sample_depth < args.min_intra_sample_depth) {
-                std::string low_depth_info = "./.:" + std::to_string(sample_depth) + ":.,.:.,.:.,.";
+                std::string low_depth_info = "./.:" + std::to_string(sample_depth) + ":.:.:.";
                 positional_variants.insert({x.first, low_depth_info});
+                // GT:DP:AD:RO:QR:AO:QA:GL
+                std::string low_vcf_info = "./.:" << std::to_string(sample_depth) + ":.:.:.:.:.:.";
+                vcf_variants.insert({x.first, low_vcf_info});
                 continue;
             }
 
             std::priority_queue< std::pair< double, std::string > > q;
             for(int i = 0; i < population_allele_counts.size(); ++i) {
                 double this_allele_freq = (double)x.second[i][j] / (double)sample_depth;
+                int ref_allele_count;
+                if(this_nucleotides[i] == fasta_parser.seq[j]) {
+                    ref_allele_count = x.second[i][j];
+                }
                 if((this_allele_freq >= args.min_minor_freq) && (x.second[i][j] >= args.min_intra_sample_alt)) {
                     std::string var_info;
                     if(this_nucleotides[i] == fasta_parser.seq[j]) {
                         // Reference allele
                         var_info = "0,";
+                        vcf_line_data.mqmr += ((double)concurrent_q->all_mapq_sums.at(x.first)[i][j] / (double)x.second[i][j]);
                     }
                     else {
                         std::size_t found = alts_present_at_pos.find(this_nucleotides[i]);
@@ -172,7 +212,12 @@ int main(int argc, const char *argv[]) {
                     var_info += std::to_string((double)concurrent_q->all_qual_sums.at(x.first)[i][j] / (double)x.second[i][j]);
                     var_info += ",";
                     var_info += std::to_string((double)concurrent_q->all_mapq_sums.at(x.first)[i][j] / (double)x.second[i][j]);
+                    var_info += ",";
+                    var_info += std::to_string(ref_allele_count);
                     q.emplace(this_allele_freq, var_info);
+
+                    vcf_line_data.ro += ref_allele_count;
+
                 }
             }
             if(q.size() > 2) {
@@ -187,6 +232,7 @@ int main(int argc, const char *argv[]) {
             }
 
             std::string final_var_info = "";
+            std::string final_vcf_info = "";
             if(q.size() == 2) {
                 std::pair< double, std::string > top_var_info1 = q.top();
                 q.pop();
@@ -197,45 +243,131 @@ int main(int argc, const char *argv[]) {
                 ss2.str(top_var_info2.second);
 
                 std::string temp1, temp2;
-                std::getline(ss1, temp1, ',');
-                std::getline(ss2, temp2, ',');
-                final_var_info += temp1 + "/" + temp2 + ":";
+                std::string ro, qr;
+                std::string gt1, ao1, gq1, qa1;
+                std::string gt2, ao2, gq2, qa2;
 
+                // Genotype
+                std::getline(ss1, gt1, ',');
+                std::getline(ss2, gt2, ',');
+                final_var_info += gt1 + "/" + gt2 + ":";
+                final_vcf_info += gt1 + "/" + gt2 + ":";
+
+                if(gt1 != "0") {
+                    vcf_line_data.ns++;
+                }
+                else if(gt2 != "0") {
+                    vcf_line_data.ns++;
+                }
+
+                // Depth
                 final_var_info += std::to_string(sample_depth) + ":";
+                final_vcf_info += std::to_string(sample_depth) + ":";
 
+                // Allele count
+                std::getline(ss1, ao1, ',');
+                std::getline(ss2, ao2, ',');
+                final_var_info += ao1 + "," + ao2 + ":";
+
+                if(gt1 != "0") {
+                    vcf_line_data.alt[std::stoi(gt1.c_str()) - 1] += std::stoi(ao1.c_str());
+                }
+                if(gt2 != "0") {
+                    vcf_line_data.alt[std::stoi(gt2.c_str()) - 1] += std::stoi(ao2.c_str());
+                }
+
+                // Mean quality score
+                std::getline(ss1, qa1, ',');
+                std::getline(ss2, qa2, ',');
+                final_var_info += temp1 + "," + temp2 + ":";
+
+                if(gt1 != "0") {
+                    vcf_line_data.qual += std::stod(qa1.c_str());
+                    vcf_line_data.ac++;
+                }
+                if(gt2 != "0") {
+                    vcf_line_data.qual += std::stod(qa2.c_str());
+                    vcf_line_data.ac++;
+                }
+
+                // Mean mapq score
                 std::getline(ss1, temp1, ',');
                 std::getline(ss2, temp2, ',');
                 final_var_info += temp1 + "," + temp2 + ":";
 
-                std::getline(ss1, temp1, ',');
-                std::getline(ss2, temp2, ',');
-                final_var_info += temp1 + "," + temp2 + ":";
+                if(gt1 != "0") {
+                    vcf_line_data.mqm[std::stoi(gt1.c_str()) - 1] += std::stod(temp1.c_str());
+                    vcf_line_data.alt_ns[std::stoi(gt1.c_str()) - 1] += 1;
+                }
+                if(gt2 != "0") {
+                    vcf_line_data.mqm[std::stoi(gt2.c_str()) - 1] += std::stod(temp2.c_str());
+                    vcf_line_data.alt_ns[std::stoi(gt2.c_str()) - 1] += 1;
+                }
 
-                std::getline(ss1, temp1, ',');
-                std::getline(ss2, temp2, ',');
-                final_var_info += temp1 + "," + temp2;
+                // Ref allele count
+                std::getline(ss1, ro, ',');
+                final_var_info += ro + ":";
+
+                // Mean ref allele qual score
+                std::getline(ss1, qr, ',');
+                final_var_info += qr;
+
+                final_vcf_info += ro + ',' + ao1 + ',' + ao2 + ":" + ro + ":" + qr + ":" + ao1 + ',' + ao2 + ":";
+                final_vcf_info += qa1 + ',' + qa2 + ":" + "1";
             }
             else if(q.size() == 1) {
                 std::pair< double, std::string > top_var_info = q.top();
                 std::stringstream ss;
                 ss.str(top_var_info.second);
                 std::string temp;
-                std::getline(ss, temp, ',');
-                final_var_info += temp + "/" + temp + ":";
+                std::string gt, ro, ao, gq, qr, qa;
+                std::getline(ss, gt, ',');
+                final_var_info += gt + "/" + gt + ":";
+                final_vcf_info += gt + "/" + gt + ":";
                 final_var_info += std::to_string(sample_depth) + ":";
+                final_vcf_info += std::to_string(sample_depth) + ":";
+                std::getline(ss, ao, ',');
+                final_var_info += ao + "," + ao + ":";
+                std::getline(ss, qa, ',');
+                final_var_info += qa + "," + qa + ":";
                 std::getline(ss, temp, ',');
                 final_var_info += temp + "," + temp + ":";
-                std::getline(ss, temp, ',');
-                final_var_info += temp + "," + temp + ":";
-                std::getline(ss, temp, ',');
-                final_var_info += temp + "," + temp;
+                std::getline(ss, ro, ',');
+                final_var_info += ro + ":";
+                std::getline(ss, qr, ',');
+                final_var_info += qr;
+
+                if(gt == "0") {
+                    ao = ".";
+                    qa = ".";
+                }
+
+                final_vcf_info += ro + ',' + ao + ',' + ao + ":" + ro + ":" + qr + ":" + ao + ',' + ao + ":";
+                final_vcf_info += qa + ',' + qa + ":" + "1";
+
+                if(gt != "0") {
+                    vcf_line_data.ns++;
+                }
+                if(gt != "0") {
+                    vcf_line_data.alt[std::stoi(gt.c_str()) - 1] += std::stoi(ao.c_str());
+                }
+                if(gt != "0") {
+                    vcf_line_data.qual += 2 * std::stod(qa.c_str());
+                    vcf_line_data.ac += 2;
+                }
+                if(gt != "0") {
+                    vcf_line_data.mqm[std::stoi(gt.c_str()) - 1] += std::stod(temp.c_str());
+                }
             }
             else {
-                std::string low_depth_info = "./.:" + std::to_string(sample_depth) + ":.,.:.,.:.,.";
+                std::string low_depth_info = "./.:" + std::to_string(sample_depth) + ":.:.:.";
                 positional_variants.insert({x.first, low_depth_info});
+                std::string low_vcf_info = "./.:" << std::to_string(sample_depth) + ":.:.:.:.:.:.";
+                vcf_variants.insert({x.first, low_vcf_info});
                 continue;
             }
             positional_variants.insert({x.first, final_var_info});
+            vcf_variants.insert({x.first, final_vcf_info});
         }
         ofs << (j + 1);
         for(int i = 0; i < ordered_sample_names.size(); ++i) {
@@ -250,10 +382,18 @@ int main(int argc, const char *argv[]) {
             }
             ofs2 << std::endl;
         }
+
+        vcf_line_data.qual /= (double)vcf_line_data.ac;
+        for(int i = 0; i < vcf_line_data.alt.size(); ++i) {
+            vcf_line_data.af[i] = (double)vcf_line_data.ao[i] / (double)vcf_line_data.dp;
+            vcf_line_data.mqm[i] /= (double)vcf_line_data.alt_ns[i];
+        }
+        vcf_writer.writeSampleData(vcf_line_data, vcf_variants);
     }
 
     ofs.close();
     ofs2.close();
+    vcf.close();
     delete job_dispatcher;
     delete concurrent_q;
     delete output_buffer_dispatcher;
