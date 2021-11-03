@@ -3,7 +3,7 @@
 #include <cassert>
 
 
-VcfWriter::VcfWriter(std::ofstream &ofs) : _ofs(ofs)
+VcfWriter::VcfWriter(std::ofstream &ofs) : _ofs(std::move(ofs))
 {
     if(!_ofs.good()) {
         std::cerr << "ERROR: VCF ofstream handle broken." << std::endl;
@@ -19,7 +19,7 @@ void VcfWriter::writeHeaders(const std::string &reference_path,
 {
     auto now = Clock::now();
     std::time_t now_c = Clock::to_time_t(now);
-    struct tm &parts = std::localtime(&now_c);
+    struct tm *parts = std::localtime(&now_c);
     std::string time_string = "";
     time_string += std::to_string(1900 + parts->tm_year) + std::to_string(1 + parts->tm_mon);
     if(parts->tm_mday < 10) {
@@ -79,7 +79,7 @@ void VcfWriter::writeSampleData(const vcfLineData &vcf_line_data,
 {
     _ofs << vcf_line_data.chrom;
     _ofs << '\t' << vcf_line_data.ref;
-    _ofs << '\t' << std::to_string(pos);
+    _ofs << '\t' << std::to_string(vcf_line_data.pos);
     _ofs << "\t.\t" << vcf_line_data.ref;
     _ofs << '\t' << vcf_line_data.alt[0];
     for(int i = 1; i < vcf_line_data.alt.size(); ++i) {
@@ -92,8 +92,8 @@ void VcfWriter::writeSampleData(const vcfLineData &vcf_line_data,
     }
     _ofs << ';';
     _ofs << "AO=" << std::to_string(vcf_line_data.alt[0]);
-    for(int i = 1; i < vcf_line_data.alt.size(); ++i) {
-        _ofs << ',' << std::to_string(vcf_line_data.alt[i]);
+    for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
+        _ofs << ',' << std::to_string(vcf_line_data.ao[i]);
     }
     _ofs << ';';
     _ofs << "CIGAR=1X;";

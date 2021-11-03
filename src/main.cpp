@@ -55,12 +55,18 @@ int main(int argc, const char *argv[]) {
     std::ofstream ofs2(args.output_dir + "/dominant_population_variants.tsv");
     std::ofstream vcf(args.output_dir + "/dominant_population_variants.vcf");
 
+    std::vector< std::string > ordered_sample_names;
+    for(auto &x : concurrent_q->all_nucleotide_counts) {
+        ordered_sample_names.push_back(x.first);
+    }
+    std::sort(ordered_sample_names.begin(), ordered_sample_names.end());
+
     // VCF Writer
     std::string command_string = "simple_snp " + args.sam_file_dir + " " + args.output_dir + " " + args.reference_path;
     command_string += " -t " + std::to_string(args.threads) + " -a " + std::to_string(args.min_intra_sample_alt);
-    command_string += " -A " << std::to_string(args.min_inter_sample_alt) + " -d " + std::to_string(args.min_intra_sample_depth);
-    command_string += " -D " << std::to_string(args.min_inter_sample_depth) + " -f " + std::to_string(args.min_minor_freq);
-    command_string += " -F " << std::to_string(args.min_major_freq);
+    command_string += " -A " + std::to_string(args.min_inter_sample_alt) + " -d " + std::to_string(args.min_intra_sample_depth);
+    command_string += " -D " + std::to_string(args.min_inter_sample_depth) + " -f " + std::to_string(args.min_minor_freq);
+    command_string += " -F " + std::to_string(args.min_major_freq);
     std::vector< std::string > contig_names = {fasta_parser.header};
     std::vector< long > contig_lens = {(long)fasta_parser.seq.size()};
     VcfWriter vcf_writer(vcf);
@@ -69,12 +75,6 @@ int main(int argc, const char *argv[]) {
                             contig_names,
                             contig_lens);
     vcf_writer.writeSamples(ordered_sample_names);
-
-    std::vector< std::string > ordered_sample_names;
-    for(auto &x : concurrent_q->all_nucleotide_counts) {
-        ordered_sample_names.push_back(x.first);
-    }
-    std::sort(ordered_sample_names.begin(), ordered_sample_names.end());
 
     ofs << "Position";
     ofs2 << "Position";
@@ -161,7 +161,7 @@ int main(int argc, const char *argv[]) {
             continue;
         }
 
-        vcf_line_data.chom = fasta_parser.header;
+        vcf_line_data.chrom = fasta_parser.header;
         vcf_line_data.ref = fasta_parser.seq[j];
         vcf_line_data.pos = j+1;
         vcf_line_data.qual = 0;
@@ -192,7 +192,7 @@ int main(int argc, const char *argv[]) {
                 std::string low_depth_info = "./.:" + std::to_string(sample_depth) + ":.:.:.";
                 positional_variants.insert({x.first, low_depth_info});
                 // GT:DP:AD:RO:QR:AO:QA:GL
-                std::string low_vcf_info = "./.:" << std::to_string(sample_depth) + ":.:.:.:.:.:.";
+                std::string low_vcf_info = "./.:" + std::to_string(sample_depth) + ":.:.:.:.:.:.";
                 vcf_variants.insert({x.first, low_vcf_info});
                 continue;
             }
@@ -372,7 +372,7 @@ int main(int argc, const char *argv[]) {
             else {
                 std::string low_depth_info = "./.:" + std::to_string(sample_depth) + ":.:.:.";
                 positional_variants.insert({x.first, low_depth_info});
-                std::string low_vcf_info = "./.:" << std::to_string(sample_depth) + ":.:.:.:.:.:.";
+                std::string low_vcf_info = "./.:" + std::to_string(sample_depth) + ":.:.:.:.:.:.";
                 vcf_variants.insert({x.first, low_vcf_info});
                 continue;
             }
