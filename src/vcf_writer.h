@@ -27,6 +27,7 @@ struct vcfLineData {
     std::vector< int > ao;
     int ao_sum;
     std::vector< double > mqm;
+    std::vector< double > gq;
     double mqmr;
     std::vector< std::string > type;
     std::vector< std::string > cigar;

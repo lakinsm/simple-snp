@@ -321,7 +321,7 @@ int main(int argc, const char *argv[]) {
                 final_var_info += qr;
 
                 final_vcf_info += ro + ',' + ao1 + ',' + ao2 + ":" + ro + ":" + qr + ":" + ao1 + ',' + ao2 + ":";
-                final_vcf_info += qa1 + ',' + qa2 + ":" + "1";
+                final_vcf_info += qa1 + ',' + qa2;
             }
             else if(q.size() == 1) {
                 std::pair< double, std::string > top_var_info = q.top();
@@ -351,7 +351,7 @@ int main(int argc, const char *argv[]) {
                 }
 
                 final_vcf_info += ro + ',' + ao + ',' + ao + ":" + ro + ":" + qr + ":" + ao + ',' + ao + ":";
-                final_vcf_info += qa + ',' + qa + ":" + "1";
+                final_vcf_info += qa + ',' + qa;
 
                 vcf_line_data.ns++;
                 if(gt != "0") {
