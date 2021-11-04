@@ -269,7 +269,7 @@ int main(int argc, const char *argv[]) {
             std::string final_var_info = "";
             std::string final_vcf_info = "";
             if(q.size() == 2) {
-                std::cout << "\tq2" << std::endl;
+                std::cout << "\tq2" << std::flush;
                 std::pair< double, std::string > top_var_info1 = q.top();
                 q.pop();
                 std::pair< double, std::string > top_var_info2 = q.top();
@@ -340,6 +340,8 @@ int main(int argc, const char *argv[]) {
 
                 int gt1_idx = std::stoi(gt1.c_str()) - 1;
                 int gt2_idx = std::stoi(gt2.c_str()) - 1;
+
+                std::cout << '\t' << vcf_line_data.ao.size() << '\t' << gt1_idx << "/" << gt2_idx << std::endl;
 
                 sample_vcf_ao[gt1_idx] = std::stoi(ao1.c_str());
                 sample_vcf_ao[gt2_idx] = std::stoi(ao2.c_str());
