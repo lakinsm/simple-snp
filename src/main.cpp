@@ -143,7 +143,7 @@ int main(int argc, const char *argv[]) {
                 double this_allele_freq = (double)x.second[i][j] / (double)sample_depth;
                 if((this_allele_freq >= args.min_minor_freq) && (x.second[i][j] >= args.min_intra_sample_alt) && (sample_depth > args.min_intra_sample_depth)) {
                     if(this_nucleotides[i] != fasta_parser.seq[j]) {
-                        if(alts_present_at_pos.find(this_nucleotides[i] == std::string::npos)) {
+                        if(alts_present_at_pos.find(this_nucleotides[i]) == std::string::npos) {
                             alts_present_at_pos += this_nucleotides[i];
                         }
                         position_has_variant = true;
