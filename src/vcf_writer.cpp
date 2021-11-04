@@ -75,7 +75,6 @@ void VcfWriter::writeSampleData(const vcfLineData &vcf_line_data,
                                 const std::map< std::string, std::string > &vcf_variants)
 {
     _ofs << vcf_line_data.chrom;
-    _ofs << '\t' << vcf_line_data.ref;
     _ofs << '\t' << std::to_string(vcf_line_data.pos);
     _ofs << "\t.\t" << vcf_line_data.ref;
     _ofs << '\t' << vcf_line_data.alt[0];

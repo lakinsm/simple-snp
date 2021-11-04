@@ -282,10 +282,10 @@ int main(int argc, const char *argv[]) {
                 final_var_info += ao1 + "," + ao2 + ":";
 
                 if(gt1 != "0") {
-                    vcf_line_data.alt[std::stoi(gt1.c_str()) - 1] += std::stoi(ao1.c_str());
+                    vcf_line_data.ao[std::stoi(gt1.c_str()) - 1] += std::stoi(ao1.c_str());
                 }
                 if(gt2 != "0") {
-                    vcf_line_data.alt[std::stoi(gt2.c_str()) - 1] += std::stoi(ao2.c_str());
+                    vcf_line_data.ao[std::stoi(gt2.c_str()) - 1] += std::stoi(ao2.c_str());
                 }
 
                 // Mean quality score
@@ -361,7 +361,7 @@ int main(int argc, const char *argv[]) {
                     vcf_line_data.ns++;
                 }
                 if(gt != "0") {
-                    vcf_line_data.alt[std::stoi(gt.c_str()) - 1] += std::stoi(ao.c_str());
+                    vcf_line_data.ao[std::stoi(gt.c_str()) - 1] += std::stoi(ao.c_str());
                 }
                 if(gt != "0") {
                     vcf_line_data.qual += 2 * std::stod(qa.c_str());
