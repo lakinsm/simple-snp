@@ -327,8 +327,8 @@ int main(int argc, const char *argv[]) {
                 std::vector< int > sample_vcf_ao(vcf_line_data.ao.size(), 0);
                 std::vector< double > sample_vcf_qa(vcf_line_data.ao.size(), 0);
 
-                gt1_idx = std::stoi(gt1.c_str()) - 1;
-                gt2_idx = std::stoi(gt2.c_str()) - 1;
+                int gt1_idx = std::stoi(gt1.c_str()) - 1;
+                int gt2_idx = std::stoi(gt2.c_str()) - 1;
 
                 sample_vcf_ao[gt1_idx] = std::stoi(ao1.c_str());
                 sample_vcf_ao[gt2_idx] = std::stoi(ao2.c_str());
@@ -374,7 +374,7 @@ int main(int argc, const char *argv[]) {
                 final_var_info += qr;
 
                 if(gt == "0") {
-                    std::size_t sample_nucl_idx;
+                    int sample_nucl_idx;
                     final_vcf_info += ro;
                     for(int i = 0; i < vcf_line_data.ao.size(); ++i) {
                         sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
