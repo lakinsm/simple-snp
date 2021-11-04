@@ -90,7 +90,7 @@ void VcfWriter::writeSampleData(const vcfLineData &vcf_line_data,
         _ofs << ',' << std::to_string(vcf_line_data.af[i]);
     }
     _ofs << ';';
-    _ofs << "AO=" << std::to_string(vcf_line_data.ao[0]) << ';';
+    _ofs << "AO=" << std::to_string(vcf_line_data.ao[0]);
     for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
         _ofs << ',' << std::to_string(vcf_line_data.ao[i]);
     }

@@ -5,6 +5,7 @@
 #include <map>
 #include <queue>
 #include <utility>
+#include <math.h>
 #include "args.h"
 #include "dispatch_queue.h"
 #include "concurrent_buffer_queue.h"
@@ -382,7 +383,7 @@ int main(int argc, const char *argv[]) {
             ofs2 << std::endl;
         }
 
-        vcf_line_data.qual /= (double)vcf_line_data.ao_sum;
+        vcf_line_data.qual = log((double)vcf_line_data.ao_sum) * (vcf_line_data.qual / (double)vcf_line_data.ao_sum);
         for(int i = 0; i < vcf_line_data.alt.size(); ++i) {
             vcf_line_data.af[i] = (double)vcf_line_data.ao[i] / (double)vcf_line_data.dp;
             vcf_line_data.mqm[i] /= (double)vcf_line_data.ao[i];
