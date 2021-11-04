@@ -44,12 +44,12 @@ void VcfWriter::writeHeaders(const std::string &reference_path,
     _ofs << "##INFO=<ID=MQM,Number=A,Type=Float,Description=\"Mean mapping quality of alternate alleles observed\">";
     _ofs << std::endl;
     _ofs << "##INFO=<ID=MQMR,Number=1,Type=Float,Description=\"Mean mapping quality of reference allele\">" << std::endl;
-    _ofs << "##INFO=<ID=TYPE,Number=A,Type=String,Description=\"Type of allele, either snp, mnp, ins, del, or copmlex\">";
+    _ofs << "##INFO=<ID=TYPE,Number=A,Type=String,Description=\"Type of allele, either snp, mnp, ins, del, or complex\">";
     _ofs << std::endl;
     _ofs << "##INFO=<ID=CIGAR,Number=A,Type=String,Description=\"The extended CIGAR representation of each ";
     _ofs << "alternate allele\">" << std::endl;
     _ofs << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\"" << std::endl;
-    _ofs << "##FORMAT=<ID=GQ,Number=A,Type=Float,Description=\"Genotype quality (avgerage PHRED score of alleles observed)\"";
+    _ofs << "##FORMAT=<ID=GQ,Number=A,Type=Float,Description=\"Genotype quality (average PHRED score of alleles observed)\"";
     _ofs << std::endl;
     _ofs << "##FORMAT=<ID=DP,Number=1,Type=Integer,Description=\"Read depth\"" << std::endl;
     _ofs << "##FORMAT=<ID=AD,Number=R,Type=Integer,Description=\"Number of observation for each allele\"" << std::endl;
