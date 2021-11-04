@@ -36,6 +36,7 @@ void VcfWriter::writeHeaders(const std::string &reference_path,
     _ofs << "##phasing=none" << std::endl;
     _ofs << "##commandline=" << commandline << std::endl;
     _ofs << "##INFO=<ID=DP,Number=1,Type=Integer,Description=\"Total depth\">" << std::endl;
+    _ofs << "##INFO=<ID=AC,Number=1,Type=Integer,Description=\"Total number of alternate genotype alleles\">" << std::endl;
     _ofs << "##INFO=<ID=NS,Number=1,Type=Integer,Description=\"Number of samples with data\">" << std::endl;
     _ofs << "##INFO=<ID=NSA,Number=1,Type=Integer,Description=\"Number of samples with alternate alleles\">" << std::endl;
     _ofs << "##INFO=<ID=AF,Number=A,Type=Float,Description=\"Allele Frequency\">" << std::endl;
