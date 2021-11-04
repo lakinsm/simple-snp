@@ -208,15 +208,15 @@ int main(int argc, const char *argv[]) {
                 // GT:DP:AD:RO:QR:AO:QA
                 std::string low_vcf_info = "./.:" + std::to_string(sample_depth) + ":.";
                 for(int i = 0; i < alts_present_at_pos.size(); ++i) {
-                    low_vcf_info << ",.";
+                    low_vcf_info += ",.";
                 }
-                low_vcf_info << ":.:.";
+                low_vcf_info += ":.:.";
                 for(int i = 1; i < alts_present_at_pos.size(); ++i) {
-                    low_vcf_info << ",.";
+                    low_vcf_info += ",.";
                 }
-                low_vcf_info << ":.:.";
+                low_vcf_info += ":.:.";
                 for(int i = 1; i < alts_present_at_pos.size(); ++i) {
-                    low_vcf_info << ",.";
+                    low_vcf_info += ",.";
                 }
                 vcf_variants.insert({x.first, low_vcf_info});
                 continue;
@@ -451,15 +451,15 @@ int main(int argc, const char *argv[]) {
                 positional_variants.insert({x.first, low_depth_info});
                 std::string low_vcf_info = "./.:" + std::to_string(sample_depth) + ":.";
                 for(int i = 0; i < alts_present_at_pos.size(); ++i) {
-                    low_vcf_info << ",.";
+                    low_vcf_info += ",.";
                 }
-                low_vcf_info << ":.:.";
+                low_vcf_info += ":.:.";
                 for(int i = 1; i < alts_present_at_pos.size(); ++i) {
-                    low_vcf_info << ",.";
+                    low_vcf_info += ",.";
                 }
-                low_vcf_info << ":.:.";
+                low_vcf_info += ":.:.";
                 for(int i = 1; i < alts_present_at_pos.size(); ++i) {
-                    low_vcf_info << ",.";
+                    low_vcf_info += ",.";
                 }
                 vcf_variants.insert({x.first, low_vcf_info});
                 continue;
