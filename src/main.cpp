@@ -213,7 +213,7 @@ int main(int argc, const char *argv[]) {
                     if(this_nucleotides[i] == fasta_parser.seq[j]) {
                         // Reference allele
                         var_info = "0,";
-                        vcf_line_data.mqmr += ((double)concurrent_q->all_mapq_sums.at(x.first)[i][j] / (double)x.second[i][j]);
+                        vcf_line_data.mqmr += (double)concurrent_q->all_mapq_sums.at(x.first)[i][j];
                     }
                     else {
                         std::size_t found = alts_present_at_pos.find(this_nucleotides[i]);
@@ -402,6 +402,8 @@ int main(int argc, const char *argv[]) {
             vcf_line_data.af[i] = (double)vcf_line_data.ao[i] / (double)vcf_line_data.dp;
             vcf_line_data.mqm[i] /= (double)vcf_line_data.alt_ns[i];
         }
+        vcf_line_data.mqmr /= (double)vcf_line_data.ro;
+
         vcf_writer.writeSampleData(vcf_line_data, vcf_variants);
     }
 
