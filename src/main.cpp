@@ -324,7 +324,7 @@ int main(int argc, const char *argv[]) {
                 std::getline(ss1, qr, ',');
                 final_var_info += qr;
 
-                final_vcf_info += ro + ',' + ao1 + ',' + ao2 + ":" + ro + ":" + qr + ":" + ao1 + ',' + ao2 + ":";
+                final_vcf_info +=  ao1 + ',' + ao2 + ":" + ro + ":" + qr + ":" + ao1 + ',' + ao2 + ":";
                 final_vcf_info += qa1 + ',' + qa2;
             }
             else if(q.size() == 1) {
@@ -355,7 +355,7 @@ int main(int argc, const char *argv[]) {
                     final_vcf_info += ".:" + ro + ":" + qr + ":.:.";
                 }
                 else {
-                    final_vcf_info += ro + ',' + ao + ',' + ao + ":" + ro + ":" + qr + ":" + ao + ',' + ao + ":";
+                    final_vcf_info += ao + ',' + ao + ":" + ro + ":" + qr + ":" + ao + ',' + ao + ":";
                     final_vcf_info += qa + ',' + qa;
                 }
 

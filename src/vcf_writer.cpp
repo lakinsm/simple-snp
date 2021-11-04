@@ -50,7 +50,7 @@ void VcfWriter::writeHeaders(const std::string &reference_path,
     _ofs << "alternate allele\">" << std::endl;
     _ofs << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">" << std::endl;
     _ofs << "##FORMAT=<ID=DP,Number=1,Type=Integer,Description=\"Read depth\">" << std::endl;
-    _ofs << "##FORMAT=<ID=AD,Number=R,Type=Integer,Description=\"Number of observation for each allele\">" << std::endl;
+    _ofs << "##FORMAT=<ID=AD,Number=A,Type=Integer,Description=\"Number of observations for each alternate allele in genotype\">" << std::endl;
     _ofs << "##FORMAT=<ID=RO,Number=1,Type=Integer,Description=\"Reference allele observation count\">" << std::endl;
     _ofs << "##FORMAT=<ID=AO,Number=A,Type=Integer,Description=\"Alternate allele observation count\">" << std::endl;
     _ofs << "##FORMAT=<ID=QR,Number=1,Type=Float,Description=\"Mean PHRED score for reference alleles\">" << std::endl;
