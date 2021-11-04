@@ -83,7 +83,7 @@ void VcfWriter::writeSampleData(const vcfLineData &vcf_line_data,
         _ofs << ',' << vcf_line_data.alt[i];
     }
     _ofs << '\t' << std::to_string(vcf_line_data.qual);
-    _ofs << << "\t.\t" << "AC=" << std::to_string(vcf_line_data.ac) << ';';
+    _ofs << "\t.\t" << "AC=" << std::to_string(vcf_line_data.ac) << ';';
     _ofs << "AF=" << std::to_string(vcf_line_data.af[0]);
     for(int i = 1; i < vcf_line_data.af.size(); ++i) {
         _ofs << ',' << std::to_string(vcf_line_data.af[i]);
