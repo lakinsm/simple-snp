@@ -343,11 +343,11 @@ int main(int argc, const char *argv[]) {
 
 //                std::cout << '\t' << vcf_line_data.ao.size() << '\t' << gt1_idx << "/" << gt2_idx << std::endl;
 
-                if(gt1_idx > 0) {
+                if(gt1_idx >= 0) {
                     sample_vcf_ao[gt1_idx] = std::stoi(ao1.c_str());
                     sample_vcf_qa[gt1_idx] = std::stod(qa1.c_str());
                 }
-                if(gt2_idx > 0) {
+                if(gt2_idx >= 0) {
                     sample_vcf_ao[gt2_idx] = std::stoi(ao2.c_str());
                     sample_vcf_qa[gt2_idx] = std::stod(qa2.c_str());
                 }
