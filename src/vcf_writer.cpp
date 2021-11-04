@@ -36,7 +36,7 @@ void VcfWriter::writeHeaders(const std::string &reference_path,
     _ofs << "##phasing=none" << std::endl;
     _ofs << "##commandline=" << commandline << std::endl;
     _ofs << "##INFO=<ID=DP,Number=1,Type=Integer,Description=\"Total depth\">" << std::endl;
-    _ofs << "##INFO=<ID=AC,Number=1,Type=Integer,Description=\"Total number of alternate genotype alleles\">" << std::endl;
+    _ofs << "##INFO=<ID=AC,Number=A,Type=Integer,Description=\"Total number of alternate genotype alleles\">" << std::endl;
     _ofs << "##INFO=<ID=NS,Number=1,Type=Integer,Description=\"Number of samples with data\">" << std::endl;
     _ofs << "##INFO=<ID=NSA,Number=1,Type=Integer,Description=\"Number of samples with alternate alleles\">" << std::endl;
     _ofs << "##INFO=<ID=AF,Number=A,Type=Float,Description=\"Allele Frequency\">" << std::endl;
@@ -83,7 +83,11 @@ void VcfWriter::writeSampleData(const vcfLineData &vcf_line_data,
     }
     _ofs << '\t' << std::to_string(vcf_line_data.qual) << "\t.\t";
     _ofs << "NSA=" << std::to_string(vcf_line_data.nsa) << ';';
-    _ofs << "AC=" << std::to_string(vcf_line_data.ac) << ';';
+    _ofs << "AC=" << std::to_string(vcf_line_data.ac[0]);
+    for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
+        _ofs << ',' << std::to_string(vcf_line_data.ac[i]);
+    }
+    _ofs << ';';
     _ofs << "AF=" << std::to_string(vcf_line_data.af[0]);
     for(int i = 1; i < vcf_line_data.af.size(); ++i) {
         _ofs << ',' << std::to_string(vcf_line_data.af[i]);

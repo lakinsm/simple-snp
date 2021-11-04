@@ -172,7 +172,6 @@ int main(int argc, const char *argv[]) {
         vcf_line_data.ns = 0;
         vcf_line_data.ro = 0;
         vcf_line_data.mqmr = 0;
-        vcf_line_data.ac = 0;
         vcf_line_data.ao_sum = 0;
         vcf_line_data.nsa = 0;
         for(int i = 0; i < alts_present_at_pos.size(); ++i) {
@@ -184,6 +183,7 @@ int main(int argc, const char *argv[]) {
             vcf_line_data.ao.push_back(0);
             vcf_line_data.mqm.push_back(0);
             vcf_line_data.alt_ns.push_back(0);
+            vcf_line_data.ac.push_back(0);
         }
 
         // Third pass to assign variants
@@ -319,13 +319,6 @@ int main(int argc, const char *argv[]) {
                 std::getline(ss2, qa2, ',');
                 final_var_info += temp1 + "," + temp2 + ":";
 
-                if(gt1 != "0") {
-                    vcf_line_data.ac++;
-                }
-                if(gt2 != "0") {
-                    vcf_line_data.ac++;
-                }
-
                 // Mean mapq score
                 std::getline(ss1, temp1, ',');
                 std::getline(ss2, temp2, ',');
@@ -357,10 +350,12 @@ int main(int argc, const char *argv[]) {
                 if(gt1_idx >= 0) {
                     sample_vcf_ao[gt1_idx] = std::stoi(ao1.c_str());
                     sample_vcf_qa[gt1_idx] = std::stod(qa1.c_str());
+                    vcf_line_data.ac[gt1_idx]++;
                 }
                 if(gt2_idx >= 0) {
                     sample_vcf_ao[gt2_idx] = std::stoi(ao2.c_str());
                     sample_vcf_qa[gt2_idx] = std::stod(qa2.c_str());
+                    vcf_line_data.ac[gt2_idx]++;
                 }
 
                 final_vcf_info += ro;
@@ -442,7 +437,8 @@ int main(int argc, const char *argv[]) {
 
                 vcf_line_data.ns++;
                 if(gt != "0") {
-                    vcf_line_data.ac += 2;
+                    int gt_idx = std::stoi(gt.c_str()) - 1;
+                    vcf_line_data.ac[gt_idx] += 2;
                     vcf_line_data.nsa++;
                 }
             }

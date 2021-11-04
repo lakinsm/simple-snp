@@ -21,7 +21,7 @@ struct vcfLineData {
     int ns;
     int nsa;
     std::vector< int > alt_ns;
-    int ac;
+    std::Vector< int > ac;
     std::vector< double > af;
     int ro;
     std::vector< int > ao;
