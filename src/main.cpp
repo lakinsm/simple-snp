@@ -208,7 +208,7 @@ int main(int argc, const char *argv[]) {
             for(int i = 0; i < population_allele_counts.size(); ++i) {
                 double this_allele_freq = (double)x.second[i][j] / (double)sample_depth;
                 int ref_allele_count;
-                double ref_qual;
+                double ref_qual = 0;
                 if(this_nucleotides[i] == fasta_parser.seq[j]) {
                     ref_allele_count = x.second[i][j];
                     ref_qual += (double)concurrent_q->all_qual_sums.at(x.first)[i][j];
