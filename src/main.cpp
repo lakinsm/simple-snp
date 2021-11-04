@@ -388,11 +388,11 @@ int main(int argc, const char *argv[]) {
                         final_vcf_info += ',' + std::to_string(x.second[sample_nucl_idx][j]);
                     }
                     sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[0]);
-                    final_vcf_info += ":" + std::to_string((double)concurrent_q->all_qual_sums[sample_nucl_idx][j] /
+                    final_vcf_info += ":" + std::to_string((double)concurrent_q->all_qual_sums.at(x.first)[sample_nucl_idx][j] /
                             (double)x.second[sample_nucl_idx][j]);
                     for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
                         sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
-                        final_vcf_info += ',' + std::to_string((double)concurrent_q->all_qual_sums[sample_nucl_idx][j] /
+                        final_vcf_info += ',' + std::to_string((double)concurrent_q->all_qual_sums.at(x.first)[sample_nucl_idx][j] /
                                 (double)x.second[sample_nucl_idx][j]);
                     }
                 }
