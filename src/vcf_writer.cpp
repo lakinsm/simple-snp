@@ -26,7 +26,7 @@ void VcfWriter::writeHeaders(const std::string &reference_path,
         time_string += std::to_string(parts->tm_mday);
     }
 
-    _ofs << "##filterformat=VCFv4.2" << std::endl;
+    _ofs << "##fileformat=VCFv4.2" << std::endl;
     _ofs << "##fileDate=" << time_string << std::endl;
     _ofs << "##source=SimpleSNP v0.1" << std::endl;
     _ofs << "##reference=" << reference_path << std::endl;
