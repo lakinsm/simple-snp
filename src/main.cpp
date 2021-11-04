@@ -191,8 +191,15 @@ int main(int argc, const char *argv[]) {
         std::map< std::string, std::string > vcf_variants;
         for(auto &x : concurrent_q->all_nucleotide_counts) {
             long sample_depth = 0;
+            int ref_allele_count;
+            double ref_qual;
             for(int i = 0; i < population_allele_counts.size(); ++i) {
                 sample_depth += x.second[i][j];
+                if(this_nucleotides[i] == fasta_parser.seq[j]) {
+                    ref_allele_count = x.second[i][j];
+                    ref_qual = (double)concurrent_q->all_qual_sums.at(x.first)[i][j];
+                    vcf_line_data.mqmr += (double)concurrent_q->all_mapq_sums.at(x.first)[i][j];
+                }
             }
 
             if(sample_depth < args.min_intra_sample_depth) {
@@ -209,13 +216,6 @@ int main(int argc, const char *argv[]) {
             std::priority_queue< std::pair< double, std::string > > q;
             for(int i = 0; i < population_allele_counts.size(); ++i) {
                 double this_allele_freq = (double)x.second[i][j] / (double)sample_depth;
-                int ref_allele_count;
-                double ref_qual;
-                if(this_nucleotides[i] == fasta_parser.seq[j]) {
-                    ref_allele_count = x.second[i][j];
-                    ref_qual = (double)concurrent_q->all_qual_sums.at(x.first)[i][j];
-                    vcf_line_data.mqmr += (double)concurrent_q->all_mapq_sums.at(x.first)[i][j];
-                }
                 if((this_allele_freq >= args.min_minor_freq) && (x.second[i][j] >= args.min_intra_sample_alt)) {
                     std::string var_info;
                     if(this_nucleotides[i] == fasta_parser.seq[j]) {
@@ -341,7 +341,7 @@ int main(int argc, const char *argv[]) {
                 int gt1_idx = std::stoi(gt1.c_str()) - 1;
                 int gt2_idx = std::stoi(gt2.c_str()) - 1;
 
-                std::cout << '\t' << vcf_line_data.ao.size() << '\t' << gt1_idx << "/" << gt2_idx << std::endl;
+//                std::cout << '\t' << vcf_line_data.ao.size() << '\t' << gt1_idx << "/" << gt2_idx << std::endl;
 
                 if(gt1_idx > 0) {
                     sample_vcf_ao[gt1_idx] = std::stoi(ao1.c_str());
