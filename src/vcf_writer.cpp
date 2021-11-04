@@ -48,16 +48,16 @@ void VcfWriter::writeHeaders(const std::string &reference_path,
     _ofs << std::endl;
     _ofs << "##INFO=<ID=CIGAR,Number=A,Type=String,Description=\"The extended CIGAR representation of each ";
     _ofs << "alternate allele\">" << std::endl;
-    _ofs << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\"" << std::endl;
-    _ofs << "##FORMAT=<ID=GQ,Number=A,Type=Float,Description=\"Genotype quality (average PHRED score of alleles observed)\"";
+    _ofs << "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">" << std::endl;
+    _ofs << "##FORMAT=<ID=GQ,Number=A,Type=Float,Description=\"Genotype quality (average PHRED score of alleles observed)\">";
     _ofs << std::endl;
-    _ofs << "##FORMAT=<ID=DP,Number=1,Type=Integer,Description=\"Read depth\"" << std::endl;
-    _ofs << "##FORMAT=<ID=AD,Number=R,Type=Integer,Description=\"Number of observation for each allele\"" << std::endl;
-    _ofs << "##FORMAT=<ID=GL,Number=G,Type=Float,Description=\"Genotype likelihood\"" << std::endl;
-    _ofs << "##FORMAT=<ID=RO,Number=1,Type=Integer,Description=\"Reference allele observation count\"" << std::endl;
-    _ofs << "##FORMAT=<ID=AO,Number=A,Type=Integer,Description=\"Alternate allele observation count\"" << std::endl;
-    _ofs << "##FORMAT=<ID=QR,Number=1,Type=Float,Description=\"Sum of reference allele PHRED scores\"" << std::endl;
-    _ofs << "##FORMAT=<ID=QA,Number=A,Type=Float,Description=\"Sum of alternate allele PHRED scores\"" << std::endl;
+    _ofs << "##FORMAT=<ID=DP,Number=1,Type=Integer,Description=\"Read depth\">" << std::endl;
+    _ofs << "##FORMAT=<ID=AD,Number=R,Type=Integer,Description=\"Number of observation for each allele\">" << std::endl;
+    _ofs << "##FORMAT=<ID=GL,Number=G,Type=Float,Description=\"Genotype likelihood\">" << std::endl;
+    _ofs << "##FORMAT=<ID=RO,Number=1,Type=Integer,Description=\"Reference allele observation count\">" << std::endl;
+    _ofs << "##FORMAT=<ID=AO,Number=A,Type=Integer,Description=\"Alternate allele observation count\">" << std::endl;
+    _ofs << "##FORMAT=<ID=QR,Number=1,Type=Float,Description=\"Sum of reference allele PHRED scores\">" << std::endl;
+    _ofs << "##FORMAT=<ID=QA,Number=A,Type=Float,Description=\"Sum of alternate allele PHRED scores\">" << std::endl;
 }
 
 

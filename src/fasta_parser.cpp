@@ -29,7 +29,7 @@ void FastaParser::parseFasta()
         std::exit(EXIT_FAILURE);
     }
 
-    header = temp_line.substr(1, temp_line.find(' '));
+    header = temp_line.substr(1, temp_line.find(' ') - 1);
     std::getline(ifs, temp_line);
     while((!ifs.eof()) && (temp_line[0] != '>')) {
         seq += temp_line;
