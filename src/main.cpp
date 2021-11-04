@@ -204,7 +204,7 @@ int main(int argc, const char *argv[]) {
                 continue;
             }
 
-            std::cout << '\t' << x.first << '\t' << j+1 << std::flush;
+//            std::cout << '\t' << x.first << '\t' << j+1 << std::flush;
 
             std::priority_queue< std::pair< double, std::string > > q;
             for(int i = 0; i < population_allele_counts.size(); ++i) {
@@ -253,7 +253,7 @@ int main(int argc, const char *argv[]) {
                 }
             }
 
-            std::cout << "\tCheck1" << std::flush;
+//            std::cout << "\tCheck1" << std::flush;
 
             if(q.size() > 2) {
                 std::cerr << "Tri-allelic site detected at sample:position, " << x.first << ":" << (j+1) << std::endl;
@@ -269,7 +269,7 @@ int main(int argc, const char *argv[]) {
             std::string final_var_info = "";
             std::string final_vcf_info = "";
             if(q.size() == 2) {
-                std::cout << "\tq2" << std::flush;
+//                std::cout << "\tq2" << std::flush;
                 std::pair< double, std::string > top_var_info1 = q.top();
                 q.pop();
                 std::pair< double, std::string > top_var_info2 = q.top();
@@ -343,11 +343,14 @@ int main(int argc, const char *argv[]) {
 
                 std::cout << '\t' << vcf_line_data.ao.size() << '\t' << gt1_idx << "/" << gt2_idx << std::endl;
 
-                sample_vcf_ao[gt1_idx] = std::stoi(ao1.c_str());
-                sample_vcf_ao[gt2_idx] = std::stoi(ao2.c_str());
-
-                sample_vcf_qa[gt1_idx] = std::stod(qa1.c_str());
-                sample_vcf_qa[gt2_idx] = std::stod(qa2.c_str());
+                if(gt1_idx > 0) {
+                    sample_vcf_ao[gt1_idx] = std::stoi(ao1.c_str());
+                    sample_vcf_qa[gt1_idx] = std::stod(qa1.c_str());
+                }
+                if(gt2_idx > 0) {
+                    sample_vcf_ao[gt2_idx] = std::stoi(ao2.c_str());
+                    sample_vcf_qa[gt2_idx] = std::stod(qa2.c_str());
+                }
 
                 final_vcf_info += ro;
                 for(int i = 0; i < sample_vcf_ao.size(); ++i) {
@@ -365,7 +368,7 @@ int main(int argc, const char *argv[]) {
                 }
             }
             else if(q.size() == 1) {
-                std::cout << "\tq1" << std::endl;
+//                std::cout << "\tq1" << std::endl;
                 std::pair< double, std::string > top_var_info = q.top();
                 std::stringstream ss;
                 ss.str(top_var_info.second);
