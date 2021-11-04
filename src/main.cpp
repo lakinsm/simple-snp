@@ -172,6 +172,8 @@ int main(int argc, const char *argv[]) {
         vcf_line_data.ro = 0;
         vcf_line_data.mqmr = 0;
         vcf_line_data.ac = 0;
+        vcf_line_data.ao_sum = 0;
+        vcf_line_data.nsa = 0;
         for(int i = 0; i < alts_present_at_pos.size(); ++i) {
             vcf_line_data.type.push_back("snp");
             vcf_line_data.cigar.push_back("1X");
@@ -207,18 +209,22 @@ int main(int argc, const char *argv[]) {
                 int ref_allele_count;
                 if(this_nucleotides[i] == fasta_parser.seq[j]) {
                     ref_allele_count = x.second[i][j];
+                    vcf_line_data.mqmr += (double)concurrent_q->all_mapq_sums.at(x.first)[i][j];
                 }
                 if((this_allele_freq >= args.min_minor_freq) && (x.second[i][j] >= args.min_intra_sample_alt)) {
                     std::string var_info;
                     if(this_nucleotides[i] == fasta_parser.seq[j]) {
                         // Reference allele
                         var_info = "0,";
-                        vcf_line_data.mqmr += (double)concurrent_q->all_mapq_sums.at(x.first)[i][j];
                     }
                     else {
                         std::size_t found = alts_present_at_pos.find(this_nucleotides[i]);
                         var_info = std::to_string(found + 1);
                         var_info += ",";
+                        vcf_line_data.mqm[found] += (double)concurrent_q->all_mapq_sums.at(x.first)[i][j];
+                        vcf_line_data.ao[found] += x.second[i][j];
+                        vcf_line_data.ao_sum += x.second[i][j];
+                        vcf_line_data.qual += (double)concurrent_q->all_qual_sums.at(x.first)[i][j];
                     }
 
                     var_info += std::to_string(x.second[i][j]);
@@ -267,12 +273,10 @@ int main(int argc, const char *argv[]) {
                 final_var_info += gt1 + "/" + gt2 + ":";
                 final_vcf_info += gt1 + "/" + gt2 + ":";
 
-                if(gt1 != "0") {
-                    vcf_line_data.ns++;
+                if((gt1 != "0") or (gt2 != "0")) {
+                    vcf_line_data.nsa++;
                 }
-                else if(gt2 != "0") {
-                    vcf_line_data.ns++;
-                }
+                vcf_line_data.ns++;
 
                 // Depth
                 final_var_info += std::to_string(sample_depth) + ":";
@@ -283,24 +287,15 @@ int main(int argc, const char *argv[]) {
                 std::getline(ss2, ao2, ',');
                 final_var_info += ao1 + "," + ao2 + ":";
 
-                if(gt1 != "0") {
-                    vcf_line_data.ao[std::stoi(gt1.c_str()) - 1] += std::stoi(ao1.c_str());
-                }
-                if(gt2 != "0") {
-                    vcf_line_data.ao[std::stoi(gt2.c_str()) - 1] += std::stoi(ao2.c_str());
-                }
-
                 // Mean quality score
                 std::getline(ss1, qa1, ',');
                 std::getline(ss2, qa2, ',');
                 final_var_info += temp1 + "," + temp2 + ":";
 
                 if(gt1 != "0") {
-                    vcf_line_data.qual += std::stod(qa1.c_str());
                     vcf_line_data.ac++;
                 }
                 if(gt2 != "0") {
-                    vcf_line_data.qual += std::stod(qa2.c_str());
                     vcf_line_data.ac++;
                 }
 
@@ -310,11 +305,9 @@ int main(int argc, const char *argv[]) {
                 final_var_info += temp1 + "," + temp2 + ":";
 
                 if(gt1 != "0") {
-                    vcf_line_data.mqm[std::stoi(gt1.c_str()) - 1] += std::stod(temp1.c_str());
                     vcf_line_data.alt_ns[std::stoi(gt1.c_str()) - 1] += 1;
                 }
                 if(gt2 != "0") {
-                    vcf_line_data.mqm[std::stoi(gt2.c_str()) - 1] += std::stod(temp2.c_str());
                     vcf_line_data.alt_ns[std::stoi(gt2.c_str()) - 1] += 1;
                 }
 
@@ -359,18 +352,10 @@ int main(int argc, const char *argv[]) {
                 final_vcf_info += ro + ',' + ao + ',' + ao + ":" + ro + ":" + qr + ":" + ao + ',' + ao + ":";
                 final_vcf_info += qa + ',' + qa + ":" + "1";
 
+                vcf_line_data.ns++;
                 if(gt != "0") {
-                    vcf_line_data.ns++;
-                }
-                if(gt != "0") {
-                    vcf_line_data.ao[std::stoi(gt.c_str()) - 1] += std::stoi(ao.c_str());
-                }
-                if(gt != "0") {
-                    vcf_line_data.qual += 2 * std::stod(qa.c_str());
                     vcf_line_data.ac += 2;
-                }
-                if(gt != "0") {
-                    vcf_line_data.mqm[std::stoi(gt.c_str()) - 1] += std::stod(temp.c_str());
+                    vcf_line_data.nsa++;
                 }
             }
             else {
@@ -397,10 +382,10 @@ int main(int argc, const char *argv[]) {
             ofs2 << std::endl;
         }
 
-        vcf_line_data.qual /= (double)vcf_line_data.ac;
+        vcf_line_data.qual /= (double)vcf_line_data.ao_sum;
         for(int i = 0; i < vcf_line_data.alt.size(); ++i) {
             vcf_line_data.af[i] = (double)vcf_line_data.ao[i] / (double)vcf_line_data.dp;
-            vcf_line_data.mqm[i] /= (double)vcf_line_data.alt_ns[i];
+            vcf_line_data.mqm[i] /= (double)vcf_line_data.ao[i];
         }
         vcf_line_data.mqmr /= (double)vcf_line_data.ro;
 

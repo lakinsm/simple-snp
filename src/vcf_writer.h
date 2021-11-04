@@ -19,11 +19,13 @@ struct vcfLineData {
     double qual;
     int dp;
     int ns;
+    int nsa;
     std::vector< int > alt_ns;
     int ac;
     std::vector< double > af;
     int ro;
     std::vector< int > ao;
+    int ao_sum;
     std::vector< double > mqm;
     double mqmr;
     std::vector< std::string > type;
