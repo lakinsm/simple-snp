@@ -90,12 +90,12 @@ void VcfWriter::writeSampleData(const vcfLineData &vcf_line_data,
         _ofs << ',' << std::to_string(vcf_line_data.af[i]);
     }
     _ofs << ';';
-    _ofs << "AO=" << std::to_string(vcf_line_data.ao[0]);
-    _ofs << "RO=" << std::to_string(vcf_line_data.ro) << ';';
+    _ofs << "AO=" << std::to_string(vcf_line_data.ao[0]) << ';';
     for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
         _ofs << ',' << std::to_string(vcf_line_data.ao[i]);
     }
     _ofs << ';';
+    _ofs << "RO=" << std::to_string(vcf_line_data.ro) << ';';
     _ofs << "CIGAR=1X;";
     _ofs << "DP=" << std::to_string(vcf_line_data.dp) << ';';
     _ofs << "MQM=" << std::to_string(vcf_line_data.mqm[0]);
