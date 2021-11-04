@@ -198,7 +198,7 @@ int main(int argc, const char *argv[]) {
             if(sample_depth < args.min_intra_sample_depth) {
                 std::string low_depth_info = "./.:" + std::to_string(sample_depth) + ":.:.:.";
                 positional_variants.insert({x.first, low_depth_info});
-                // GT:DP:AD:RO:QR:AO:QA:GL
+                // GT:DP:AD:RO:QR:AO:QA
                 std::string low_vcf_info = "./.:" + std::to_string(sample_depth) + ":.:.:.:.:.";
                 vcf_variants.insert({x.first, low_vcf_info});
                 continue;
@@ -324,8 +324,32 @@ int main(int argc, const char *argv[]) {
                 std::getline(ss1, qr, ',');
                 final_var_info += qr;
 
-                final_vcf_info +=  ao1 + ',' + ao2 + ":" + ro + ":" + qr + ":" + ao1 + ',' + ao2 + ":";
-                final_vcf_info += qa1 + ',' + qa2;
+                std::vector< int > sample_vcf_ao(vcf_line_data.ao.size(), 0);
+                std::vector< double > sample_vcf_qa(vcf_line_data.ao.size(), 0);
+
+                gt1_idx = std::stoi(gt1.c_str()) - 1;
+                gt2_idx = std::stoi(gt2.c_str()) - 1;
+
+                sample_vcf_ao[gt1_idx] = std::stoi(ao1.c_str());
+                sample_vcf_ao[gt2_idx] = std::stoi(ao2.c_str());
+
+                sample_vcf_qa[gt1_idx] = std::stod(qa1.c_str());
+                sample_vcf_qa[gt2_idx] = std::stod(qa2.c_str());
+
+                final_vcf_info += ro;
+                for(int i = 0; i < sample_vcf_ao.size(); ++i) {
+                    final_vcf_info += ',' + std::to_string(sample_vcf_ao[i]);
+                }
+
+                final_vcf_info +=  ":" + ro + ":" + qr + ":";
+                final_vcf_info += std::to_string(sample_vcf_ao[0]);
+                for(int i = 1; i < sample_vcf_ao.size(); ++i) {
+                    final_vcf_info += ',' + std::to_string(sample_vcf_ao[i]);
+                }
+                final_vcf_info += ":" + std::to_string(sample_vcf_qa[0]);
+                for(int i = 1; i < sample_vcf_qa.size(); ++i) {
+                    final_vcf_info += ',' + std::to_string(sample_vcf_qa[i]);
+                }
             }
             else if(q.size() == 1) {
                 std::pair< double, std::string > top_var_info = q.top();
@@ -350,13 +374,31 @@ int main(int argc, const char *argv[]) {
                 final_var_info += qr;
 
                 if(gt == "0") {
-                    ao = ".";
-                    qa = ".";
-                    final_vcf_info += ".:" + ro + ":" + qr + ":.:.";
+                    std::size_t sample_nucl_idx;
+                    final_vcf_info += ro;
+                    for(int i = 0; i < vcf_line_data.ao.size(); ++i) {
+                        sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
+                        final_vcf_info += ',' + std::to_string(x.second[sample_nucl_idx][j]);
+                    }
+                    final_vcf_info += ":" + ro + ":" + qr + ":";
+                    sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[0]);
+                    final_vcf_info += std::to_string(x.second[sample_nucl_idx][j]);
+                    for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
+                        sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
+                        final_vcf_info += ',' + std::to_string(x.second[sample_nucl_idx][j]);
+                    }
+                    sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[0]);
+                    final_vcf_info += ":" + std::to_string((double)concurrent_q->all_qual_sums[sample_nucl_idx][j] /
+                            (double)x.second[sample_nucl_idx][j]);
+                    for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
+                        sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
+                        final_vcf_info += ',' + std::to_string((double)concurrent_q->all_qual_sums[sample_nucl_idx][j] /
+                                (double)x.second[sample_nucl_idx][j]);
+                    }
                 }
                 else {
-                    final_vcf_info += ao + ',' + ao + ":" + ro + ":" + qr + ":" + ao + ',' + ao + ":";
-                    final_vcf_info += qa + ',' + qa;
+                    final_vcf_info += ro + ',' + ao + ":" + ro + ":" + qr + ":" + ao + ":";
+                    final_vcf_info += qa;
                 }
 
                 vcf_line_data.ns++;
