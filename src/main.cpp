@@ -348,10 +348,12 @@ int main(int argc, const char *argv[]) {
                 if(gt == "0") {
                     ao = ".";
                     qa = ".";
+                    final_vcf_info += ".:" + ro + ":" + qr + ":.:.";
                 }
-
-                final_vcf_info += ro + ',' + ao + ',' + ao + ":" + ro + ":" + qr + ":" + ao + ',' + ao + ":";
-                final_vcf_info += qa + ',' + qa;
+                else {
+                    final_vcf_info += ro + ',' + ao + ',' + ao + ":" + ro + ":" + qr + ":" + ao + ',' + ao + ":";
+                    final_vcf_info += qa + ',' + qa;
+                }
 
                 vcf_line_data.ns++;
                 if(gt != "0") {
