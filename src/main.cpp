@@ -208,8 +208,10 @@ int main(int argc, const char *argv[]) {
             for(int i = 0; i < population_allele_counts.size(); ++i) {
                 double this_allele_freq = (double)x.second[i][j] / (double)sample_depth;
                 int ref_allele_count;
+                double ref_qual;
                 if(this_nucleotides[i] == fasta_parser.seq[j]) {
                     ref_allele_count = x.second[i][j];
+                    ref_qual += (double)concurrent_q->all_qual_sums.at(x.first)[i][j];
                     vcf_line_data.mqmr += (double)concurrent_q->all_mapq_sums.at(x.first)[i][j];
                 }
                 if((this_allele_freq >= args.min_minor_freq) && (x.second[i][j] >= args.min_intra_sample_alt)) {
@@ -235,6 +237,8 @@ int main(int argc, const char *argv[]) {
                     var_info += std::to_string((double)concurrent_q->all_mapq_sums.at(x.first)[i][j] / (double)x.second[i][j]);
                     var_info += ",";
                     var_info += std::to_string(ref_allele_count);
+                    var_info += ",";
+                    var_info += std::to_string(ref_qual / (double)ref_allele_count);
                     q.emplace(this_allele_freq, var_info);
 
                     vcf_line_data.ro += ref_allele_count;
