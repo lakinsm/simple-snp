@@ -82,14 +82,16 @@ void VcfWriter::writeSampleData(const vcfLineData &vcf_line_data,
     for(int i = 1; i < vcf_line_data.alt.size(); ++i) {
         _ofs << ',' << vcf_line_data.alt[i];
     }
-    _ofs << '\t' << std::to_string(vcf_line_data.qual);
-    _ofs << "\t.\t" << "AC=" << std::to_string(vcf_line_data.ac) << ';';
+    _ofs << '\t' << std::to_string(vcf_line_data.qual) << "\t.\t";
+    _ofs << "NSA=" << std::to_string(vcf_line_data.nsa) << ';';
+    _ofs << "AC=" << std::to_string(vcf_line_data.ac) << ';';
     _ofs << "AF=" << std::to_string(vcf_line_data.af[0]);
     for(int i = 1; i < vcf_line_data.af.size(); ++i) {
         _ofs << ',' << std::to_string(vcf_line_data.af[i]);
     }
     _ofs << ';';
     _ofs << "AO=" << std::to_string(vcf_line_data.ao[0]);
+    _ofs << "RO=" << std::to_string(vcf_line_data.ro) << ';';
     for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
         _ofs << ',' << std::to_string(vcf_line_data.ao[i]);
     }
@@ -103,8 +105,6 @@ void VcfWriter::writeSampleData(const vcfLineData &vcf_line_data,
     _ofs << ';';
     _ofs << "MQMR=" << std::to_string(vcf_line_data.mqmr) << ';';
     _ofs << "NS=" << std::to_string(_sample_order.size()) << ';';
-    _ofs << "NSA=" << std::to_string(vcf_line_data.nsa) << ';';
-    _ofs << "RO=" << std::to_string(vcf_line_data.ro) << ';';
     _ofs << "TYPE=snp\t";
     _ofs << "GT:DP:AD:RO:QR:AO:QA:GL";
     for(int i = 0; i < _sample_order.size(); ++i) {
