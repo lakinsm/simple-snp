@@ -20,7 +20,7 @@ void ConcurrentBufferQueue::run()
 {
     std::string output_line, data_line, barcode;
     std::stringstream ss;
-    while((!all_jobs_enqueued) && (!all_jobs_consumed)) {}
+    while((!all_jobs_enqueued) || (!all_jobs_consumed)) {}
 
     work_completed = true;
 }

@@ -44,9 +44,10 @@ int main(int argc, const char *argv[]) {
         job_dispatcher->dispatch(std::move(job));
         concurrent_q->num_active_jobs += 1;
     }
+    concurrent_q->all_jobs_enqueued = true;
 
     while(concurrent_q->num_completed_jobs != sam_files.size()) {}
-    concurrent_q->all_jobs_enqueued = true;
+    concurrent_q->all_jobs_consumed = true;
 
     while(!concurrent_q->work_completed) {}
 
