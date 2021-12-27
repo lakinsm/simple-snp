@@ -42,17 +42,22 @@ Args::Args(int argc, const char *argv[])
         else if(arg_list[i] == "-t")
             threads = std::stoi(arg_list[++i].c_str());
         else if(arg_list[i] == "-n") {
-            db_ann_file = _findFullDirPath(arg_list[++i]);
-            std::size_t start_pos = db_ann_file.find(".ann");
-            if(start_pos == std::string::npos) {
-                std::cerr << "ERROR: Database annotation file (-n) must have .ann extension, provided: ";
-                std::cerr << db_ann_file << std::endl;
-                exit(EXIT_FAILURE);
+            std::size_t start_pos = reference_path.find_last_of(".");
+            std::string ref_prefix = reference_path;
+            ref_prefix.erase(start_pos);
+            db_ann_file = _findFullDirPath(ref_prefix + ".ann");
+            if(!std::filesystem::exists(db_ann_file)) {
+                std::cerr << "ERROR: -n flag provided but <reference_db>.ann does not exist (see documentation)";
+                std::cerr << ", provided: " << db_ann_file;
+                std::cerr << std::endl;
+                std::exit(EXIT_FAILURE);
             }
-            db_names_file = db_ann_file;
-            db_names_file.replace(start_pos, 4, ".names");
+            db_names_file = ref_prefix + ".names";
             if(!std::filesystem::exists(db_names_file)) {
                 db_names_file = "";
+            }
+            else {
+                db_names_file = _findFullDirPath(db_names_file);
             }
         }
         else {
