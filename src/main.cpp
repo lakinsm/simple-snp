@@ -321,8 +321,8 @@ int main(int argc, const char *argv[]) {
             std::map< std::string, std::string > vcf_variants;
             for(auto &[sample, ref_map] : concurrent_q->all_nucleotide_counts) {
                 std::vector< std::vector< int > > *nucl = &ref_map.at(this_ref);
-                std::vector< std::vector< long > > *qual = &concurrent_q->all_qual_sums.at(sample).at(this_ref)
-                std::vector< std::vector< long > > *mapq = &concurrent_q->all_mapq_sums.at(sample).at(this_ref)
+                std::vector< std::vector< long > > *qual = &concurrent_q->all_qual_sums.at(sample).at(this_ref);
+                std::vector< std::vector< long > > *mapq = &concurrent_q->all_mapq_sums.at(sample).at(this_ref);
                 long sample_depth = 0;
                 int ref_allele_count;
                 double ref_qual;
