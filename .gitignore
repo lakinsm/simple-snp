@@ -1,2 +1,6 @@
 .idea*
-
+*.o
+bin/*
+build/*
+lib/*
+include/*
