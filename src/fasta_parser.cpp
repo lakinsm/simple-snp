@@ -45,7 +45,7 @@ void FastaParser::parseFasta(const std::vector< std::string > &selected_headers)
             std::cerr << "ERROR: FASTA headers must be unqiue, duplicated provided: " << header << std::endl;
             std::exit(EXIT_FAILURE);
         }
-        if((!select.empty()) and (!selects.count(header))) {
+        if((!selects.empty()) and (!selects.count(header))) {
             continue;
         }
         headers_seqs[header] = seq;

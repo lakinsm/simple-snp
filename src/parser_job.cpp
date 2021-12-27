@@ -50,6 +50,7 @@ void ParserJob::run()
     this_parent_ref = "";
     bool headers = false;
     bool readgroup_present = false;
+    bool ref_info_present = false;
     while(!headers) {
         std::getline(ifs, line);
 
@@ -59,6 +60,7 @@ void ParserJob::run()
 
         if(line[0] == '@') {
             if(line.substr(0, 3) == "@SQ") {
+                ref_info_present = true;
                 std::stringstream ss_sq;
                 std::string sq_part;
                 ss_sq.str(line);
@@ -140,8 +142,8 @@ void ParserJob::run()
 
 
     for(int i = 0; i < this_children_ref.size(); ++i) {
-        nucleotide_counts[this_children_ref[i]] = std::vector< std::vector< long > >(_iupac_map.size(),
-                                                                                     std::vector< long >(ref_lens[i], 0));
+        nucleotide_counts[this_children_ref[i]] = std::vector< std::vector< int > >(_iupac_map.size(),
+                                                                                     std::vector< int >(ref_lens[i], 0));
         qual_sums[this_children_ref[i]] = std::vector< std::vector< long > >(_iupac_map.size(),
                                                                              std::vector< long >(ref_lens[i], 0));
         mapq_sums[this_children_ref[i]] = std::vector< std::vector< long > >(_iupac_map.size(),

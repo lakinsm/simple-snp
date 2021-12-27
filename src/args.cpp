@@ -42,7 +42,7 @@ Args::Args(int argc, const char *argv[])
         else if(arg_list[i] == "-t")
             threads = std::stoi(arg_list[++i].c_str());
         else if(arg_list[i] == "-n") {
-            db_ann_file = _findFullPath(arg_list[++i]);
+            db_ann_file = _findFullDirPath(arg_list[++i]);
             std::size_t start_pos = db_ann_file.find(".ann");
             if(start_pos == std::string::npos) {
                 std::cerr << "ERROR: Database annotation file (-n) must have .ann extension, provided: ";

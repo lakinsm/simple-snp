@@ -143,7 +143,7 @@ int main(int argc, const char *argv[]) {
     std::vector< std::string > ordered_sample_names;
     std::string this_parent_ref = "";
     std::string sample_ref;
-    for(auto &[sample, ref_map] : all_nucleotide_counts) {
+    for(auto &[sample, ref_map] : concurrent_q->all_nucleotide_counts) {
         for(auto &[ref, nucl] : ref_map) {
             if(!args.db_names_file.empty()) {
                 sample_ref = args.rev_db_parent_map.at(ref);
@@ -224,7 +224,7 @@ int main(int argc, const char *argv[]) {
 
             // First pass to look at population metrics
             for(auto &[sample, ref_map] : concurrent_q->all_nucleotide_counts) {
-                std::vector< std::vector< long > > *nucl = ref_map.at(this_ref);
+                std::vector< std::vector< int > > *nucl = &ref_map.at(this_ref);
                 long sample_depth = 0;
                 for(int i = 0; i < population_allele_counts.size(); ++i) {
                     population_depth += (*nucl)[i][j];
@@ -262,7 +262,7 @@ int main(int argc, const char *argv[]) {
             bool position_has_major_variant = false;
             std::string alts_present_at_pos = "";
             for(auto &[sample, ref_map] : concurrent_q->all_nucleotide_counts) {
-                std::vector< std::vector< long > > *nucl = ref_map.at(this_ref);
+                std::vector< std::vector< int > > *nucl = &ref_map.at(this_ref);
                 long sample_depth = 0;
                 for(int i = 0; i < population_allele_counts.size(); ++i) {
                     sample_depth += (*nucl)[i][j];
@@ -320,7 +320,9 @@ int main(int argc, const char *argv[]) {
             std::map< std::string, std::string > positional_variants;
             std::map< std::string, std::string > vcf_variants;
             for(auto &[sample, ref_map] : concurrent_q->all_nucleotide_counts) {
-                std::vector< std::vector< long > > *nucl = ref_map.at(this_ref);
+                std::vector< std::vector< int > > *nucl = &ref_map.at(this_ref);
+                std::vector< std::vector< long > > *qual = &concurrent_q->all_qual_sums.at(sample).at(this_ref)
+                std::vector< std::vector< long > > *mapq = &concurrent_q->all_mapq_sums.at(sample).at(this_ref)
                 long sample_depth = 0;
                 int ref_allele_count;
                 double ref_qual;
@@ -328,8 +330,8 @@ int main(int argc, const char *argv[]) {
                     sample_depth += (*nucl)[i][j];
                     if(this_nucleotides[i] == this_seq[j]) {
                         ref_allele_count = (*nucl)[i][j];
-                        ref_qual = (double)concurrent_q->all_qual_sums.at(sample).at(this_ref)[i][j];
-                        vcf_line_data.mqmr += (double)concurrent_q->all_mapq_sums.at(sample).at(this_ref)[i][j];
+                        ref_qual = (double)(*qual)[i][j];
+                        vcf_line_data.mqmr += (double)(*mapq)[i][j];
                     }
                 }
 
@@ -368,17 +370,17 @@ int main(int argc, const char *argv[]) {
                             std::size_t found = alts_present_at_pos.find(this_nucleotides[i]);
                             var_info = std::to_string(found + 1);
                             var_info += ",";
-                            vcf_line_data.mqm[found] += (double)concurrent_q->all_mapq_sums.at(sample).at(this_ref)[i][j];
+                            vcf_line_data.mqm[found] += (double)(*mapq)[i][j];
                             vcf_line_data.ao[found] += (*nucl)[i][j];
                             vcf_line_data.ao_sum += (*nucl)[i][j];
-                            vcf_line_data.qual += (double)concurrent_q->all_qual_sums.at(sample).at(this_ref)[i][j];
+                            vcf_line_data.qual += (double)(*qual)[i][j];
                         }
 
                         var_info += std::to_string((*nucl)[i][j]);
                         var_info += ",";
-                        var_info += std::to_string((double)concurrent_q->all_qual_sums.at(sample).at(this_ref)[i][j] / (double)(*nucl)[i][j]);
+                        var_info += std::to_string((double)(*qual)[i][j] / (double)(*nucl)[i][j]);
                         var_info += ",";
-                        var_info += std::to_string((double)concurrent_q->all_mapq_sums.at(sample).at(this_ref)[i][j] / (double)(*nucl)[i][j]);
+                        var_info += std::to_string((double)(*mapq)[i][j] / (double)(*nucl)[i][j]);
                         var_info += ",";
                         var_info += std::to_string(ref_allele_count);
                         var_info += ",";
@@ -389,9 +391,7 @@ int main(int argc, const char *argv[]) {
                             var_info += ".";
                         }
                         q.emplace(this_allele_freq, var_info);
-
                         vcf_line_data.ro += ref_allele_count;
-
                     }
                 }
 
@@ -537,7 +537,7 @@ int main(int argc, const char *argv[]) {
                         }
                         sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[0]);
                         if((*nucl)[sample_nucl_idx][j] > 0) {
-                            final_vcf_info += ":" + std::to_string((double)concurrent_q->all_qual_sums.at(sample).at(this_ref)[sample_nucl_idx][j] /
+                            final_vcf_info += ":" + std::to_string((double)(*qual)[sample_nucl_idx][j] /
                                                                    (double)(*nucl)[sample_nucl_idx][j]);
                         }
                         else {
@@ -548,7 +548,7 @@ int main(int argc, const char *argv[]) {
                             sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
                             final_vcf_info += ',';
                             if((*nucl)[sample_nucl_idx][j] > 0) {
-                                final_vcf_info += std::to_string((double)concurrent_q->all_qual_sums.at(sample).at(this_ref)[sample_nucl_idx][j] /
+                                final_vcf_info += std::to_string((double)(*qual)[sample_nucl_idx][j] /
                                                                  (double)(*nucl)[sample_nucl_idx][j]);
                             }
                             else {
