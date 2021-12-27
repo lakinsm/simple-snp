@@ -38,7 +38,7 @@ bool ConcurrentBufferQueue::tryPush(const std::string &sample_name,
         all_qual_sums[sample_name];
         all_mapq_sums[sample_name];
     }
-    if(!all_nucleotide_counts.at(sample_name).count(ref_name)) {
+    if(all_nucleotide_counts.at(sample_name).count(ref_name)) {
         std::cerr << "ERROR: Duplicate sample + reference combination detected: " << sample_name;
         std::cerr << ", " << ref_name << std::endl;
         std::exit(EXIT_FAILURE);
