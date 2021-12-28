@@ -177,7 +177,7 @@ void ParserJob::run()
 
     _writePositionalData();
 
-    printInfo();
+//    printInfo();
 
     for(auto &[ref, nucl] : nucleotide_counts) {
         while(!_buffer_q->tryPush(sam_sampleid,
