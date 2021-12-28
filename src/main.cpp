@@ -372,9 +372,9 @@ int main(int argc, const char *argv[]) {
                 if((*ins).count(j)) {
                     double this_ins_freq = 0;
                     long this_ins_count = 0;
-                    for(auto &[len, val] : (*ins).at(j)) {
-                        this_ins_count += val;
-                        this_ins_freq += (double)val;
+                    for(auto &[len, ins_vec] : (*ins).at(j)) {
+                        this_ins_count += ins_vec[0];
+                        this_ins_freq += (double)ins_vec[0];
                     }
                     this_ins_freq /= (double)sample_depth;
                     if((this_ins_freq >= args.min_minor_freq) && (this_ins_count >= args.min_intra_sample_alt) && (sample_depth > args.min_intra_sample_depth)) {
@@ -397,9 +397,9 @@ int main(int argc, const char *argv[]) {
                 if((*del).count(j)) {
                     double this_del_freq = 0;
                     long this_del_count = 0;
-                    for(auto &[len, val] : (*del).at(j)) {
-                        this_del_count += val;
-                        this_del_freq += (double)val;
+                    for(auto &[len, del_vec] : (*del).at(j)) {
+                        this_del_count += del_vec[0];
+                        this_del_freq += (double)del_vec[0];
                     }
                     this_del_freq /= (double)sample_depth;
                     if((this_del_freq >= args.min_minor_freq) && (this_del_count >= args.min_intra_sample_alt) && (sample_depth > args.min_intra_sample_depth)) {
@@ -552,9 +552,9 @@ int main(int argc, const char *argv[]) {
                 if((*ins).count(j)) {
                     double this_ins_freq = 0;
                     long this_ins_count = 0;
-                    for(auto &[len, val] : (*ins).count(j)) {
-                        this_ins_count += val;
-                        this_ins_freq += (double)val;
+                    for(auto &[len, ins_vec] : (*ins).at(j)) {
+                        this_ins_count += ins_vec[0];
+                        this_ins_freq += (double)ins_vec[0];
                     }
                     this_ins_freq /= (double)sample_depth;
                     if((this_ins_freq >= args.min_minor_freq) && (this_ins_count >= args.min_intra_sample_alt)) {
@@ -570,9 +570,9 @@ int main(int argc, const char *argv[]) {
                 if((*del).count(j)) {
                     double this_del_freq = 0;
                     long this_del_count = 0;
-                    for(auto &[len, val] : (*del).count(j)) {
-                        this_del_count += val;
-                        this_del_freq += (double)val;
+                    for(auto &[len, del_vec] : (*del).at(j)) {
+                        this_del_count += del_vec[0];
+                        this_del_freq += (double)del_vec[0];
                     }
                     this_del_freq /= (double)sample_depth;
                     if((this_del_freq >= args.min_minor_freq) && (this_del_count >= args.min_intra_sample_alt)) {
