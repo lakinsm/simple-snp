@@ -226,7 +226,7 @@ void ParserJob::_addAlignedRead(const std::string &ref,
             }
             else if(op == "D") {
                 if(!deletions.at(ref).count(target_idx)) {
-                    std::unordered_map< int, std::vector< long > > this_template = {numeric_num, std::vector< long >(3, 0)};
+                    std::unordered_map< int, std::vector< long > > this_template{{numeric_num, std::vector< long >(3, 0)}};
                     deletions.at(ref)[target_idx] = this_template;
                 }
                 if(!deletions.at(ref).at(target_idx).count(numeric_num)) {
@@ -245,7 +245,7 @@ void ParserJob::_addAlignedRead(const std::string &ref,
             }
             else if(op == "I") {
                 if(!insertions.at(ref).count(target_idx)) {
-                    std::unordered_map< int, std::vector< long > > this_template = {numeric_num, std::vector< long >(4, 0)};
+                    std::unordered_map< int, std::vector< long > > this_template{{numeric_num, std::vector< long >(4, 0)}};
                     insertions.at(ref)[target_idx] = this_template;
                 }
                 if(!insertions.at(ref).at(target_idx).count(numeric_num)) {
