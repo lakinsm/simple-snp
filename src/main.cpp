@@ -372,7 +372,7 @@ int main(int argc, const char *argv[]) {
                 if((*ins).count(j)) {
                     double this_ins_freq = 0;
                     long this_ins_count = 0;
-                    for(auto &[len, val] : population_insertions) {
+                    for(auto &[len, val] : (*ins).at(j)) {
                         this_ins_count += val;
                         this_ins_freq += (double)val;
                     }
@@ -397,7 +397,7 @@ int main(int argc, const char *argv[]) {
                 if((*del).count(j)) {
                     double this_del_freq = 0;
                     long this_del_count = 0;
-                    for(auto &[len, val] : population_deletions) {
+                    for(auto &[len, val] : (*del).at(j)) {
                         this_del_count += val;
                         this_del_freq += (double)val;
                     }
@@ -552,36 +552,36 @@ int main(int argc, const char *argv[]) {
                 if((*ins).count(j)) {
                     double this_ins_freq = 0;
                     long this_ins_count = 0;
-                    for(auto &[len, val] : population_insertions) {
+                    for(auto &[len, val] : (*ins).count(j)) {
                         this_ins_count += val;
                         this_ins_freq += (double)val;
                     }
                     this_ins_freq /= (double)sample_depth;
                     if((this_ins_freq >= args.min_minor_freq) && (this_ins_count >= args.min_intra_sample_alt)) {
-                        std::cout << this_ref << ':' << std::to_string(j+1) << "\tInsertion\t" << this_ins_count;
-                        std::cout << '\t' << this_ins_freq << std::endl;
-                        for(auto &[len, ins_vec] : (*ins).at(j)) {
-                            std::cout << '\t' << len << '\t' << ins_vec[0] << '\t' << ins_vec[1] << '\t';
-                            std::cout << ins_vec[2] << '\t' << ins_vec[3] << std::endl;
-                        }
+//                        std::cout << this_ref << ':' << std::to_string(j+1) << "\tInsertion\t" << this_ins_count;
+//                        std::cout << '\t' << this_ins_freq << std::endl;
+//                        for(auto &[len, ins_vec] : (*ins).at(j)) {
+//                            std::cout << '\t' << len << '\t' << ins_vec[0] << '\t' << ins_vec[1] << '\t';
+//                            std::cout << ins_vec[2] << '\t' << ins_vec[3] << std::endl;
+//                        }
                     }
                 }
 
                 if((*del).count(j)) {
                     double this_del_freq = 0;
                     long this_del_count = 0;
-                    for(auto &[len, val] : population_insertions) {
+                    for(auto &[len, val] : (*del).count(j)) {
                         this_del_count += val;
                         this_del_freq += (double)val;
                     }
                     this_del_freq /= (double)sample_depth;
                     if((this_del_freq >= args.min_minor_freq) && (this_del_count >= args.min_intra_sample_alt)) {
-                        std::cout << this_ref << ':' << std::to_string(j+1) << "\tDeletion\t" << this_del_count;
-                        std::cout << '\t' << this_del_freq << std::endl;
-                        for(auto &[len, del_vec] : (*del).at(j)) {
-                            std::cout << '\t' << len << '\t' << del_vec[0] << '\t' << del_vec[1] << '\t';
-                            std::cout << del_vec[2] << std::endl;
-                        }
+//                        std::cout << this_ref << ':' << std::to_string(j+1) << "\tDeletion\t" << this_del_count;
+//                        std::cout << '\t' << this_del_freq << std::endl;
+//                        for(auto &[len, del_vec] : (*del).at(j)) {
+//                            std::cout << '\t' << len << '\t' << del_vec[0] << '\t' << del_vec[1] << '\t';
+//                            std::cout << del_vec[2] << std::endl;
+//                        }
                     }
                 }
 
