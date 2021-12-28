@@ -30,6 +30,12 @@ public:
     std::unordered_map< std::string, std::vector< std::vector< int > > > nucleotide_counts;
     std::unordered_map< std::string, std::vector< std::vector< long > > > qual_sums;
     std::unordered_map< std::string, std::vector< std::vector< long > > > mapq_sums;
+
+    // { ref_name : { 0-idx : { length : < count, ins-qsum, left-qsum, right-qsum > } } }
+    std::unordered_map< std::string, std::unordered_map< long, std::unordered_map< int, std::vector< long > > > > insertions;
+
+    // { ref_name : { 0-idx : { length : < count, left-qsum, right-qsum > } } }
+    std::unordered_map< std::string, std::unordered_map< long, std::unordered_map< int, std::vector< long > > > > deletions;
     std::vector< long > ref_lens;
 
 private:

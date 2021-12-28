@@ -148,6 +148,8 @@ void ParserJob::run()
                                                                              std::vector< long >(ref_lens[i], 0));
         mapq_sums[this_children_ref[i]] = std::vector< std::vector< long > >(_iupac_map.size(),
                                                                              std::vector< long >(ref_lens[i], 0));
+        insertions[this_children_ref[i]];
+        deletions[this_children_ref[i]];
     }
 
     std::vector< std::string > res;
@@ -216,10 +218,43 @@ void ParserJob::_addAlignedRead(const std::string &ref,
                     target_idx++;
                 }
             }
-            else if((op == "D") or (op == "N")) {
+            else if(op == "D") {
+                if(!deletions.at(ref).count(target_idx)) {
+                    deletions.at(ref)[target_idx] = {numeric_num, std::vector< long >(3, 0)};
+                }
+                if(!deletions.at(ref).at(target_idx).count(numeric_num)) {
+                    deletions.at(ref).at(target_idx)[numeric_num] = std::vector< long >(3, 0);
+                }
+                std::vector< long > *this_del_vec = &deletions.at(ref).at(target_idx).at(numeric_num);
+                (*this_del_vec)[0]++;
+                (*this_del_vec)[1] += qual[read_idx];
+                if((read_idx + 1) < seq.length()) {
+                    (*this_del_vec)[2] += qual[read_idx + 1];
+                }
                 target_idx += numeric_num;
             }
-            else if((op == "I") or (op == "S")) {
+            else if(op == "N") {
+                target_idx += numeric_num;
+            }
+            else if(op == "I") {
+                if(!insertions.at(ref).count(target_idx)) {
+                    insertions.at(ref)[target_idx] = {numeric_num, std::vector< long >(4, 0)};
+                }
+                if(!insertions.at(ref).at(target_idx).count(numeric_num)) {
+                    insertions.at(ref).at(target_idx)[numeric_num] = std::vector< long >(4, 0);
+                }
+                std::vector< long > *this_ins_vec = &insertions.at(ref).at(target_idx).at(numeric_num);
+                (*this_ins_vec)[0]++;
+                for(int s = 0; s < numeric_num; ++s) {
+                    (*this_ins_vec)[1] += qual[read_idx + s]
+                }
+                (*this_ins_vec)[2] += qual[read_idx];
+                if((read_idx + numeric_num) < seq.length()) {
+                    (*this_ins_vec)[3] += qual[read_idx + numeric_num];
+                }
+                read_idx += numeric_num;
+            }
+            else if(op == "S") {
                 read_idx += numeric_num;
             }
             num = "";
