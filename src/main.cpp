@@ -378,18 +378,18 @@ int main(int argc, const char *argv[]) {
                     }
                     this_ins_freq /= (double)sample_depth;
                     if((this_ins_freq >= args.min_minor_freq) && (this_ins_count >= args.min_intra_sample_alt) && (sample_depth > args.min_intra_sample_depth)) {
+                        std::cout << sample << '\t' << this_ref << ':' << std::to_string(j+1) << "\tInsertion\t" << this_ins_count;
+                        std::cout << '\t' << this_ins_freq << std::endl;
+                        for(auto &[len, ins_vec] : (*ins).at(j)) {
+                            std::cout << '\t' << len << '\t' << ins_vec[0] << '\t' << ins_vec[1] << '\t';
+                            std::cout << ins_vec[2] << '\t' << ins_vec[3] << std::endl;
+                        }
                         if(alts_present_at_pos.find('I') == std::string::npos) {
                             alts_present_at_pos += 'I';
                         }
                         position_has_variant = true;
                         if(this_ins_freq >= args.min_major_freq) {
                             position_has_major_variant = true;
-                            std::cout << sample << '\t' << this_ref << ':' << std::to_string(j+1) << "\tInsertion\t" << this_ins_count;
-                            std::cout << '\t' << this_ins_freq << std::endl;
-                            for(auto &[len, ins_vec] : (*ins).at(j)) {
-                                std::cout << '\t' << len << '\t' << ins_vec[0] << '\t' << ins_vec[1] << '\t';
-                                std::cout << ins_vec[2] << '\t' << ins_vec[3] << std::endl;
-                            }
                         }
                     }
                 }
