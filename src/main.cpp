@@ -228,8 +228,8 @@ int main(int argc, const char *argv[]) {
             // First pass to look at population metrics
             for(auto &[sample, ref_map] : concurrent_q->all_nucleotide_counts) {
                 std::vector< std::vector< int > > *nucl = &ref_map.at(this_ref);
-                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *ins = &concurrent_q->insertions.at(this_ref);
-                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *del = &concurrent_q->deletions.at(this_ref);
+                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *ins = &concurrent_q->all_insertions.at(sample).at(this_ref);
+                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *del = &concurrent_q->all_deletions.at(sample).at(this_ref);
                 long sample_depth = 0;
                 for(int i = 0; i < population_allele_counts.size(); ++i) {
                     population_depth += (*nucl)[i][j];
@@ -333,8 +333,8 @@ int main(int argc, const char *argv[]) {
             std::string alts_present_at_pos = "";
             for(auto &[sample, ref_map] : concurrent_q->all_nucleotide_counts) {
                 std::vector< std::vector< int > > *nucl = &ref_map.at(this_ref);
-                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *ins = &concurrent_q->insertions.at(this_ref);
-                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *del = &concurrent_q->deletions.at(this_ref);
+                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *ins = &concurrent_q->all_insertions.at(sample).at(this_ref);
+                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *del = &concurrent_q->all_deletions.at(sample).at(this_ref);
                 long sample_depth = 0;
                 for(int i = 0; i < population_allele_counts.size(); ++i) {
                     sample_depth += (*nucl)[i][j];
@@ -451,8 +451,8 @@ int main(int argc, const char *argv[]) {
                 std::vector< std::vector< int > > *nucl = &ref_map.at(this_ref);
                 std::vector< std::vector< long > > *qual = &concurrent_q->all_qual_sums.at(sample).at(this_ref);
                 std::vector< std::vector< long > > *mapq = &concurrent_q->all_mapq_sums.at(sample).at(this_ref);
-                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *ins = &concurrent_q->insertions.at(this_ref);
-                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *del = &concurrent_q->deletions.at(this_ref);
+                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *ins = &concurrent_q->all_insertions.at(sample).at(this_ref);
+                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *del = &concurrent_q->all_deletions.at(sample).at(this_ref);
                 long sample_depth = 0;
                 int ref_allele_count;
                 double ref_qual;
@@ -766,7 +766,7 @@ int main(int argc, const char *argv[]) {
 //                }
 //                positional_variants.insert({sample, final_var_info});
 //                vcf_variants.insert({sample, final_vcf_info});
-//            }
+            }
 //            ofs << this_ref << ':' << (j + 1);
 //            for(int i = 0; i < ordered_sample_names.size(); ++i) {
 //                ofs << '\t' << positional_variants.at(ordered_sample_names[i]);

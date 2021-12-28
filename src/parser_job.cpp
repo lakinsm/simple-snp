@@ -180,7 +180,13 @@ void ParserJob::run()
     printInfo();
 
     for(auto &[ref, nucl] : nucleotide_counts) {
-        while(!_buffer_q->tryPush(sam_sampleid, ref, nucl, qual_sums.at(ref), mapq_sums.at(ref))) {}
+        while(!_buffer_q->tryPush(sam_sampleid,
+                                  ref,
+                                  nucl,
+                                  qual_sums.at(ref),
+                                  mapq_sums.at(ref),
+                                  insertions.at(ref),
+                                  deletions.at(ref))) {}
     }
 }
 
@@ -220,7 +226,8 @@ void ParserJob::_addAlignedRead(const std::string &ref,
             }
             else if(op == "D") {
                 if(!deletions.at(ref).count(target_idx)) {
-                    deletions.at(ref)[target_idx] = {numeric_num, std::vector< long >(3, 0)};
+                    std::unordered_map< int, std::vector< long > > this_template = {numeric_num, std::vector< long >(3, 0)};
+                    deletions.at(ref)[target_idx] = this_template;
                 }
                 if(!deletions.at(ref).at(target_idx).count(numeric_num)) {
                     deletions.at(ref).at(target_idx)[numeric_num] = std::vector< long >(3, 0);
@@ -238,7 +245,8 @@ void ParserJob::_addAlignedRead(const std::string &ref,
             }
             else if(op == "I") {
                 if(!insertions.at(ref).count(target_idx)) {
-                    insertions.at(ref)[target_idx] = {numeric_num, std::vector< long >(4, 0)};
+                    std::unordered_map< int, std::vector< long > > this_template = {numeric_num, std::vector< long >(4, 0)};
+                    insertions.at(ref)[target_idx] = this_template;
                 }
                 if(!insertions.at(ref).at(target_idx).count(numeric_num)) {
                     insertions.at(ref).at(target_idx)[numeric_num] = std::vector< long >(4, 0);
@@ -246,7 +254,7 @@ void ParserJob::_addAlignedRead(const std::string &ref,
                 std::vector< long > *this_ins_vec = &insertions.at(ref).at(target_idx).at(numeric_num);
                 (*this_ins_vec)[0]++;
                 for(int s = 0; s < numeric_num; ++s) {
-                    (*this_ins_vec)[1] += qual[read_idx + s]
+                    (*this_ins_vec)[1] += qual[read_idx + s];
                 }
                 (*this_ins_vec)[2] += qual[read_idx];
                 if((read_idx + numeric_num) < seq.length()) {
