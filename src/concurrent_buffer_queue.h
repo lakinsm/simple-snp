@@ -7,7 +7,7 @@
 #include <queue>
 #include <atomic>
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 
@@ -17,7 +17,8 @@ public:
     ~ConcurrentBufferQueue();
 
     void run();
-    bool tryPush(const std::string &samplename,
+    bool tryPush(const std::string &sample_name,
+                 const std::string &ref_name,
                  const std::vector< std::vector< int > > &nucleotide_counts,
                  const std::vector< std::vector< long > > &qual_sums,
                  const std::vector< std::vector < long > > &mapq_sums);
@@ -28,9 +29,9 @@ public:
     std::atomic< int > num_active_jobs = ATOMIC_VAR_INIT(0);
     std::atomic< int > num_completed_jobs = ATOMIC_VAR_INIT(0);
 
-    std::map< std::string, std::vector< std::vector< int > > > all_nucleotide_counts;
-    std::map< std::string, std::vector< std::vector< long > > > all_qual_sums;
-    std::map< std::string, std::vector< std::vector< long > > > all_mapq_sums;
+    std::unordered_map< std::string, std::unordered_map< std::string, std::vector< std::vector< int > > > > all_nucleotide_counts;
+    std::unordered_map< std::string, std::unordered_map< std::string, std::vector< std::vector< long > > > > all_qual_sums;
+    std::unordered_map< std::string, std::unordered_map< std::string, std::vector< std::vector< long > > > > all_mapq_sums;
 
 private:
     std::mutex _mtx;

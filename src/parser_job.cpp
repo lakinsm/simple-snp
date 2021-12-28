@@ -7,14 +7,14 @@
 
 ParserJob::ParserJob(const std::string &parameter_string,
                      const std::string &output_dir,
-                     ConcurrentBufferQueue* buffer_q)
-                     : _buffer_q(buffer_q), _output_dir(output_dir)
+                     ConcurrentBufferQueue* buffer_q,
+                     Args &args)
+                     : _buffer_q(buffer_q), _output_dir(output_dir), _args(args)
 {
     std::stringstream ss;
     ss.str(parameter_string);
     std::getline(ss, sam_filepath, '|');
     std::getline(ss, samplename);
-    ref_len = 0;
 }
 
 
@@ -29,7 +29,10 @@ void ParserJob::printInfo()
 {
     std::cout << std::endl;
     std::cout << samplename << '\t' << sam_sampleid << '\t' << sam_readgroup << '\t' << sam_filepath << std::endl;
-    std::cout << reference_name << '\t' << ref_len << std::endl;
+    for(int i = 0; i < this_children_ref.size(); ++i) {
+        std::cout << '\t' << this_children_ref[i] << '\t' << ref_lens[i] << std::endl;
+    }
+
     std::cout << std::endl;
 }
 
@@ -44,6 +47,7 @@ void ParserJob::run()
     }
 
     this_header = "";
+    this_parent_ref = "";
     bool headers = false;
     bool readgroup_present = false;
     bool ref_info_present = false;
@@ -56,12 +60,7 @@ void ParserJob::run()
 
         if(line[0] == '@') {
             if(line.substr(0, 3) == "@SQ") {
-                if(ref_info_present) {
-                    std::cerr << "ERROR: Multiple reference contigs are not currently supported. More than one";
-                    std::cout << " reference contig was found in SAM file: " << sam_filepath << std::endl;
-                    std::exit(EXIT_FAILURE);
-                }
-
+                ref_info_present = true;
                 std::stringstream ss_sq;
                 std::string sq_part;
                 ss_sq.str(line);
@@ -70,8 +69,38 @@ void ParserJob::run()
                 reference_name = sq_part.substr(3);
                 std::getline(ss_sq, sq_part);
                 std::string this_len_part = sq_part.substr(3);
-                ref_len = std::stol(this_len_part.c_str());
-                ref_info_present = true;
+                if(!_args.db_names_file.empty()) {
+                    if(!_args.rev_db_parent_map.count(reference_name)) {
+                        std::cerr << "ERROR: <reference_db>.names file present, but this reference was not detected ";
+                        std::cerr << "in the <reference_db>.names file, provided: " << reference_name << std::endl;
+                        std::exit(EXIT_FAILURE);
+                    }
+                    if(!this_parent_ref.empty()) {
+                        if(_args.rev_db_parent_map.at(reference_name) != this_parent_ref) {
+                            std::cerr << "ERROR: Multiple reference contigs detected that belong to different parent";
+                            std::cerr << " relationships. Reads must be aligned to contigs belonging to either a ";
+                            std::cerr << "single reference genome or a genome with multiple contigs/segments, whose ";
+                            std::cerr << "relations are defined in <reference_db>.names file (see documentation).";
+                            std::cerr << "SAM file: " << sam_filepath << std::endl;
+                            std::exit(EXIT_FAILURE);
+                        }
+                    }
+                    else {
+                        this_parent_ref = _args.rev_db_parent_map.at(reference_name);
+                    }
+                }
+                else {
+                    if(!this_parent_ref.empty()) {
+                        std::cerr << "ERROR: Multiple reference genomes are only supported if the <reference_db>.names";
+                        std::cerr << " file is also present, which defines relations between parent organisms and ";
+                        std::cerr << "their children chromosomes/segments (see documentation). SAM file: ";
+                        std::cerr << sam_filepath << std::endl;
+                        std::exit(EXIT_FAILURE);
+                    }
+                    this_parent_ref = reference_name;
+                }
+                this_children_ref.push_back(reference_name);
+                ref_lens.push_back(std::stol(this_len_part.c_str()));
             }
 
             if(line.substr(0, 3) == "@RG") {
@@ -103,19 +132,28 @@ void ParserJob::run()
         std::exit(EXIT_FAILURE);
     }
 
-    if(ref_len <= 0) {
-        std::cerr << "ERROR: Reference sequence length is not positive, provided: " << ref_len << std::endl;
-        std::exit(EXIT_FAILURE);
+    for(int i = 0; i < this_children_ref.size(); ++i) {
+        if(ref_lens[i] <= 0) {
+            std::cerr << "ERROR: Reference sequence length is not positive, provided: ";
+            std::cerr << this_children_ref[i] << ", " << ref_lens[i] << std::endl;
+            std::exit(EXIT_FAILURE);
+        }
     }
 
-    for(int i = 0; i < _iupac_map.size(); ++i) {
-        nucleotide_counts.push_back(std::vector< int >(ref_len, 0));
-        qual_sums.push_back(std::vector< long >(ref_len, 0));
-        mapq_sums.push_back(std::vector< long >(ref_len, 0));
+
+    for(int i = 0; i < this_children_ref.size(); ++i) {
+        nucleotide_counts[this_children_ref[i]] = std::vector< std::vector< int > >(_iupac_map.size(),
+                                                                                     std::vector< int >(ref_lens[i], 0));
+        qual_sums[this_children_ref[i]] = std::vector< std::vector< long > >(_iupac_map.size(),
+                                                                             std::vector< long >(ref_lens[i], 0));
+        mapq_sums[this_children_ref[i]] = std::vector< std::vector< long > >(_iupac_map.size(),
+                                                                             std::vector< long >(ref_lens[i], 0));
     }
 
     std::vector< std::string > res;
     int sam_flag;
+    //      0          1           2            3     4    5     6
+    // < sam flag, ref name, start pos 1-idx, mapq, cigar, seq, qual >
     res = _parseSamLine(line);
     if((res.size() == 0) || (res[0].empty())) {
         return;
@@ -123,7 +161,7 @@ void ParserJob::run()
     sam_flag = std::stoi(res[0].c_str());
     if(((sam_flag & 4) == 0) and ((sam_flag & 256) == 0) and ((sam_flag & 2048) == 0)) {
         // Primary alignment
-        _addAlignedRead(res[3], res[4], res[5], std::stol(res[1].c_str()), std::stoi(res[2].c_str()));
+        _addAlignedRead(res[1], res[4], res[5], res[6], std::stol(res[2].c_str()), std::stoi(res[3].c_str()));
     }
 
     while(std::getline(ifs, line)) {
@@ -131,19 +169,22 @@ void ParserJob::run()
         sam_flag = std::stoi(res[0].c_str());
         if(((sam_flag & 4) == 0) and ((sam_flag & 256) == 0) and ((sam_flag & 2048) == 0)) {
             // Primary alignment
-            _addAlignedRead(res[3], res[4], res[5], std::stol(res[1].c_str()), std::stoi(res[2].c_str()));
+            _addAlignedRead(res[1], res[4], res[5], res[6], std::stol(res[2].c_str()), std::stoi(res[3].c_str()));
         }
     }
 
     _writePositionalData();
 
-//    printInfo();
+    printInfo();
 
-    while(!_buffer_q->tryPush(sam_sampleid, nucleotide_counts, qual_sums, mapq_sums)) {}
+    for(auto &[ref, nucl] : nucleotide_counts) {
+        while(!_buffer_q->tryPush(sam_sampleid, ref, nucl, qual_sums.at(ref), mapq_sums.at(ref))) {}
+    }
 }
 
 
-void ParserJob::_addAlignedRead(const std::string &cigar,
+void ParserJob::_addAlignedRead(const std::string &ref,
+                                const std::string &cigar,
                                 const std::string &seq,
                                 const std::string &qual,
                                 const long &pos,
@@ -168,9 +209,9 @@ void ParserJob::_addAlignedRead(const std::string &cigar,
                         target_idx++;
                         continue;
                     }
-                    nucleotide_counts[_iupac_map.at(seq[read_idx])][target_idx]++;
-                    qual_sums[_iupac_map.at(seq[read_idx])][target_idx] += int(qual[read_idx]) - 33;  // Phred 33
-                    mapq_sums[_iupac_map.at(seq[read_idx])][target_idx] += mapq;
+                    nucleotide_counts.at(ref)[_iupac_map.at(seq[read_idx])][target_idx]++;
+                    qual_sums.at(ref)[_iupac_map.at(seq[read_idx])][target_idx] += int(qual[read_idx]) - 33;  // Phred 33
+                    mapq_sums.at(ref)[_iupac_map.at(seq[read_idx])][target_idx] += mapq;
                     read_idx++;
                     target_idx++;
                 }
@@ -190,8 +231,8 @@ void ParserJob::_addAlignedRead(const std::string &cigar,
 
 std::vector< std::string > ParserJob::_parseSamLine(const std::string &sam_line)
 {
-    //      0             1           2     3     4    5
-    // < sam flag, start pos 1-idx, mapq, cigar, seq, qual >
+    //      0          1           2            3     4    5     6
+    // < sam flag, ref name, start pos 1-idx, mapq, cigar, seq, qual >
     std::vector< std::string > ret;
     std::stringstream this_ss;
     this_ss.str(sam_line);
@@ -200,6 +241,7 @@ std::vector< std::string > ParserJob::_parseSamLine(const std::string &sam_line)
     std::getline(this_ss, this_entry, '\t');  // 1. sam flag
     ret.push_back(this_entry);
     std::getline(this_ss, this_entry, '\t');  // 2. ref name
+    ret.push_back(this_entry);
     std::getline(this_ss, this_entry, '\t');  // 3. start pos 1-idx
     ret.push_back(this_entry);
     std::getline(this_ss, this_entry, '\t');  // 4. mapq
@@ -222,47 +264,51 @@ void ParserJob::_writePositionalData()
     std::string outfile_path = _output_dir + "/" + samplename + "_positional_data.tsv";
     std::ofstream ofs(outfile_path);
 
-    ofs << "ReferenceIndex\tA_count,C_count,G_count,T_count\tA_avg_qual,C_avg_qual,G_avg_qual,T_avg_qual\t";
+    ofs << "Reference:Index\tA_count,C_count,G_count,T_count\tA_avg_qual,C_avg_qual,G_avg_qual,T_avg_qual\t";
     ofs << "A_avg_mapq,C_avg_mapq,G_avg_mapq,T_avg_mapq" << std::endl;
 
-    for(int j = 0; j < ref_len; ++j) {
-        ofs << (j + 1) << "\t" << nucleotide_counts[0][j];
-        for(int i = 1; i < _iupac_map.size(); ++i) {
-            ofs << "," << nucleotide_counts[i][j];
-        }
+    for(int r = 0; r < this_children_ref.size(); ++r) {
+        std::string ref = this_children_ref[r];
+        for(int j = 0; j < ref_lens[r]; ++j) {
+            ofs << ref << ':' << (j + 1) << "\t" << nucleotide_counts.at(ref)[0][j];
+            for(int i = 1; i < _iupac_map.size(); ++i) {
+                ofs << "," << nucleotide_counts.at(ref)[i][j];
+            }
 
-        if(nucleotide_counts[0][j] > 0) {
-            ofs << "\t" << ((double)qual_sums[0][j] / (double)nucleotide_counts[0][j]);
-        }
-        else {
-            ofs << "\t0";
-        }
-
-        for(int i = 1; i < _iupac_map.size(); ++i) {
-            if(nucleotide_counts[i][j] > 0) {
-                ofs << "," << ((double)qual_sums[i][j] / (double)nucleotide_counts[i][j]);
+            if(nucleotide_counts.at(ref)[0][j] > 0) {
+                ofs << "\t" << ((double)qual_sums.at(ref)[0][j] / (double)nucleotide_counts.at(ref)[0][j]);
             }
             else {
-                ofs << ",0";
+                ofs << "\t0";
             }
-        }
 
-        if(nucleotide_counts[0][j] > 0) {
-            ofs << "\t" << ((double)mapq_sums[0][j] / (double)nucleotide_counts[0][j]);
-        }
-        else {
-            ofs << "\t0";
-        }
+            for(int i = 1; i < _iupac_map.size(); ++i) {
+                if(nucleotide_counts.at(ref)[i][j] > 0) {
+                    ofs << "," << ((double)qual_sums.at(ref)[i][j] / (double)nucleotide_counts.at(ref)[i][j]);
+                }
+                else {
+                    ofs << ",0";
+                }
+            }
 
-        for(int i = 1; i < _iupac_map.size(); ++i) {
-            if(nucleotide_counts[i][j] > 0) {
-                ofs << "," << ((double)mapq_sums[i][j] / (double)nucleotide_counts[i][j]);
+            if(nucleotide_counts.at(ref)[0][j] > 0) {
+                ofs << "\t" << ((double)mapq_sums.at(ref)[0][j] / (double)nucleotide_counts.at(ref)[0][j]);
             }
             else {
-                ofs << ",0";
+                ofs << "\t0";
             }
+
+            for(int i = 1; i < _iupac_map.size(); ++i) {
+                if(nucleotide_counts.at(ref)[i][j] > 0) {
+                    ofs << "," << ((double)mapq_sums.at(ref)[i][j] / (double)nucleotide_counts.at(ref)[i][j]);
+                }
+                else {
+                    ofs << ",0";
+                }
+            }
+            ofs << std::endl;
         }
-        ofs << std::endl;
     }
+
     ofs.close();
 }

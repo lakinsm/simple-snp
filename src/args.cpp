@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <cassert>
+#include <filesystem>
 #include "args.h"
 
 
@@ -14,19 +15,15 @@ Args::Args(int argc, const char *argv[])
         _usage();
     }
 
-    // Default values
-    min_intra_sample_alt = 3;
-    min_intra_sample_depth = 5;
-    min_inter_sample_alt = 7;
-    min_inter_sample_depth = 10;
-    min_major_freq = 0.7;
-    min_minor_freq = 0.4;
-    threads = 2;
-
     // User-specified required values
     sam_file_dir = _findFullDirPath(arg_list[1]);
+    output_dir = arg_list[2];
+    reference_path = _findFullDirPath(arg_list[3]);
+
+    if(!std::filesystem::is_directory(output_dir)) {
+        std::filesystem::create_directory(output_dir);
+    }
     output_dir = _findFullDirPath(arg_list[2]);
-    reference_path = arg_list[3];
 
     // User-specified optional values
     for(int i = 4; i < argc; ++i) {
@@ -44,14 +41,33 @@ Args::Args(int argc, const char *argv[])
             min_minor_freq = std::stod(arg_list[++i].c_str());
         else if(arg_list[i] == "-t")
             threads = std::stoi(arg_list[++i].c_str());
+        else if(arg_list[i] == "-n") {
+            std::size_t start_pos = reference_path.find_last_of(".");
+            std::string ref_prefix = reference_path;
+            ref_prefix.erase(start_pos);
+            db_ann_file = _findFullDirPath(ref_prefix + ".ann");
+            if(!std::filesystem::exists(db_ann_file)) {
+                std::cerr << "ERROR: -n flag provided but <reference_db>.ann does not exist (see documentation)";
+                std::cerr << ", provided: " << db_ann_file;
+                std::cerr << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
+            db_names_file = ref_prefix + ".names";
+            if(!std::filesystem::exists(db_names_file)) {
+                db_names_file = "";
+            }
+            else {
+                db_names_file = _findFullDirPath(db_names_file);
+            }
+        }
         else {
             std::cerr << "ERROR: Option not recognized, " << arg_list[i] << std::endl;
             _usage();
         }
     }
 
-    if(threads < 2) {
-        std::cerr << "ERROR: Threads must be at least 2, provided: " << threads << std::endl;
+    if(threads < 3) {
+        std::cerr << "ERROR: Threads must be at least 3, provided: " << threads << std::endl;
         std::exit(EXIT_FAILURE);
     }
 }
@@ -60,6 +76,11 @@ Args::Args(int argc, const char *argv[])
 // Private member functions
 std::string Args::_findFullDirPath(std::string path)
 {
+    if(!std::filesystem::exists(path)) {
+        std::cerr << "ERROR: File does not exist: " << path << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
     char* symlinkpath = &path[0];
     char fullpath[PATH_MAX];
     char* ptr = realpath(symlinkpath, fullpath);
@@ -79,7 +100,9 @@ void Args::_usage()
     std::cout << "\t-D\tBetween-sample minimum read depth to call a variant [10]" << std::endl;
     std::cout << "\t-f\tMinimum within-sample alternate allele frequency to call a minor variant [0.3]" << std::endl;
     std::cout << "\t-f\tMinimum within-sample alternate allele frequency to call a major variant [0.5]" << std::endl;
-    std::cout << "\t-t\tThreads to use, minimum 2 [2]" << std::endl;
+    std::cout << "\t-n\tFILE\tComma-separated file linking reference ID to subregions of interest (.ann extension)";
+    std::cout << std::endl;
+    std::cout << "\t-t\tThreads to use, minimum 3 [3]" << std::endl;
     std::cout << std::endl << std::endl;
     std::exit(EXIT_FAILURE);
 }
