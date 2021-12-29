@@ -312,13 +312,13 @@ int main(int argc, const char *argv[]) {
             for(auto &[len, val] : population_insertions) {
                 population_ins_sums += val;
             }
-            meets_population_threshold |= (population_ins_sums > args.min_inter_sample_alt);
+//            meets_population_threshold |= (population_ins_sums > args.min_inter_sample_alt);
 
             long population_del_sums = 0;
             for(auto &[len, val] : population_deletions) {
                 population_del_sums += val;
             }
-            meets_population_threshold |= (population_del_sums > args.min_inter_sample_alt);
+//            meets_population_threshold |= (population_del_sums > args.min_inter_sample_alt);
 
             if(!meets_population_threshold) {
                 continue;
@@ -387,9 +387,9 @@ int main(int argc, const char *argv[]) {
                         if(alts_present_at_pos.find('I') == std::string::npos) {
 //                            alts_present_at_pos += 'I';
                         }
-                        position_has_variant = true;
+//                        position_has_variant = true;
                         if(this_ins_freq >= args.min_major_freq) {
-                            position_has_major_variant = true;
+//                            position_has_major_variant = true;
                         }
                     }
                 }
@@ -406,9 +406,9 @@ int main(int argc, const char *argv[]) {
                         if(alts_present_at_pos.find('D') == std::string::npos) {
 //                            alts_present_at_pos += 'D';
                         }
-                        position_has_variant = true;
+//                        position_has_variant = true;
                         if(this_del_freq >= args.min_major_freq) {
-                            position_has_major_variant = true;
+//                            position_has_major_variant = true;
 //                            std::cout << sample << '\t' << this_ref << ':' << std::to_string(j+1) << "\tDeletion\t" << this_del_count;
 //                            std::cout << '\t' << this_del_freq << std::endl;
 //                            for(auto &[len, del_vec] : (*del).at(j)) {
