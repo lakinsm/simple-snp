@@ -378,14 +378,14 @@ int main(int argc, const char *argv[]) {
                     }
                     this_ins_freq /= (double)sample_depth;
                     if((this_ins_freq >= args.min_minor_freq) && (this_ins_count >= args.min_intra_sample_alt) && (sample_depth > args.min_intra_sample_depth)) {
-                        std::cout << sample << '\t' << this_ref << ':' << std::to_string(j+1) << "\tInsertion\t" << this_ins_count;
-                        std::cout << '\t' << this_ins_freq << std::endl;
-                        for(auto &[len, ins_vec] : (*ins).at(j)) {
-                            std::cout << '\t' << len << '\t' << ins_vec[0] << '\t' << ins_vec[1] << '\t';
-                            std::cout << ins_vec[2] << '\t' << ins_vec[3] << std::endl;
-                        }
+//                        std::cout << sample << '\t' << this_ref << ':' << std::to_string(j+1) << "\tInsertion\t" << this_ins_count;
+//                        std::cout << '\t' << this_ins_freq << std::endl;
+//                        for(auto &[len, ins_vec] : (*ins).at(j)) {
+//                            std::cout << '\t' << len << '\t' << ins_vec[0] << '\t' << ins_vec[1] << '\t';
+//                            std::cout << ins_vec[2] << '\t' << ins_vec[3] << std::endl;
+//                        }
                         if(alts_present_at_pos.find('I') == std::string::npos) {
-                            alts_present_at_pos += 'I';
+//                            alts_present_at_pos += 'I';
                         }
                         position_has_variant = true;
                         if(this_ins_freq >= args.min_major_freq) {
@@ -404,17 +404,17 @@ int main(int argc, const char *argv[]) {
                     this_del_freq /= (double)sample_depth;
                     if((this_del_freq >= args.min_minor_freq) && (this_del_count >= args.min_intra_sample_alt) && (sample_depth > args.min_intra_sample_depth)) {
                         if(alts_present_at_pos.find('D') == std::string::npos) {
-                            alts_present_at_pos += 'D';
+//                            alts_present_at_pos += 'D';
                         }
                         position_has_variant = true;
                         if(this_del_freq >= args.min_major_freq) {
                             position_has_major_variant = true;
-                            std::cout << sample << '\t' << this_ref << ':' << std::to_string(j+1) << "\tDeletion\t" << this_del_count;
-                            std::cout << '\t' << this_del_freq << std::endl;
-                            for(auto &[len, del_vec] : (*del).at(j)) {
-                                std::cout << '\t' << len << '\t' << del_vec[0] << '\t' << del_vec[1] << '\t';
-                                std::cout << del_vec[2] << std::endl;
-                            }
+//                            std::cout << sample << '\t' << this_ref << ':' << std::to_string(j+1) << "\tDeletion\t" << this_del_count;
+//                            std::cout << '\t' << this_del_freq << std::endl;
+//                            for(auto &[len, del_vec] : (*del).at(j)) {
+//                                std::cout << '\t' << len << '\t' << del_vec[0] << '\t' << del_vec[1] << '\t';
+//                                std::cout << del_vec[2] << std::endl;
+//                            }
                         }
                     }
                 }
@@ -586,221 +586,221 @@ int main(int argc, const char *argv[]) {
                 }
 
 
-//                if(q.size() > 2) {
-//                    std::cerr << "Tri-allelic site detected at sample:position, " << sample << " ";
-//                    std::cerr << this_ref << ":" << (j+1) << std::endl;
-//                    while(!q.empty()) {
-//                        std::pair< double, std::string > temp_var_info = q.top();
-//                        std::cout << temp_var_info.first << '\t' << temp_var_info.second << std::endl;
-//                        q.pop();
-//                    }
-//                    std::cout << std::endl;
-//                    std::exit(EXIT_FAILURE);
-//                }
-//
-//                std::string final_var_info = "";
-//                std::string final_vcf_info = "";
-//                if(q.size() == 2) {
-//                    std::pair< double, std::string > top_var_info1 = q.top();
-//                    q.pop();
-//                    std::pair< double, std::string > top_var_info2 = q.top();
-//                    std::stringstream ss1, ss2;
-//
-//                    ss1.str(top_var_info1.second);
-//                    ss2.str(top_var_info2.second);
-//
-//                    std::string temp1, temp2;
-//                    std::string ro, qr;
-//                    std::string gt1, ao1, gq1, qa1;
-//                    std::string gt2, ao2, gq2, qa2;
-//
-//                    // Genotype
-//                    std::getline(ss1, gt1, ',');
-//                    std::getline(ss2, gt2, ',');
-//                    final_var_info += gt1 + "/" + gt2 + ":";
-//                    final_vcf_info += gt1 + "/" + gt2 + ":";
-//
-//                    if((gt1 != "0") or (gt2 != "0")) {
-//                        vcf_line_data.nsa++;
-//                    }
-//                    vcf_line_data.ns++;
-//
-//                    // Depth
-//                    final_var_info += std::to_string(sample_depth) + ":";
-//                    final_vcf_info += std::to_string(sample_depth) + ":";
-//
-//                    // Allele count
-//                    std::getline(ss1, ao1, ',');
-//                    std::getline(ss2, ao2, ',');
-//                    final_var_info += ao1 + "," + ao2 + ":";
-//
-//                    // Mean quality score
-//                    std::getline(ss1, qa1, ',');
-//                    std::getline(ss2, qa2, ',');
-//                    final_var_info += temp1 + "," + temp2 + ":";
-//
-//                    // Mean mapq score
-//                    std::getline(ss1, temp1, ',');
-//                    std::getline(ss2, temp2, ',');
-//                    final_var_info += temp1 + "," + temp2 + ":";
-//
-//                    if(gt1 != "0") {
-//                        vcf_line_data.alt_ns[std::stoi(gt1.c_str()) - 1] += 1;
-//                    }
-//                    if(gt2 != "0") {
-//                        vcf_line_data.alt_ns[std::stoi(gt2.c_str()) - 1] += 1;
-//                    }
-//
-//                    // Ref allele count
-//                    std::getline(ss1, ro, ',');
-//                    final_var_info += ro + ":";
-//
-//                    // Mean ref allele qual score
-//                    std::getline(ss1, qr, ',');
-//                    final_var_info += qr;
-//
-//                    std::vector< int > sample_vcf_ao(vcf_line_data.ao.size(), 0);
-//                    std::vector< double > sample_vcf_qa(vcf_line_data.ao.size(), 0);
-//
-//                    int gt1_idx = std::stoi(gt1.c_str()) - 1;
-//                    int gt2_idx = std::stoi(gt2.c_str()) - 1;
-//                    if(gt1_idx >= 0) {
-//                        sample_vcf_ao[gt1_idx] = std::stoi(ao1.c_str());
-//                        sample_vcf_qa[gt1_idx] = std::stod(qa1.c_str());
-//                        vcf_line_data.ac[gt1_idx]++;
-//                    }
-//                    if(gt2_idx >= 0) {
-//                        sample_vcf_ao[gt2_idx] = std::stoi(ao2.c_str());
-//                        sample_vcf_qa[gt2_idx] = std::stod(qa2.c_str());
-//                        vcf_line_data.ac[gt2_idx]++;
-//                    }
-//
-//                    final_vcf_info += ro;
-//                    for(int i = 0; i < sample_vcf_ao.size(); ++i) {
-//                        final_vcf_info += ',' + std::to_string(sample_vcf_ao[i]);
-//                    }
-//
-//                    final_vcf_info +=  ":" + ro + ":" + qr + ":";
-//                    final_vcf_info += std::to_string(sample_vcf_ao[0]);
-//                    for(int i = 1; i < sample_vcf_ao.size(); ++i) {
-//                        final_vcf_info += ',' + std::to_string(sample_vcf_ao[i]);
-//                    }
-//                    final_vcf_info += ":" + std::to_string(sample_vcf_qa[0]);
-//                    for(int i = 1; i < sample_vcf_qa.size(); ++i) {
-//                        final_vcf_info += ',' + std::to_string(sample_vcf_qa[i]);
-//                    }
-//                }
-//                else if(q.size() == 1) {
-//                    std::pair< double, std::string > top_var_info = q.top();
-//                    std::stringstream ss;
-//                    ss.str(top_var_info.second);
-//                    std::string temp;
-//                    std::string gt, ro, ao, gq, qr, qa;
-//                    std::getline(ss, gt, ',');
-//                    final_var_info += gt + "/" + gt + ":";
-//                    final_vcf_info += gt + "/" + gt + ":";
-//                    final_var_info += std::to_string(sample_depth) + ":";
-//                    final_vcf_info += std::to_string(sample_depth) + ":";
-//                    std::getline(ss, ao, ',');
-//                    final_var_info += ao + "," + ao + ":";
-//                    std::getline(ss, qa, ',');
-//                    final_var_info += qa + "," + qa + ":";
-//                    std::getline(ss, temp, ',');
-//                    final_var_info += temp + "," + temp + ":";
-//                    std::getline(ss, ro, ',');
-//                    final_var_info += ro + ":";
-//                    std::getline(ss, qr, ',');
-//                    final_var_info += qr;
-//
-//                    if(gt == "0") {
-//                        int sample_nucl_idx;
-//                        final_vcf_info += ro;
-//                        for(int i = 0; i < vcf_line_data.ao.size(); ++i) {
-//                            sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
-//                            final_vcf_info += ',' + std::to_string((*nucl)[sample_nucl_idx][j]);
-//                        }
-//                        final_vcf_info += ":" + ro + ":" + qr + ":";
-//                        sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[0]);
-//                        final_vcf_info += std::to_string((*nucl)[sample_nucl_idx][j]);
-//                        for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
-//                            sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
-//                            final_vcf_info += ',' + std::to_string((*nucl)[sample_nucl_idx][j]);
-//                        }
-//                        sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[0]);
-//                        if((*nucl)[sample_nucl_idx][j] > 0) {
-//                            final_vcf_info += ":" + std::to_string((double)(*qual)[sample_nucl_idx][j] /
-//                                                                   (double)(*nucl)[sample_nucl_idx][j]);
-//                        }
-//                        else {
-//                            final_vcf_info += ":.";
-//                        }
-//
-//                        for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
-//                            sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
-//                            final_vcf_info += ',';
-//                            if((*nucl)[sample_nucl_idx][j] > 0) {
-//                                final_vcf_info += std::to_string((double)(*qual)[sample_nucl_idx][j] /
-//                                                                 (double)(*nucl)[sample_nucl_idx][j]);
-//                            }
-//                            else {
-//                                final_vcf_info += '.';
-//                            }
-//                        }
-//                    }
-//                    else {
-//                        final_vcf_info += ro + ',' + ao + ":" + ro + ":" + qr + ":" + ao + ":" + qa;
-//                    }
-//
-//                    vcf_line_data.ns++;
-//                    if(gt != "0") {
-//                        int gt_idx = std::stoi(gt.c_str()) - 1;
-//                        vcf_line_data.ac[gt_idx] += 2;
-//                        vcf_line_data.nsa++;
-//                    }
-//                }
-//                else {
-//                    std::string low_depth_info = "./.:" + std::to_string(sample_depth) + ":.:.:.";
-//                    positional_variants.insert({sample, low_depth_info});
-//                    std::string low_vcf_info = "./.:" + std::to_string(sample_depth) + ":.";
-//                    for(int i = 0; i < alts_present_at_pos.size(); ++i) {
-//                        low_vcf_info += ",.";
-//                    }
-//                    low_vcf_info += ":.:.";
-//                    for(int i = 1; i < alts_present_at_pos.size(); ++i) {
-//                        low_vcf_info += ",.";
-//                    }
-//                    low_vcf_info += ":.:.";
-//                    for(int i = 1; i < alts_present_at_pos.size(); ++i) {
-//                        low_vcf_info += ",.";
-//                    }
-//                    vcf_variants.insert({sample, low_vcf_info});
-//                    continue;
-//                }
-//                positional_variants.insert({sample, final_var_info});
-//                vcf_variants.insert({sample, final_vcf_info});
+                if(q.size() > 2) {
+                    std::cerr << "Tri-allelic site detected at sample:position, " << sample << " ";
+                    std::cerr << this_ref << ":" << (j+1) << std::endl;
+                    while(!q.empty()) {
+                        std::pair< double, std::string > temp_var_info = q.top();
+                        std::cout << temp_var_info.first << '\t' << temp_var_info.second << std::endl;
+                        q.pop();
+                    }
+                    std::cout << std::endl;
+                    std::exit(EXIT_FAILURE);
+                }
+
+                std::string final_var_info = "";
+                std::string final_vcf_info = "";
+                if(q.size() == 2) {
+                    std::pair< double, std::string > top_var_info1 = q.top();
+                    q.pop();
+                    std::pair< double, std::string > top_var_info2 = q.top();
+                    std::stringstream ss1, ss2;
+
+                    ss1.str(top_var_info1.second);
+                    ss2.str(top_var_info2.second);
+
+                    std::string temp1, temp2;
+                    std::string ro, qr;
+                    std::string gt1, ao1, gq1, qa1;
+                    std::string gt2, ao2, gq2, qa2;
+
+                    // Genotype
+                    std::getline(ss1, gt1, ',');
+                    std::getline(ss2, gt2, ',');
+                    final_var_info += gt1 + "/" + gt2 + ":";
+                    final_vcf_info += gt1 + "/" + gt2 + ":";
+
+                    if((gt1 != "0") or (gt2 != "0")) {
+                        vcf_line_data.nsa++;
+                    }
+                    vcf_line_data.ns++;
+
+                    // Depth
+                    final_var_info += std::to_string(sample_depth) + ":";
+                    final_vcf_info += std::to_string(sample_depth) + ":";
+
+                    // Allele count
+                    std::getline(ss1, ao1, ',');
+                    std::getline(ss2, ao2, ',');
+                    final_var_info += ao1 + "," + ao2 + ":";
+
+                    // Mean quality score
+                    std::getline(ss1, qa1, ',');
+                    std::getline(ss2, qa2, ',');
+                    final_var_info += temp1 + "," + temp2 + ":";
+
+                    // Mean mapq score
+                    std::getline(ss1, temp1, ',');
+                    std::getline(ss2, temp2, ',');
+                    final_var_info += temp1 + "," + temp2 + ":";
+
+                    if(gt1 != "0") {
+                        vcf_line_data.alt_ns[std::stoi(gt1.c_str()) - 1] += 1;
+                    }
+                    if(gt2 != "0") {
+                        vcf_line_data.alt_ns[std::stoi(gt2.c_str()) - 1] += 1;
+                    }
+
+                    // Ref allele count
+                    std::getline(ss1, ro, ',');
+                    final_var_info += ro + ":";
+
+                    // Mean ref allele qual score
+                    std::getline(ss1, qr, ',');
+                    final_var_info += qr;
+
+                    std::vector< int > sample_vcf_ao(vcf_line_data.ao.size(), 0);
+                    std::vector< double > sample_vcf_qa(vcf_line_data.ao.size(), 0);
+
+                    int gt1_idx = std::stoi(gt1.c_str()) - 1;
+                    int gt2_idx = std::stoi(gt2.c_str()) - 1;
+                    if(gt1_idx >= 0) {
+                        sample_vcf_ao[gt1_idx] = std::stoi(ao1.c_str());
+                        sample_vcf_qa[gt1_idx] = std::stod(qa1.c_str());
+                        vcf_line_data.ac[gt1_idx]++;
+                    }
+                    if(gt2_idx >= 0) {
+                        sample_vcf_ao[gt2_idx] = std::stoi(ao2.c_str());
+                        sample_vcf_qa[gt2_idx] = std::stod(qa2.c_str());
+                        vcf_line_data.ac[gt2_idx]++;
+                    }
+
+                    final_vcf_info += ro;
+                    for(int i = 0; i < sample_vcf_ao.size(); ++i) {
+                        final_vcf_info += ',' + std::to_string(sample_vcf_ao[i]);
+                    }
+
+                    final_vcf_info +=  ":" + ro + ":" + qr + ":";
+                    final_vcf_info += std::to_string(sample_vcf_ao[0]);
+                    for(int i = 1; i < sample_vcf_ao.size(); ++i) {
+                        final_vcf_info += ',' + std::to_string(sample_vcf_ao[i]);
+                    }
+                    final_vcf_info += ":" + std::to_string(sample_vcf_qa[0]);
+                    for(int i = 1; i < sample_vcf_qa.size(); ++i) {
+                        final_vcf_info += ',' + std::to_string(sample_vcf_qa[i]);
+                    }
+                }
+                else if(q.size() == 1) {
+                    std::pair< double, std::string > top_var_info = q.top();
+                    std::stringstream ss;
+                    ss.str(top_var_info.second);
+                    std::string temp;
+                    std::string gt, ro, ao, gq, qr, qa;
+                    std::getline(ss, gt, ',');
+                    final_var_info += gt + "/" + gt + ":";
+                    final_vcf_info += gt + "/" + gt + ":";
+                    final_var_info += std::to_string(sample_depth) + ":";
+                    final_vcf_info += std::to_string(sample_depth) + ":";
+                    std::getline(ss, ao, ',');
+                    final_var_info += ao + "," + ao + ":";
+                    std::getline(ss, qa, ',');
+                    final_var_info += qa + "," + qa + ":";
+                    std::getline(ss, temp, ',');
+                    final_var_info += temp + "," + temp + ":";
+                    std::getline(ss, ro, ',');
+                    final_var_info += ro + ":";
+                    std::getline(ss, qr, ',');
+                    final_var_info += qr;
+
+                    if(gt == "0") {
+                        int sample_nucl_idx;
+                        final_vcf_info += ro;
+                        for(int i = 0; i < vcf_line_data.ao.size(); ++i) {
+                            sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
+                            final_vcf_info += ',' + std::to_string((*nucl)[sample_nucl_idx][j]);
+                        }
+                        final_vcf_info += ":" + ro + ":" + qr + ":";
+                        sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[0]);
+                        final_vcf_info += std::to_string((*nucl)[sample_nucl_idx][j]);
+                        for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
+                            sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
+                            final_vcf_info += ',' + std::to_string((*nucl)[sample_nucl_idx][j]);
+                        }
+                        sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[0]);
+                        if((*nucl)[sample_nucl_idx][j] > 0) {
+                            final_vcf_info += ":" + std::to_string((double)(*qual)[sample_nucl_idx][j] /
+                                                                   (double)(*nucl)[sample_nucl_idx][j]);
+                        }
+                        else {
+                            final_vcf_info += ":.";
+                        }
+
+                        for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
+                            sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
+                            final_vcf_info += ',';
+                            if((*nucl)[sample_nucl_idx][j] > 0) {
+                                final_vcf_info += std::to_string((double)(*qual)[sample_nucl_idx][j] /
+                                                                 (double)(*nucl)[sample_nucl_idx][j]);
+                            }
+                            else {
+                                final_vcf_info += '.';
+                            }
+                        }
+                    }
+                    else {
+                        final_vcf_info += ro + ',' + ao + ":" + ro + ":" + qr + ":" + ao + ":" + qa;
+                    }
+
+                    vcf_line_data.ns++;
+                    if(gt != "0") {
+                        int gt_idx = std::stoi(gt.c_str()) - 1;
+                        vcf_line_data.ac[gt_idx] += 2;
+                        vcf_line_data.nsa++;
+                    }
+                }
+                else {
+                    std::string low_depth_info = "./.:" + std::to_string(sample_depth) + ":.:.:.";
+                    positional_variants.insert({sample, low_depth_info});
+                    std::string low_vcf_info = "./.:" + std::to_string(sample_depth) + ":.";
+                    for(int i = 0; i < alts_present_at_pos.size(); ++i) {
+                        low_vcf_info += ",.";
+                    }
+                    low_vcf_info += ":.:.";
+                    for(int i = 1; i < alts_present_at_pos.size(); ++i) {
+                        low_vcf_info += ",.";
+                    }
+                    low_vcf_info += ":.:.";
+                    for(int i = 1; i < alts_present_at_pos.size(); ++i) {
+                        low_vcf_info += ",.";
+                    }
+                    vcf_variants.insert({sample, low_vcf_info});
+                    continue;
+                }
+                positional_variants.insert({sample, final_var_info});
+                vcf_variants.insert({sample, final_vcf_info});
             }
-//            ofs << this_ref << ':' << (j + 1);
-//            for(int i = 0; i < ordered_sample_names.size(); ++i) {
-//                ofs << '\t' << positional_variants.at(ordered_sample_names[i]);
-//            }
-//            ofs << std::endl;
-//
-//            if(position_has_major_variant) {
-//                ofs2 << this_ref << ':' << (j + 1);
-//                for(int i = 0; i < ordered_sample_names.size(); ++i) {
-//                    ofs2 << '\t' << positional_variants.at(ordered_sample_names[i]);
-//                }
-//                ofs2 << std::endl;
-//            }
-//
-//            vcf_line_data.qual = std::log((double)vcf_line_data.ao_sum) * (vcf_line_data.qual / (double)vcf_line_data.ao_sum);
-//            for(int i = 0; i < vcf_line_data.alt.size(); ++i) {
-//                vcf_line_data.af[i] = (double)vcf_line_data.ao[i] / (double)vcf_line_data.dp;
-//                vcf_line_data.mqm[i] /= (double)vcf_line_data.ao[i];
-//            }
-//            vcf_line_data.mqmr /= (double)vcf_line_data.ro;
-//
-//            vcf_writer.writeSampleData(vcf_line_data, vcf_variants);
+            ofs << this_ref << ':' << (j + 1);
+            for(int i = 0; i < ordered_sample_names.size(); ++i) {
+                ofs << '\t' << positional_variants.at(ordered_sample_names[i]);
+            }
+            ofs << std::endl;
+
+            if(position_has_major_variant) {
+                ofs2 << this_ref << ':' << (j + 1);
+                for(int i = 0; i < ordered_sample_names.size(); ++i) {
+                    ofs2 << '\t' << positional_variants.at(ordered_sample_names[i]);
+                }
+                ofs2 << std::endl;
+            }
+
+            vcf_line_data.qual = std::log((double)vcf_line_data.ao_sum) * (vcf_line_data.qual / (double)vcf_line_data.ao_sum);
+            for(int i = 0; i < vcf_line_data.alt.size(); ++i) {
+                vcf_line_data.af[i] = (double)vcf_line_data.ao[i] / (double)vcf_line_data.dp;
+                vcf_line_data.mqm[i] /= (double)vcf_line_data.ao[i];
+            }
+            vcf_line_data.mqmr /= (double)vcf_line_data.ro;
+
+            vcf_writer.writeSampleData(vcf_line_data, vcf_variants);
         }
     }
 
