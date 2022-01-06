@@ -7,7 +7,7 @@ TARGET := bin/simple_snp
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name "*.$(SRCEXT)")
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-CFLAGS := -g -std=c++17 -O3 -msse3 -funroll-loops -march=native -mfpmath=sse
+CFLAGS := -g -std=c++17 -O3 -msse3 -funroll-loops -march=native -mfpmath=sse -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
 LIB := -lstdc++ -lpthread -lm
 INC := -I include
 MKDIR = mkdir -p bin
