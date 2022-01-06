@@ -235,6 +235,8 @@ int main(int argc, const char *argv[]) {
                     sample_depth += (*nucl)[i][j];
                 }
 
+                std::cout << "\tcheck1" << std::endl;
+
 //                if((*ins).count(j)) {
 //                    for(auto &[len, ins_vec] : (*ins).at(j)) {
 //                        population_depth += ins_vec[0];
@@ -261,6 +263,8 @@ int main(int argc, const char *argv[]) {
                         }
                     }
                 }
+
+                std::cout << "\tcheck2" << std::endl;
 
                 // indel frequency is calculated across all indel lengths to identify candidate indels at a given
                 // position. This is to mitigate the effect of nanopore sequencing noise, particular when indels
@@ -306,6 +310,8 @@ int main(int argc, const char *argv[]) {
             for(int i = 0; i < population_allele_counts.size(); ++i) {
                 meets_population_threshold |= (population_allele_counts[i] > args.min_inter_sample_alt);
             }
+
+            std::cout << "\tcheck3" << std::endl;
 
 //            long population_ins_sums = 0;
 //            for(auto &[len, val] : population_insertions) {
@@ -420,6 +426,8 @@ int main(int argc, const char *argv[]) {
 //                }
             }
 
+            std::cout << "\tcheck4" << std::endl;
+
             if(!position_has_variant) {
                 continue;
             }
@@ -455,6 +463,8 @@ int main(int argc, const char *argv[]) {
                 vcf_line_data.alt_ns.push_back(0);
                 vcf_line_data.ac.push_back(0);
             }
+
+            std::cout << "\tcheck5" << std::endl;
 
             // Third pass to assign variants
             std::map< std::string, std::string > positional_variants;
@@ -547,6 +557,8 @@ int main(int argc, const char *argv[]) {
                     }
                 }
 
+                std::cout << "\tcheck6" << std::endl;
+
 //                if((*ins).count(j)) {
 //                    double this_ins_freq = 0;
 //                    long this_ins_count = 0;
@@ -595,9 +607,12 @@ int main(int argc, const char *argv[]) {
                     std::exit(EXIT_FAILURE);
                 }
 
+                std::cout << "\tcheck7" << std::endl;
+
                 std::string final_var_info = "";
                 std::string final_vcf_info = "";
                 if(q.size() == 2) {
+                    std::cout << "\tcheck2 qsize 2" << std::endl;
                     std::pair< double, std::string > top_var_info1 = q.top();
                     q.pop();
                     std::pair< double, std::string > top_var_info2 = q.top();
@@ -691,6 +706,7 @@ int main(int argc, const char *argv[]) {
                     }
                 }
                 else if(q.size() == 1) {
+                    std::cout << "\tcheck2 qsize 1" << std::endl;
                     std::pair< double, std::string > top_var_info = q.top();
                     std::stringstream ss;
                     ss.str(top_var_info.second);
@@ -762,6 +778,7 @@ int main(int argc, const char *argv[]) {
                     }
                 }
                 else {
+                    std::cout << "\tcheck2 qsize else" << std::endl;
                     std::string low_depth_info = "./.:" + std::to_string(sample_depth) + ":.:.:.";
                     positional_variants.insert({sample, low_depth_info});
                     std::string low_vcf_info = "./.:" + std::to_string(sample_depth) + ":.";
@@ -804,6 +821,8 @@ int main(int argc, const char *argv[]) {
             vcf_line_data.mqmr /= (double)vcf_line_data.ro;
 
             vcf_writer.writeSampleData(vcf_line_data, vcf_variants);
+
+            std::cout << "\tcheck final" << std::endl;
         }
     }
 
