@@ -227,6 +227,7 @@ int main(int argc, const char *argv[]) {
 
             // First pass to look at population metrics
             for(auto &[sample, ref_map] : concurrent_q->all_nucleotide_counts) {
+                std::cout << (j+1) << '\t' << sample << std::endl;
                 std::vector< std::vector< int > > *nucl = &ref_map.at(this_ref);
                 std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *ins = &concurrent_q->all_insertions.at(sample).at(this_ref);
                 std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *del = &concurrent_q->all_deletions.at(sample).at(this_ref);
