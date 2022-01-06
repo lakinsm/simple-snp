@@ -780,6 +780,7 @@ int main(int argc, const char *argv[]) {
                         if(gt_idx < 0) {
                             std::cout << "\t\tNonzero gt" << '\t' << gt_idx << '\t' << final_vcf_info << std::endl;
                         }
+                        std::cout << "\t\tgt_idx final: " << gt_idx << std::endl;
                         vcf_line_data.ac[gt_idx] += 2;
                         vcf_line_data.nsa++;
                     }
