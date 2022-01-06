@@ -212,14 +212,19 @@ void ParserJob::_addAlignedRead(const std::string &ref,
             int numeric_num = std::stoi(num.c_str());
             if((op == "M") or (op == "=") or (op == "X")) {
                 for(int i = 0; i < numeric_num; ++i) {
+                    if(read_idx >= seq.size()) {
+                        std::cerr << "Out of bounds: " << sam_filepath << std::endl;
+                        std::cerr << seq << std::endl;
+                        std::cerr << qual << std::endl;
+                    }
                     if(!_iupac_map.count(seq.at(read_idx))) {
                         read_idx++;
                         target_idx++;
                         continue;
                     }
-                    nucleotide_counts.at(ref)[_iupac_map.at(seq[read_idx])][target_idx]++;
-                    qual_sums.at(ref)[_iupac_map.at(seq[read_idx])][target_idx] += int(qual.at(read_idx)) - 33;  // Phred 33
-                    mapq_sums.at(ref)[_iupac_map.at(seq[read_idx])][target_idx] += mapq;
+                    nucleotide_counts.at(ref)[_iupac_map.at(seq.at(read_idx))][target_idx]++;
+                    qual_sums.at(ref)[_iupac_map.at(seq.at(read_idx))][target_idx] += int(qual.at(read_idx)) - 33;  // Phred 33
+                    mapq_sums.at(ref)[_iupac_map.at(seq.at(read_idx))][target_idx] += mapq;
                     read_idx++;
                     target_idx++;
                 }
