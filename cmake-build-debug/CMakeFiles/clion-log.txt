@@ -1,2 +1,0 @@
-CMakeLists.txt not found in C:\Users\lakin\CLionProjects\simple-snp Select CMakeLists.txt
-Toolchains are not configured Configure Disable profile
