@@ -256,7 +256,7 @@ int main(int argc, const char *argv[]) {
                 for(int i = 0; i < population_allele_counts.size(); ++i) {
                     double this_allele_freq = (double)(*nucl)[i][j] / (double)sample_depth;
                     if(this_allele_freq >= args.min_major_freq) {
-                        if(this_nucleotides[i] != this_seq[j]) {
+                        if(this_nucleotides.at(i) != this_seq.at(j)) {
                             population_allele_counts[i] += (*nucl)[i][j];
                         }
                     }
@@ -357,9 +357,9 @@ int main(int argc, const char *argv[]) {
                 for(int i = 0; i < population_allele_counts.size(); ++i) {
                     double this_allele_freq = (double)(*nucl)[i][j] / (double)sample_depth;
                     if((this_allele_freq >= args.min_minor_freq) && ((*nucl)[i][j] >= args.min_intra_sample_alt) && (sample_depth > args.min_intra_sample_depth)) {
-                        if(this_nucleotides[i] != this_seq[j]) {
-                            if(alts_present_at_pos.find(this_nucleotides[i]) == std::string::npos) {
-                                alts_present_at_pos += this_nucleotides[i];
+                        if(this_nucleotides.at(i) != this_seq.at(j)) {
+                            if(alts_present_at_pos.find(this_nucleotides.at(i)) == std::string::npos) {
+                                alts_present_at_pos += this_nucleotides.at(i);
                             }
                             position_has_variant = true;
                             if(this_allele_freq >= args.min_major_freq) {
@@ -425,7 +425,7 @@ int main(int argc, const char *argv[]) {
             }
 
             vcf_line_data.chrom = this_ref;
-            vcf_line_data.ref = this_seq[j];
+            vcf_line_data.ref = this_seq.at(j);
             vcf_line_data.pos = j+1;
             vcf_line_data.qual = 0;
             vcf_line_data.ns = 0;
@@ -470,7 +470,7 @@ int main(int argc, const char *argv[]) {
                 double ref_qual;
                 for(int i = 0; i < population_allele_counts.size(); ++i) {
                     sample_depth += (*nucl)[i][j];
-                    if(this_nucleotides[i] == this_seq[j]) {
+                    if(this_nucleotides.at(i) == this_seq.at(j)) {
                         ref_allele_count = (*nucl)[i][j];
                         ref_qual = (double)(*qual)[i][j];
                         vcf_line_data.mqmr += (double)(*mapq)[i][j];
@@ -514,12 +514,12 @@ int main(int argc, const char *argv[]) {
                     double this_allele_freq = (double)(*nucl)[i][j] / (double)sample_depth;
                     if((this_allele_freq >= args.min_minor_freq) && ((*nucl)[i][j] >= args.min_intra_sample_alt)) {
                         std::string var_info;
-                        if(this_nucleotides[i] == this_seq[j]) {
+                        if(this_nucleotides.at(i) == this_seq.at(j)) {
                             // Reference allele
                             var_info = "0,";
                         }
                         else {
-                            std::size_t found = alts_present_at_pos.find(this_nucleotides[i]);
+                            std::size_t found = alts_present_at_pos.find(this_nucleotides.at(i));
                             var_info = std::to_string(found + 1);
                             var_info += ",";
                             vcf_line_data.mqm[found] += (double)(*mapq)[i][j];
