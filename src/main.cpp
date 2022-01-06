@@ -470,6 +470,7 @@ int main(int argc, const char *argv[]) {
             std::map< std::string, std::string > positional_variants;
             std::map< std::string, std::string > vcf_variants;
             for(auto &[sample, ref_map] : concurrent_q->all_nucleotide_counts) {
+                std::cout << "\tcheck 5.1" << std::endl;
                 std::vector< std::vector< int > > *nucl = &ref_map.at(this_ref);
                 std::vector< std::vector< long > > *qual = &concurrent_q->all_qual_sums.at(sample).at(this_ref);
                 std::vector< std::vector< long > > *mapq = &concurrent_q->all_mapq_sums.at(sample).at(this_ref);
@@ -486,6 +487,8 @@ int main(int argc, const char *argv[]) {
                         vcf_line_data.mqmr += (double)(*mapq)[i][j];
                     }
                 }
+
+                std::cout << "\tcheck 5.2" << std::endl;
 
 //                if((*ins).count(j)) {
 //                    for(auto &[len, ins_vec] : (*ins).at(j)) {
@@ -519,8 +522,11 @@ int main(int argc, const char *argv[]) {
                     continue;
                 }
 
+                std::cout << "\tcheck 5.3" << std::endl;
+
                 std::priority_queue< std::pair< double, std::string > > q;
                 for(int i = 0; i < population_allele_counts.size(); ++i) {
+                    std::cout << "\tcheck 5.3.1" << std::endl;
                     double this_allele_freq = (double)(*nucl)[i][j] / (double)sample_depth;
                     if((this_allele_freq >= args.min_minor_freq) && ((*nucl)[i][j] >= args.min_intra_sample_alt)) {
                         std::string var_info;
@@ -537,6 +543,7 @@ int main(int argc, const char *argv[]) {
                             vcf_line_data.ao_sum += (*nucl)[i][j];
                             vcf_line_data.qual += (double)(*qual)[i][j];
                         }
+                        std::cout << "\tcheck 5.3.2" << std::endl;
 
                         var_info += std::to_string((*nucl)[i][j]);
                         var_info += ",";
@@ -555,6 +562,7 @@ int main(int argc, const char *argv[]) {
                         q.emplace(this_allele_freq, var_info);
                         vcf_line_data.ro += ref_allele_count;
                     }
+                    std::cout << "\tcheck 5.3.3" << std::endl;
                 }
 
                 std::cout << "\tcheck6" << std::endl;
