@@ -123,8 +123,6 @@ int main(int argc, const char *argv[]) {
         std::string this_samplename = this_filename.substr(0, pos2);
         std::string this_param_string = this_sam_fp + '|' + this_samplename;
 
-        while(concurrent_q->num_active_jobs > (args.threads - 2)) {}
-
         std::unique_ptr< ParserJob > job = std::make_unique< ParserJob > (this_param_string, args.output_dir, concurrent_q, args);
         job_dispatcher->dispatch(std::move(job));
         concurrent_q->num_active_jobs += 1;
@@ -229,8 +227,8 @@ int main(int argc, const char *argv[]) {
             for(auto &[sample, ref_map] : concurrent_q->all_nucleotide_counts) {
                 std::cout << (j+1) << '\t' << sample << std::endl;
                 std::vector< std::vector< int > > *nucl = &ref_map.at(this_ref);
-                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *ins = &concurrent_q->all_insertions.at(sample).at(this_ref);
-                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *del = &concurrent_q->all_deletions.at(sample).at(this_ref);
+//                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *ins = &concurrent_q->all_insertions.at(sample).at(this_ref);
+//                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *del = &concurrent_q->all_deletions.at(sample).at(this_ref);
                 long sample_depth = 0;
                 for(int i = 0; i < population_allele_counts.size(); ++i) {
                     population_depth += (*nucl)[i][j];
@@ -334,8 +332,8 @@ int main(int argc, const char *argv[]) {
             std::string alts_present_at_pos = "";
             for(auto &[sample, ref_map] : concurrent_q->all_nucleotide_counts) {
                 std::vector< std::vector< int > > *nucl = &ref_map.at(this_ref);
-                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *ins = &concurrent_q->all_insertions.at(sample).at(this_ref);
-                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *del = &concurrent_q->all_deletions.at(sample).at(this_ref);
+//                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *ins = &concurrent_q->all_insertions.at(sample).at(this_ref);
+//                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *del = &concurrent_q->all_deletions.at(sample).at(this_ref);
                 long sample_depth = 0;
                 for(int i = 0; i < population_allele_counts.size(); ++i) {
                     sample_depth += (*nucl)[i][j];
@@ -464,8 +462,8 @@ int main(int argc, const char *argv[]) {
                 std::vector< std::vector< int > > *nucl = &ref_map.at(this_ref);
                 std::vector< std::vector< long > > *qual = &concurrent_q->all_qual_sums.at(sample).at(this_ref);
                 std::vector< std::vector< long > > *mapq = &concurrent_q->all_mapq_sums.at(sample).at(this_ref);
-                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *ins = &concurrent_q->all_insertions.at(sample).at(this_ref);
-                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *del = &concurrent_q->all_deletions.at(sample).at(this_ref);
+//                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *ins = &concurrent_q->all_insertions.at(sample).at(this_ref);
+//                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *del = &concurrent_q->all_deletions.at(sample).at(this_ref);
                 long sample_depth = 0;
                 int ref_allele_count;
                 double ref_qual;
