@@ -443,10 +443,10 @@ int main(int argc, const char *argv[]) {
             vcf_line_data.nsa = 0;
             for(int i = 0; i < alts_present_at_pos.size(); ++i) {
 
-                if(alts_present_at_pos[i] == 'I') {
+                if(alts_present_at_pos.at(i) == 'I') {
                     vcf_line_data.type.push_back("ins");
                 }
-                else if(alts_present_at_pos[i] == 'D') {
+                else if(alts_present_at_pos.at(i) == 'D') {
                     vcf_line_data.type.push_back("del");
                 }
                 else {
@@ -457,7 +457,7 @@ int main(int argc, const char *argv[]) {
                 vcf_line_data.cigar.push_back("1X");
                 vcf_line_data.af.push_back(0);
                 vcf_line_data.alt.push_back("");
-                vcf_line_data.alt[i] += alts_present_at_pos[i];
+                vcf_line_data.alt[i] += alts_present_at_pos.at(i);
                 vcf_line_data.ao.push_back(0);
                 vcf_line_data.mqm.push_back(0);
                 vcf_line_data.alt_ns.push_back(0);
@@ -728,21 +728,23 @@ int main(int argc, const char *argv[]) {
                     std::getline(ss, qr, ',');
                     final_var_info += qr;
 
+                    std::cout << "\t\tgt: " << gt << std::endl;
+
                     if(gt == "0") {
                         int sample_nucl_idx;
                         final_vcf_info += ro;
                         for(int i = 0; i < vcf_line_data.ao.size(); ++i) {
-                            sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
+                            sample_nucl_idx = this_nucleotides.find(alts_present_at_pos.at(i));
                             final_vcf_info += ',' + std::to_string((*nucl)[sample_nucl_idx][j]);
                         }
                         final_vcf_info += ":" + ro + ":" + qr + ":";
-                        sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[0]);
+                        sample_nucl_idx = this_nucleotides.find(alts_present_at_pos.at(0));
                         final_vcf_info += std::to_string((*nucl)[sample_nucl_idx][j]);
                         for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
-                            sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
+                            sample_nucl_idx = this_nucleotides.find(alts_present_at_pos.at(i));
                             final_vcf_info += ',' + std::to_string((*nucl)[sample_nucl_idx][j]);
                         }
-                        sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[0]);
+                        sample_nucl_idx = this_nucleotides.find(alts_present_at_pos.at(0));
                         if((*nucl)[sample_nucl_idx][j] > 0) {
                             final_vcf_info += ":" + std::to_string((double)(*qual)[sample_nucl_idx][j] /
                                                                    (double)(*nucl)[sample_nucl_idx][j]);
@@ -752,7 +754,7 @@ int main(int argc, const char *argv[]) {
                         }
 
                         for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
-                            sample_nucl_idx = this_nucleotides.find(alts_present_at_pos[i]);
+                            sample_nucl_idx = this_nucleotides.find(alts_present_at_pos.at(i));
                             final_vcf_info += ',';
                             if((*nucl)[sample_nucl_idx][j] > 0) {
                                 final_vcf_info += std::to_string((double)(*qual)[sample_nucl_idx][j] /
@@ -771,7 +773,7 @@ int main(int argc, const char *argv[]) {
                     if(gt != "0") {
                         int gt_idx = std::stoi(gt.c_str()) - 1;
                         if(gt_idx < 0) {
-                            std::cout << "check1" << '\t' << gt_idx << '\t' << final_vcf_info << std::endl;
+                            std::cout << "\t\tNonzero gt" << '\t' << gt_idx << '\t' << final_vcf_info << std::endl;
                         }
                         vcf_line_data.ac[gt_idx] += 2;
                         vcf_line_data.nsa++;
