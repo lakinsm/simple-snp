@@ -58,7 +58,7 @@ void ParserJob::run()
             return;
         }
 
-        if(line[0] == '@') {
+        if(line.at(0) == '@') {
             if(line.substr(0, 3) == "@SQ") {
                 ref_info_present = true;
                 std::stringstream ss_sq;
@@ -203,22 +203,22 @@ void ParserJob::_addAlignedRead(const std::string &ref,
     long cigar_idx = 0;
     std::string num = "";
     std::string op = "";
-    while(cigar_idx != cigar.size()) {
-        if(std::isdigit(cigar[cigar_idx])) {
-            num += cigar[cigar_idx];
+    while(cigar_idx < cigar.length()) {
+        if(std::isdigit(cigar.at(cigar_idx))) {
+            num += cigar.at(cigar_idx);
         }
         else {
-            op = cigar[cigar_idx];
+            op = cigar.at(cigar_idx);
             int numeric_num = std::stoi(num.c_str());
             if((op == "M") or (op == "=") or (op == "X")) {
                 for(int i = 0; i < numeric_num; ++i) {
-                    if(!_iupac_map.count(seq[read_idx])) {
+                    if(!_iupac_map.count(seq.at(read_idx))) {
                         read_idx++;
                         target_idx++;
                         continue;
                     }
                     nucleotide_counts.at(ref)[_iupac_map.at(seq[read_idx])][target_idx]++;
-                    qual_sums.at(ref)[_iupac_map.at(seq[read_idx])][target_idx] += int(qual[read_idx]) - 33;  // Phred 33
+                    qual_sums.at(ref)[_iupac_map.at(seq[read_idx])][target_idx] += int(qual.at(read_idx)) - 33;  // Phred 33
                     mapq_sums.at(ref)[_iupac_map.at(seq[read_idx])][target_idx] += mapq;
                     read_idx++;
                     target_idx++;
@@ -234,9 +234,9 @@ void ParserJob::_addAlignedRead(const std::string &ref,
                 }
                 std::vector< long > *this_del_vec = &deletions.at(ref).at(target_idx).at(numeric_num);
                 (*this_del_vec)[0]++;
-                (*this_del_vec)[1] += qual[read_idx];
+                (*this_del_vec)[1] += qual.at(read_idx);
                 if((read_idx + 1) < seq.length()) {
-                    (*this_del_vec)[2] += qual[read_idx + 1];
+                    (*this_del_vec)[2] += qual.at(read_idx + 1);
                 }
                 target_idx += numeric_num;
             }
@@ -254,11 +254,11 @@ void ParserJob::_addAlignedRead(const std::string &ref,
                 std::vector< long > *this_ins_vec = &insertions.at(ref).at(target_idx).at(numeric_num);
                 (*this_ins_vec)[0]++;
                 for(int s = 0; s < numeric_num; ++s) {
-                    (*this_ins_vec)[1] += qual[read_idx + s];
+                    (*this_ins_vec)[1] += qual.at(read_idx + s);
                 }
-                (*this_ins_vec)[2] += qual[read_idx];
+                (*this_ins_vec)[2] += qual.at(read_idx);
                 if((read_idx + numeric_num) < seq.length()) {
-                    (*this_ins_vec)[3] += qual[read_idx + numeric_num];
+                    (*this_ins_vec)[3] += qual.at(read_idx + numeric_num);
                 }
                 read_idx += numeric_num;
             }
