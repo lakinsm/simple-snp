@@ -302,7 +302,7 @@ int main(int argc, const char *argv[]) {
 //                        }
 //                    }
 //                }
-//            }
+            }
 
             bool meets_population_threshold = false;
             for(int i = 0; i < population_allele_counts.size(); ++i) {
@@ -419,7 +419,7 @@ int main(int argc, const char *argv[]) {
 //                        }
 //                    }
 //                }
-//            }
+            }
 
             if(!position_has_variant) {
                 continue;
