@@ -735,16 +735,20 @@ int main(int argc, const char *argv[]) {
                         final_vcf_info += ro;
                         for(int i = 0; i < vcf_line_data.ao.size(); ++i) {
                             sample_nucl_idx = this_nucleotides.find(alts_present_at_pos.at(i));
+                            std::cout << "\t\tnucl idx 1: " << sample_nucl_idx << std::endl;
                             final_vcf_info += ',' + std::to_string((*nucl)[sample_nucl_idx][j]);
                         }
                         final_vcf_info += ":" + ro + ":" + qr + ":";
                         sample_nucl_idx = this_nucleotides.find(alts_present_at_pos.at(0));
+                        std::cout << "\t\tnucl idx 2: " << sample_nucl_idx << std::endl;
                         final_vcf_info += std::to_string((*nucl)[sample_nucl_idx][j]);
                         for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
                             sample_nucl_idx = this_nucleotides.find(alts_present_at_pos.at(i));
+                            std::cout << "\t\tnucl idx 3: " << sample_nucl_idx << std::endl;
                             final_vcf_info += ',' + std::to_string((*nucl)[sample_nucl_idx][j]);
                         }
                         sample_nucl_idx = this_nucleotides.find(alts_present_at_pos.at(0));
+                        std::cout << "\t\tnucl idx 4: " << sample_nucl_idx << std::endl;
                         if((*nucl)[sample_nucl_idx][j] > 0) {
                             final_vcf_info += ":" + std::to_string((double)(*qual)[sample_nucl_idx][j] /
                                                                    (double)(*nucl)[sample_nucl_idx][j]);
@@ -755,6 +759,7 @@ int main(int argc, const char *argv[]) {
 
                         for(int i = 1; i < vcf_line_data.ao.size(); ++i) {
                             sample_nucl_idx = this_nucleotides.find(alts_present_at_pos.at(i));
+                            std::cout << "\t\tnucl idx 5: " << sample_nucl_idx << std::endl;
                             final_vcf_info += ',';
                             if((*nucl)[sample_nucl_idx][j] > 0) {
                                 final_vcf_info += std::to_string((double)(*qual)[sample_nucl_idx][j] /
