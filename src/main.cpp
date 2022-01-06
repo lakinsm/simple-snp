@@ -751,6 +751,9 @@ int main(int argc, const char *argv[]) {
                     vcf_line_data.ns++;
                     if(gt != "0") {
                         int gt_idx = std::stoi(gt.c_str()) - 1;
+                        if(gt_idx < 0) {
+                            std::cout << "check1" << '\t' << gt_idx << '\t' << final_vcf_info << std::endl;
+                        }
                         vcf_line_data.ac[gt_idx] += 2;
                         vcf_line_data.nsa++;
                     }
