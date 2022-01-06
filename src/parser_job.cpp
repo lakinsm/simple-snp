@@ -203,6 +203,10 @@ void ParserJob::_addAlignedRead(const std::string &ref,
     long cigar_idx = 0;
     std::string num = "";
     std::string op = "";
+    // TODO: this is a workaround for faulty code in sam_parse_merge not including the seq/qual in output.Fix this ASAP.
+    if(seq == "*") {
+        return;
+    }
     while(cigar_idx < cigar.length()) {
         if(std::isdigit(cigar.at(cigar_idx))) {
             num += cigar.at(cigar_idx);
