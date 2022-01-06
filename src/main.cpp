@@ -528,7 +528,7 @@ int main(int argc, const char *argv[]) {
                 for(int i = 0; i < population_allele_counts.size(); ++i) {
                     std::cout << "\tcheck 5.3.1" << std::endl;
                     double this_allele_freq = (double)(*nucl)[i][j] / (double)sample_depth;
-                    if((this_allele_freq >= args.min_minor_freq) && ((*nucl)[i][j] >= args.min_intra_sample_alt)) {
+                    if((this_allele_freq >= args.min_minor_freq) && ((*nucl)[i][j] >= args.min_intra_sample_alt) && (sample_depth > args.min_intra_sample_depth)) {
                         std::string var_info;
                         if(this_nucleotides.at(i) == this_seq.at(j)) {
                             // Reference allele
@@ -536,6 +536,12 @@ int main(int argc, const char *argv[]) {
                         }
                         else {
                             std::size_t found = alts_present_at_pos.find(this_nucleotides.at(i));
+                            if(found == std::string::npos) {
+                                std::cerr << "Nucleotide called as variant (" << this_nucleotides.at(i);
+                                std::cerr << ") but not in alts (" << alts_present_at_pos << "), position: ";
+                                std::cerr << (j+1) << ", sample: " << sample << std::endl;
+                                std::exit(EXIT_FAILURE);
+                            }
                             std::cout << "\t\tfound: " << found << "\talts: " << alts_present_at_pos << std::endl;
                             var_info = std::to_string(found + 1);
                             var_info += ",";
