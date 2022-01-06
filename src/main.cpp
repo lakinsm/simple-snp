@@ -227,7 +227,6 @@ int main(int argc, const char *argv[]) {
             for(auto &[sample, ref_map] : concurrent_q->all_nucleotide_counts) {
                 std::cout << (j+1) << '\t' << sample << std::endl;
                 std::vector< std::vector< int > > *nucl = &ref_map.at(this_ref);
-                std::cout << "\tcheck1" << std::endl;
 //                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *ins = &concurrent_q->all_insertions.at(sample).at(this_ref);
 //                std::unordered_map< long, std::unordered_map< int, std::vector< long > > > *del = &concurrent_q->all_deletions.at(sample).at(this_ref);
                 long sample_depth = 0;
@@ -235,7 +234,6 @@ int main(int argc, const char *argv[]) {
                     population_depth += (*nucl)[i][j];
                     sample_depth += (*nucl)[i][j];
                 }
-                std::cout << "\tcheck2" << std::endl;
 
 //                if((*ins).count(j)) {
 //                    for(auto &[len, ins_vec] : (*ins).at(j)) {
@@ -263,7 +261,6 @@ int main(int argc, const char *argv[]) {
                         }
                     }
                 }
-                std::cout << "\tcheck3" << std::endl;
 
                 // indel frequency is calculated across all indel lengths to identify candidate indels at a given
                 // position. This is to mitigate the effect of nanopore sequencing noise, particular when indels
@@ -314,7 +311,6 @@ int main(int argc, const char *argv[]) {
 //            for(auto &[len, val] : population_insertions) {
 //                population_ins_sums += val;
 //            }
-            std::cout << "\tcheck4" << std::endl;
 //            meets_population_threshold |= (population_ins_sums > args.min_inter_sample_alt);
 
 //            long population_del_sums = 0;
@@ -343,7 +339,6 @@ int main(int argc, const char *argv[]) {
                     sample_depth += (*nucl)[i][j];
                 }
 
-                std::cout << "\tcheck5" << std::endl;
 
 //                if((*ins).count(j)) {
 //                    for(auto &[len, ins_vec] : (*ins).at(j)) {
@@ -373,8 +368,6 @@ int main(int argc, const char *argv[]) {
                         }
                     }
                 }
-
-                std::cout << "\tcheck6" << std::endl;
 
 //                if((*ins).count(j)) {
 //                    double this_ins_freq = 0;
@@ -484,8 +477,6 @@ int main(int argc, const char *argv[]) {
                     }
                 }
 
-                std::cout << "\tcheck7" << std::endl;
-
 //                if((*ins).count(j)) {
 //                    for(auto &[len, ins_vec] : (*ins).at(j)) {
 //                        sample_depth += ins_vec[0];
@@ -517,8 +508,6 @@ int main(int argc, const char *argv[]) {
                     vcf_variants.insert({sample, low_vcf_info});
                     continue;
                 }
-
-//            std::cout << '\t' << sample << '\t' << j+1 << std::flush;
 
                 std::priority_queue< std::pair< double, std::string > > q;
                 for(int i = 0; i < population_allele_counts.size(); ++i) {
@@ -593,9 +582,6 @@ int main(int argc, const char *argv[]) {
 ////                        }
 //                    }
 //                }
-
-                std::cout << "\tcheck8" << std::endl;
-
 
                 if(q.size() > 2) {
                     std::cerr << "Tri-allelic site detected at sample:position, " << sample << " ";
@@ -812,7 +798,6 @@ int main(int argc, const char *argv[]) {
             vcf_line_data.mqmr /= (double)vcf_line_data.ro;
 
             vcf_writer.writeSampleData(vcf_line_data, vcf_variants);
-            std::cout << "\tcheck9" << std::endl;
         }
     }
 
