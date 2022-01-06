@@ -806,6 +806,7 @@ int main(int argc, const char *argv[]) {
                 positional_variants.insert({sample, final_var_info});
                 vcf_variants.insert({sample, final_vcf_info});
             }
+            std::cout << "\tcheck 7.1" << std::endl;
             ofs << this_ref << ':' << (j + 1);
             for(int i = 0; i < ordered_sample_names.size(); ++i) {
                 ofs << '\t' << positional_variants.at(ordered_sample_names[i]);
@@ -820,12 +821,16 @@ int main(int argc, const char *argv[]) {
                 ofs2 << std::endl;
             }
 
+            std::cout << "\tcheck 7.2" << std::endl;
+
             vcf_line_data.qual = std::log((double)vcf_line_data.ao_sum) * (vcf_line_data.qual / (double)vcf_line_data.ao_sum);
             for(int i = 0; i < vcf_line_data.alt.size(); ++i) {
                 vcf_line_data.af[i] = (double)vcf_line_data.ao[i] / (double)vcf_line_data.dp;
                 vcf_line_data.mqm[i] /= (double)vcf_line_data.ao[i];
             }
             vcf_line_data.mqmr /= (double)vcf_line_data.ro;
+
+            std::cout << "\tcheck 7.3" << std::endl;
 
             vcf_writer.writeSampleData(vcf_line_data, vcf_variants);
 
