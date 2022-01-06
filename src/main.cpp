@@ -237,19 +237,19 @@ int main(int argc, const char *argv[]) {
                     sample_depth += (*nucl)[i][j];
                 }
 
-                if((*ins).count(j)) {
-                    for(auto &[len, ins_vec] : (*ins).at(j)) {
-                        population_depth += ins_vec[0];
-                        sample_depth += ins_vec[0];
-                    }
-                }
-
-                if((*del).count(j)) {
-                    for(auto &[len, del_vec] : (*del).at(j)) {
-                        population_depth += del_vec[0];
-                        sample_depth += del_vec[0];
-                    }
-                }
+//                if((*ins).count(j)) {
+//                    for(auto &[len, ins_vec] : (*ins).at(j)) {
+//                        population_depth += ins_vec[0];
+//                        sample_depth += ins_vec[0];
+//                    }
+//                }
+//
+//                if((*del).count(j)) {
+//                    for(auto &[len, del_vec] : (*del).at(j)) {
+//                        population_depth += del_vec[0];
+//                        sample_depth += del_vec[0];
+//                    }
+//                }
 
                 if(population_depth < args.min_inter_sample_depth) {
                     continue;
@@ -267,42 +267,42 @@ int main(int argc, const char *argv[]) {
                 // indel frequency is calculated across all indel lengths to identify candidate indels at a given
                 // position. This is to mitigate the effect of nanopore sequencing noise, particular when indels
                 // are identified near homopolymer runs.
-                if((*ins).count(j)) {
-                    double this_ins_freq = 0;
-                    for(auto &[len, ins_vec] : (*ins).at(j)) {
-                         this_ins_freq += (double)ins_vec[0];
-                    }
-                    this_ins_freq /= (double)sample_depth;
-                    if(this_ins_freq >= args.min_major_freq) {
-                        for(auto &[len, ins_vec] : (*ins).at(j)) {
-                            if(!population_insertions.count(len)) {
-                                population_insertions[len] = ins_vec[0];
-                            }
-                            else {
-                                population_insertions.at(len) += ins_vec[0];
-                            }
-                        }
-                    }
-                }
-
-                if((*del).count(j)) {
-                    double this_del_freq = 0;
-                    for(auto &[len, del_vec] : (*del).at(j)) {
-                        this_del_freq += (double)del_vec[0];
-                    }
-                    this_del_freq /= (double)sample_depth;
-                    if(this_del_freq >= args.min_major_freq) {
-                        for(auto &[len, del_vec] : (*del).at(j)) {
-                            if(!population_deletions.count(len)) {
-                                population_deletions[len] = del_vec[0];
-                            }
-                            else {
-                                population_deletions[len] += del_vec[0];
-                            }
-                        }
-                    }
-                }
-            }
+//                if((*ins).count(j)) {
+//                    double this_ins_freq = 0;
+//                    for(auto &[len, ins_vec] : (*ins).at(j)) {
+//                         this_ins_freq += (double)ins_vec[0];
+//                    }
+//                    this_ins_freq /= (double)sample_depth;
+//                    if(this_ins_freq >= args.min_major_freq) {
+//                        for(auto &[len, ins_vec] : (*ins).at(j)) {
+//                            if(!population_insertions.count(len)) {
+//                                population_insertions[len] = ins_vec[0];
+//                            }
+//                            else {
+//                                population_insertions.at(len) += ins_vec[0];
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                if((*del).count(j)) {
+//                    double this_del_freq = 0;
+//                    for(auto &[len, del_vec] : (*del).at(j)) {
+//                        this_del_freq += (double)del_vec[0];
+//                    }
+//                    this_del_freq /= (double)sample_depth;
+//                    if(this_del_freq >= args.min_major_freq) {
+//                        for(auto &[len, del_vec] : (*del).at(j)) {
+//                            if(!population_deletions.count(len)) {
+//                                population_deletions[len] = del_vec[0];
+//                            }
+//                            else {
+//                                population_deletions[len] += del_vec[0];
+//                            }
+//                        }
+//                    }
+//                }
+//            }
 
             bool meets_population_threshold = false;
             for(int i = 0; i < population_allele_counts.size(); ++i) {
@@ -341,17 +341,17 @@ int main(int argc, const char *argv[]) {
                     sample_depth += (*nucl)[i][j];
                 }
 
-                if((*ins).count(j)) {
-                    for(auto &[len, ins_vec] : (*ins).at(j)) {
-                        sample_depth += ins_vec[0];
-                    }
-                }
-
-                if((*del).count(j)) {
-                    for(auto &[len, del_vec] : (*del).at(j)) {
-                        sample_depth += del_vec[0];
-                    }
-                }
+//                if((*ins).count(j)) {
+//                    for(auto &[len, ins_vec] : (*ins).at(j)) {
+//                        sample_depth += ins_vec[0];
+//                    }
+//                }
+//
+//                if((*del).count(j)) {
+//                    for(auto &[len, del_vec] : (*del).at(j)) {
+//                        sample_depth += del_vec[0];
+//                    }
+//                }
 
                 vcf_line_data.dp += sample_depth;
 
@@ -370,56 +370,56 @@ int main(int argc, const char *argv[]) {
                     }
                 }
 
-                if((*ins).count(j)) {
-                    double this_ins_freq = 0;
-                    long this_ins_count = 0;
-                    for(auto &[len, ins_vec] : (*ins).at(j)) {
-                        this_ins_count += ins_vec[0];
-                        this_ins_freq += (double)ins_vec[0];
-                    }
-                    this_ins_freq /= (double)sample_depth;
-                    if((this_ins_freq >= args.min_minor_freq) && (this_ins_count >= args.min_intra_sample_alt) && (sample_depth > args.min_intra_sample_depth)) {
-                        std::cout << sample << '\t' << this_ref << ':' << std::to_string(j+1) << "\tInsertion\t" << this_ins_count;
-                        std::cout << '\t' << this_ins_freq << std::endl;
-                        for(auto &[len, ins_vec] : (*ins).at(j)) {
-                            std::cout << '\t' << len << '\t' << ins_vec[0] << '\t' << ins_vec[1] << '\t';
-                            std::cout << ins_vec[2] << '\t' << ins_vec[3] << std::endl;
-                        }
-                        if(alts_present_at_pos.find('I') == std::string::npos) {
-//                            alts_present_at_pos += 'I';
-                        }
-//                        position_has_variant = true;
-                        if(this_ins_freq >= args.min_major_freq) {
-//                            position_has_major_variant = true;
-                        }
-                    }
-                }
-
-                if((*del).count(j)) {
-                    double this_del_freq = 0;
-                    long this_del_count = 0;
-                    for(auto &[len, del_vec] : (*del).at(j)) {
-                        this_del_count += del_vec[0];
-                        this_del_freq += (double)del_vec[0];
-                    }
-                    this_del_freq /= (double)sample_depth;
-                    if((this_del_freq >= args.min_minor_freq) && (this_del_count >= args.min_intra_sample_alt) && (sample_depth > args.min_intra_sample_depth)) {
-                        if(alts_present_at_pos.find('D') == std::string::npos) {
-//                            alts_present_at_pos += 'D';
-                        }
-//                        position_has_variant = true;
-                        if(this_del_freq >= args.min_major_freq) {
-//                            position_has_major_variant = true;
-                            std::cout << sample << '\t' << this_ref << ':' << std::to_string(j+1) << "\tDeletion\t" << this_del_count;
-                            std::cout << '\t' << this_del_freq << std::endl;
-                            for(auto &[len, del_vec] : (*del).at(j)) {
-                                std::cout << '\t' << len << '\t' << del_vec[0] << '\t' << del_vec[1] << '\t';
-                                std::cout << del_vec[2] << std::endl;
-                            }
-                        }
-                    }
-                }
-            }
+//                if((*ins).count(j)) {
+//                    double this_ins_freq = 0;
+//                    long this_ins_count = 0;
+//                    for(auto &[len, ins_vec] : (*ins).at(j)) {
+//                        this_ins_count += ins_vec[0];
+//                        this_ins_freq += (double)ins_vec[0];
+//                    }
+//                    this_ins_freq /= (double)sample_depth;
+//                    if((this_ins_freq >= args.min_minor_freq) && (this_ins_count >= args.min_intra_sample_alt) && (sample_depth > args.min_intra_sample_depth)) {
+////                        std::cout << sample << '\t' << this_ref << ':' << std::to_string(j+1) << "\tInsertion\t" << this_ins_count;
+////                        std::cout << '\t' << this_ins_freq << std::endl;
+////                        for(auto &[len, ins_vec] : (*ins).at(j)) {
+////                            std::cout << '\t' << len << '\t' << ins_vec[0] << '\t' << ins_vec[1] << '\t';
+////                            std::cout << ins_vec[2] << '\t' << ins_vec[3] << std::endl;
+////                        }
+//                        if(alts_present_at_pos.find('I') == std::string::npos) {
+////                            alts_present_at_pos += 'I';
+//                        }
+////                        position_has_variant = true;
+//                        if(this_ins_freq >= args.min_major_freq) {
+////                            position_has_major_variant = true;
+//                        }
+//                    }
+//                }
+//
+//                if((*del).count(j)) {
+//                    double this_del_freq = 0;
+//                    long this_del_count = 0;
+//                    for(auto &[len, del_vec] : (*del).at(j)) {
+//                        this_del_count += del_vec[0];
+//                        this_del_freq += (double)del_vec[0];
+//                    }
+//                    this_del_freq /= (double)sample_depth;
+//                    if((this_del_freq >= args.min_minor_freq) && (this_del_count >= args.min_intra_sample_alt) && (sample_depth > args.min_intra_sample_depth)) {
+//                        if(alts_present_at_pos.find('D') == std::string::npos) {
+////                            alts_present_at_pos += 'D';
+//                        }
+////                        position_has_variant = true;
+//                        if(this_del_freq >= args.min_major_freq) {
+////                            position_has_major_variant = true;
+////                            std::cout << sample << '\t' << this_ref << ':' << std::to_string(j+1) << "\tDeletion\t" << this_del_count;
+////                            std::cout << '\t' << this_del_freq << std::endl;
+////                            for(auto &[len, del_vec] : (*del).at(j)) {
+////                                std::cout << '\t' << len << '\t' << del_vec[0] << '\t' << del_vec[1] << '\t';
+////                                std::cout << del_vec[2] << std::endl;
+////                            }
+//                        }
+//                    }
+//                }
+//            }
 
             if(!position_has_variant) {
                 continue;
@@ -478,17 +478,17 @@ int main(int argc, const char *argv[]) {
                     }
                 }
 
-                if((*ins).count(j)) {
-                    for(auto &[len, ins_vec] : (*ins).at(j)) {
-                        sample_depth += ins_vec[0];
-                    }
-                }
-
-                if((*del).count(j)) {
-                    for(auto &[len, del_vec] : (*del).at(j)) {
-                        sample_depth += del_vec[0];
-                    }
-                }
+//                if((*ins).count(j)) {
+//                    for(auto &[len, ins_vec] : (*ins).at(j)) {
+//                        sample_depth += ins_vec[0];
+//                    }
+//                }
+//
+//                if((*del).count(j)) {
+//                    for(auto &[len, del_vec] : (*del).at(j)) {
+//                        sample_depth += del_vec[0];
+//                    }
+//                }
 
                 if(sample_depth < args.min_intra_sample_depth) {
                     std::string low_depth_info = "./.:" + std::to_string(sample_depth) + ":.:.:.";
@@ -550,41 +550,41 @@ int main(int argc, const char *argv[]) {
                     }
                 }
 
-                if((*ins).count(j)) {
-                    double this_ins_freq = 0;
-                    long this_ins_count = 0;
-                    for(auto &[len, ins_vec] : (*ins).at(j)) {
-                        this_ins_count += ins_vec[0];
-                        this_ins_freq += (double)ins_vec[0];
-                    }
-                    this_ins_freq /= (double)sample_depth;
-                    if((this_ins_freq >= args.min_minor_freq) && (this_ins_count >= args.min_intra_sample_alt)) {
-//                        std::cout << this_ref << ':' << std::to_string(j+1) << "\tInsertion\t" << this_ins_count;
-//                        std::cout << '\t' << this_ins_freq << std::endl;
-//                        for(auto &[len, ins_vec] : (*ins).at(j)) {
-//                            std::cout << '\t' << len << '\t' << ins_vec[0] << '\t' << ins_vec[1] << '\t';
-//                            std::cout << ins_vec[2] << '\t' << ins_vec[3] << std::endl;
-//                        }
-                    }
-                }
-
-                if((*del).count(j)) {
-                    double this_del_freq = 0;
-                    long this_del_count = 0;
-                    for(auto &[len, del_vec] : (*del).at(j)) {
-                        this_del_count += del_vec[0];
-                        this_del_freq += (double)del_vec[0];
-                    }
-                    this_del_freq /= (double)sample_depth;
-                    if((this_del_freq >= args.min_minor_freq) && (this_del_count >= args.min_intra_sample_alt)) {
-//                        std::cout << this_ref << ':' << std::to_string(j+1) << "\tDeletion\t" << this_del_count;
-//                        std::cout << '\t' << this_del_freq << std::endl;
-//                        for(auto &[len, del_vec] : (*del).at(j)) {
-//                            std::cout << '\t' << len << '\t' << del_vec[0] << '\t' << del_vec[1] << '\t';
-//                            std::cout << del_vec[2] << std::endl;
-//                        }
-                    }
-                }
+//                if((*ins).count(j)) {
+//                    double this_ins_freq = 0;
+//                    long this_ins_count = 0;
+//                    for(auto &[len, ins_vec] : (*ins).at(j)) {
+//                        this_ins_count += ins_vec[0];
+//                        this_ins_freq += (double)ins_vec[0];
+//                    }
+//                    this_ins_freq /= (double)sample_depth;
+//                    if((this_ins_freq >= args.min_minor_freq) && (this_ins_count >= args.min_intra_sample_alt)) {
+////                        std::cout << this_ref << ':' << std::to_string(j+1) << "\tInsertion\t" << this_ins_count;
+////                        std::cout << '\t' << this_ins_freq << std::endl;
+////                        for(auto &[len, ins_vec] : (*ins).at(j)) {
+////                            std::cout << '\t' << len << '\t' << ins_vec[0] << '\t' << ins_vec[1] << '\t';
+////                            std::cout << ins_vec[2] << '\t' << ins_vec[3] << std::endl;
+////                        }
+//                    }
+//                }
+//
+//                if((*del).count(j)) {
+//                    double this_del_freq = 0;
+//                    long this_del_count = 0;
+//                    for(auto &[len, del_vec] : (*del).at(j)) {
+//                        this_del_count += del_vec[0];
+//                        this_del_freq += (double)del_vec[0];
+//                    }
+//                    this_del_freq /= (double)sample_depth;
+//                    if((this_del_freq >= args.min_minor_freq) && (this_del_count >= args.min_intra_sample_alt)) {
+////                        std::cout << this_ref << ':' << std::to_string(j+1) << "\tDeletion\t" << this_del_count;
+////                        std::cout << '\t' << this_del_freq << std::endl;
+////                        for(auto &[len, del_vec] : (*del).at(j)) {
+////                            std::cout << '\t' << len << '\t' << del_vec[0] << '\t' << del_vec[1] << '\t';
+////                            std::cout << del_vec[2] << std::endl;
+////                        }
+//                    }
+//                }
 
 
                 if(q.size() > 2) {
