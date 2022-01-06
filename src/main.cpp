@@ -661,6 +661,9 @@ int main(int argc, const char *argv[]) {
 
                     int gt1_idx = std::stoi(gt1.c_str()) - 1;
                     int gt2_idx = std::stoi(gt2.c_str()) - 1;
+
+                    std::cout << (j+1) << '\t' << sample << '\t' << gt1_idx << '\t' << gt2_idx << std::endl;
+
                     if(gt1_idx >= 0) {
                         sample_vcf_ao[gt1_idx] = std::stoi(ao1.c_str());
                         sample_vcf_qa[gt1_idx] = std::stod(qa1.c_str());
