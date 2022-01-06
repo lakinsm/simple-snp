@@ -220,6 +220,7 @@ void ParserJob::_addAlignedRead(const std::string &ref,
                         std::cerr << "Out of bounds: " << sam_filepath << std::endl;
                         std::cerr << seq << std::endl;
                         std::cerr << qual << std::endl;
+                        std::Exit(EXIT_FAILURE);
                     }
                     if(!_iupac_map.count(seq.at(read_idx))) {
                         read_idx++;

@@ -536,6 +536,7 @@ int main(int argc, const char *argv[]) {
                         }
                         else {
                             std::size_t found = alts_present_at_pos.find(this_nucleotides.at(i));
+                            std::cout << "\t\tfound: " << found << "\talts: " << alts_present_at_pos << std::endl;
                             var_info = std::to_string(found + 1);
                             var_info += ",";
                             vcf_line_data.mqm[found] += (double)(*mapq)[i][j];
