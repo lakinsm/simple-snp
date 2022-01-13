@@ -170,8 +170,14 @@ int main(int argc, const char *argv[]) {
     std::sort(ordered_sample_names.begin(), ordered_sample_names.end());
 
     std::vector< std::string > ordered_refs;
-    for(int i = 0; i < args.db_parent_map.at(this_parent_ref).size(); ++i) {
-        ordered_refs.push_back(args.db_parent_map.at(this_parent_ref)[i]);
+
+    if(!args.db_names_file.empty()) {
+        for(int i = 0; i < args.db_parent_map.at(this_parent_ref).size(); ++i) {
+            ordered_refs.push_back(args.db_parent_map.at(this_parent_ref)[i]);
+        }
+    }
+    else {
+        ordered_refs.push_back(this_parent_ref);
     }
 
     std::ofstream ofs(args.output_dir + "/all_sample_variants.tsv");
