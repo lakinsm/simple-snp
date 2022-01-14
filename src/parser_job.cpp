@@ -58,7 +58,7 @@ void ParserJob::run()
             return;
         }
 
-        if(line[0] == '@') {
+        if(line.at(0) == '@') {
             if(line.substr(0, 3) == "@SQ") {
                 ref_info_present = true;
                 std::stringstream ss_sq;
@@ -148,6 +148,8 @@ void ParserJob::run()
                                                                              std::vector< long >(ref_lens[i], 0));
         mapq_sums[this_children_ref[i]] = std::vector< std::vector< long > >(_iupac_map.size(),
                                                                              std::vector< long >(ref_lens[i], 0));
+        insertions[this_children_ref[i]];
+        deletions[this_children_ref[i]];
     }
 
     std::vector< std::string > res;
@@ -175,10 +177,16 @@ void ParserJob::run()
 
     _writePositionalData();
 
-    printInfo();
+//    printInfo();
 
     for(auto &[ref, nucl] : nucleotide_counts) {
-        while(!_buffer_q->tryPush(sam_sampleid, ref, nucl, qual_sums.at(ref), mapq_sums.at(ref))) {}
+        while(!_buffer_q->tryPush(sam_sampleid,
+                                  ref,
+                                  nucl,
+                                  qual_sums.at(ref),
+                                  mapq_sums.at(ref),
+                                  insertions.at(ref),
+                                  deletions.at(ref))) {}
     }
 }
 
@@ -195,31 +203,76 @@ void ParserJob::_addAlignedRead(const std::string &ref,
     long cigar_idx = 0;
     std::string num = "";
     std::string op = "";
-    while(cigar_idx != cigar.size()) {
-        if(std::isdigit(cigar[cigar_idx])) {
-            num += cigar[cigar_idx];
+    // TODO: this is a workaround for faulty code in sam_parse_merge not including the seq/qual in output.Fix this ASAP.
+    if(seq == "*") {
+        return;
+    }
+    while(cigar_idx < cigar.length()) {
+        if(std::isdigit(cigar.at(cigar_idx))) {
+            num += cigar.at(cigar_idx);
         }
         else {
-            op = cigar[cigar_idx];
+            op = cigar.at(cigar_idx);
             int numeric_num = std::stoi(num.c_str());
             if((op == "M") or (op == "=") or (op == "X")) {
                 for(int i = 0; i < numeric_num; ++i) {
-                    if(!_iupac_map.count(seq[read_idx])) {
+                    if(read_idx >= seq.size()) {
+                        std::cerr << "Out of bounds: " << sam_filepath << std::endl;
+                        std::cerr << seq << std::endl;
+                        std::cerr << qual << std::endl;
+                        std::exit(EXIT_FAILURE);
+                    }
+                    if(!_iupac_map.count(seq.at(read_idx))) {
                         read_idx++;
                         target_idx++;
                         continue;
                     }
-                    nucleotide_counts.at(ref)[_iupac_map.at(seq[read_idx])][target_idx]++;
-                    qual_sums.at(ref)[_iupac_map.at(seq[read_idx])][target_idx] += int(qual[read_idx]) - 33;  // Phred 33
-                    mapq_sums.at(ref)[_iupac_map.at(seq[read_idx])][target_idx] += mapq;
+                    nucleotide_counts.at(ref)[_iupac_map.at(seq.at(read_idx))][target_idx]++;
+                    qual_sums.at(ref)[_iupac_map.at(seq.at(read_idx))][target_idx] += int(qual.at(read_idx)) - 33;  // Phred 33
+                    mapq_sums.at(ref)[_iupac_map.at(seq.at(read_idx))][target_idx] += mapq;
                     read_idx++;
                     target_idx++;
                 }
             }
-            else if((op == "D") or (op == "N")) {
+            else if(op == "D") {
+                if(!deletions.at(ref).count(target_idx)) {
+                    std::unordered_map< int, std::vector< long > > this_template{{numeric_num, std::vector< long >(3, 0)}};
+                    deletions.at(ref)[target_idx] = this_template;
+                }
+                if(!deletions.at(ref).at(target_idx).count(numeric_num)) {
+                    deletions.at(ref).at(target_idx)[numeric_num] = std::vector< long >(3, 0);
+                }
+                std::vector< long > *this_del_vec = &deletions.at(ref).at(target_idx).at(numeric_num);
+                (*this_del_vec)[0]++;
+                (*this_del_vec)[1] += qual.at(read_idx);
+                if((read_idx + 1) < seq.length()) {
+                    (*this_del_vec)[2] += qual.at(read_idx + 1);
+                }
                 target_idx += numeric_num;
             }
-            else if((op == "I") or (op == "S")) {
+            else if(op == "N") {
+                target_idx += numeric_num;
+            }
+            else if(op == "I") {
+                if(!insertions.at(ref).count(target_idx)) {
+                    std::unordered_map< int, std::vector< long > > this_template{{numeric_num, std::vector< long >(4, 0)}};
+                    insertions.at(ref)[target_idx] = this_template;
+                }
+                if(!insertions.at(ref).at(target_idx).count(numeric_num)) {
+                    insertions.at(ref).at(target_idx)[numeric_num] = std::vector< long >(4, 0);
+                }
+                std::vector< long > *this_ins_vec = &insertions.at(ref).at(target_idx).at(numeric_num);
+                (*this_ins_vec)[0]++;
+                for(int s = 0; s < numeric_num; ++s) {
+                    (*this_ins_vec)[1] += qual.at(read_idx + s);
+                }
+                (*this_ins_vec)[2] += qual.at(read_idx);
+                if((read_idx + numeric_num) < seq.length()) {
+                    (*this_ins_vec)[3] += qual.at(read_idx + numeric_num);
+                }
+                read_idx += numeric_num;
+            }
+            else if(op == "S") {
                 read_idx += numeric_num;
             }
             num = "";
