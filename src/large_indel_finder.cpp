@@ -96,7 +96,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
 //            std::cout << '\t' << j << '\t' << window_idx << '\t' << "CANDIDATE" << std::endl;
             if(window_idx >= _args.min_large_indel_len) {
                 std::cout << '\t' << j << '\t' << window_idx;
-                std::cour << "\tloc: " << loc_bool << " (" << this_window_depth << ')';
+                std::cout << "\tloc: " << loc_bool << " (" << this_window_depth << ')';
                 std::cout << "\twindow: " << window_bool << " (" << ((double)total_depth / (double)window_idx) << ')';
                 std::cout << "\tborder: " << border_bool << " (" << this_prev_ratio << ')' << std::endl;
                 std::cout << '\t' << "SELECTED" << std::endl;
