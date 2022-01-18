@@ -41,7 +41,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
         }
         double l_prev_ratio;
         if(this_depth != 0) {
-            if(this_depth != 0) {
+            if(prev_depth != 0) {
                 l_prev_ratio = (double)this_depth / (double)prev_depth;
             }
             else {
