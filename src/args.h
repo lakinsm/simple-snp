@@ -25,6 +25,7 @@ public:
     int min_inter_sample_depth = 10;
     int min_large_indel_len = 48;
     int large_indel_max_window_depth = 2;
+    int indel_accel_window_size = 3;
     double large_indel_border_ratio = 0.1;
     double min_major_freq = 0.7;
     double min_minor_freq = 0.4;

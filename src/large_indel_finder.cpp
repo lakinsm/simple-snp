@@ -56,7 +56,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
         border_bool_l = (prev_depth > 0) && (l_prev_ratio <= _args.large_indel_border_ratio);
         if((this_depth <= _args.large_indel_max_window_depth) || border_bool_l) {
 //            std::cout << '\t' << j << '\t' << "Window Trigger" << std::endl;
-            long total_depth = (long)this_depth;
+            long accel_depth;
             int this_window_depth = this_depth;
             int window_idx = 0;
             double r_prev_ratio = 0;
@@ -69,7 +69,18 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                 for(int i = 0; i < nucl.size(); ++i) {
                     this_window_depth += nucl[i][j + window_idx];
                 }
-                total_depth += this_window_depth;
+                accel_depth = this_window_depth;
+                accel_window_len = 1;
+                for(int k = 1; k < _args.indel_accel_window_size; ++k) {
+                    if((j + window_idx - k) >= 0) {
+                        accel_window_len++;
+                        for(int i = 0; i < nucl.size(); ++i) {
+                            accel_depth += nucl[i][j + window_idx - k];
+                        }
+                    }
+                }
+                double accel_avg = (double)accel_depth / (double)_args.indel_accel_window_size;
+                for(int i = 0)
                 if(this_window_depth != 0) {
                     if(prev_depth != 0) {
                         r_prev_ratio = (double)prev_depth / (double)this_window_depth;
@@ -82,7 +93,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                     r_prev_ratio = 0;
                 }
                 loc_bool = this_window_depth <= _args.large_indel_max_window_depth;
-                window_bool = ((double)total_depth / (double)window_idx) <= _args.large_indel_max_window_depth;
+                window_bool = accel_avg <= _args.large_indel_max_window_depth;
                 border_bool_r = (this_window_depth > 0) && (r_prev_ratio <= _args.large_indel_border_ratio);
 
                 if(border_bool_r) {
