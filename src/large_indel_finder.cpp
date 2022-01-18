@@ -33,9 +33,9 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
 {
     std::vector< std::pair< long, long > > return_values;
     int ref_len = nucl[0].size();
+    int prev_depth = 0;
     for(int j = 0; j < ref_len; ++j) {
         int this_depth = 0;
-        int prev_depth = 0;
         for(int i = 0; i < nucl.size(); ++i) {
             this_depth += nucl[i][j];
         }
