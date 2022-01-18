@@ -19,7 +19,8 @@ public:
                          std::vector< std::vector< int > > > > &nucleotide_counts);
 
 private:
-    std::vector< std::pair< long, long > > _determineRanges(const std::vector< std::vector< int > > &nucl,
+    std::vector< std::pair< long, long > > _determineRanges(std::string &out_prefix,
+                                                            const std::vector< std::vector< int > > &nucl,
                                                             std::ofstream &this_ofs);
 
     Args& _args;

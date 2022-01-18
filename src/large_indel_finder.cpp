@@ -21,11 +21,17 @@ void LargeIndelFinder::findLargeIndels(const std::unordered_map< std::string,
     ofs1 << std::endl;
     for(auto &[sample, ref_map] : nucleotide_counts) {
         for(auto &[this_ref, nucl] : ref_map) {
-            ofs1 << sample << ',' << this_ref << ',';
+            long total_ref_depth = 0;
+            for(int i = 0; i < nucl.size(); ++i) {
+                for(int j = 0; j < nucl[i].size(); ++j) {
+                    total_ref_depth += nucl[i][j];
+                }
+            }
+            double avg_ref_cov = (double)total_ref_depth / (double)nucl[0].size();
+            std::string out_prefix = sample + ',' + this_ref + ',' + std::to_string(avg_ref_cov) + ',';
             std::cout << sample << '\t' << this_ref << std::endl;
             std::vector< std::pair< long, long > > this_ref_ranges;
-            this_ref_ranges = _determineRanges(nucl, ofs1);
-            ofs1 << std::endl;
+            this_ref_ranges = _determineRanges(out_prefix, nucl, ofs1);
         }
     }
     ofs1.close();
@@ -36,7 +42,8 @@ void LargeIndelFinder::findLargeIndels(const std::unordered_map< std::string,
 }
 
 
-std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const std::vector< std::vector< int > > &nucl,
+std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(std::string &out_prefix,
+                                                                          const std::vector< std::vector< int > > &nucl,
                                                                           std::ofstream &this_ofs)
 {
     std::vector< std::pair< long, long > > return_values;
@@ -140,6 +147,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                 std::cout << " (" << l_accel_avg << ", " << r_accel_avg << ')';
                 std::cout << "\tborder: " << border_bool_l << ',' << border_bool_r << " (";
                 std::cout << l_prev_ratio << ", " << r_prev_ratio << ')' << std::endl;
+                this_ofs << out_prefix;
                 this_ofs << "deletion," << (j+1) << ',' << (j + window_idx + 1) << ',';
                 this_ofs << std::to_string((double)total_depth / (double)window_idx) << ',';
                 if(border_bool_l) {
