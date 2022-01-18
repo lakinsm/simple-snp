@@ -57,6 +57,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
         if((this_depth <= _args.large_indel_max_window_depth) || border_bool_l) {
 //            std::cout << '\t' << j << '\t' << "Window Trigger" << std::endl;
             long accel_depth;
+            double accel_avg;
             int this_window_depth = this_depth;
             int window_idx = 0;
             double r_prev_ratio = 0;
@@ -79,7 +80,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                         }
                     }
                 }
-                double accel_avg = (double)accel_depth / (double)_args.indel_accel_window_size;
+                accel_avg = (double)accel_depth / (double)_args.indel_accel_window_size;
                 for(int i = 0)
                 if(this_window_depth != 0) {
                     if(prev_depth != 0) {
@@ -117,7 +118,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
             if(window_idx >= _args.min_large_indel_len) {
                 std::cout << '\t' << j << '\t' << window_idx;
                 std::cout << "\tloc: " << loc_bool << " (" << this_window_depth << ')';
-                std::cout << "\twindow: " << window_bool << " (" << ((double)total_depth / (double)window_idx) << ')';
+                std::cout << "\twindow: " << window_bool << " (" << accel_avg << ')';
                 std::cout << "\tl_border: " << border_bool_l << " (" << l_prev_ratio << ')';
                 std::cout << "\tr_border: " << border_bool_r << " (" << r_prev_ratio << ')';
                 std::cout << '\t' << "SELECTED" << std::endl;
