@@ -71,7 +71,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                     this_window_depth += nucl[i][j + window_idx];
                 }
                 accel_depth = this_window_depth;
-                accel_window_len = 1;
+                int accel_window_len = 1;
                 for(int k = 1; k < _args.indel_accel_window_size; ++k) {
                     if((j + window_idx - k) >= 0) {
                         accel_window_len++;
@@ -81,7 +81,6 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                     }
                 }
                 accel_avg = (double)accel_depth / (double)_args.indel_accel_window_size;
-                for(int i = 0)
                 if(this_window_depth != 0) {
                     if(prev_depth != 0) {
                         r_prev_ratio = (double)prev_depth / (double)this_window_depth;
