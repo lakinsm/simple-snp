@@ -1,6 +1,8 @@
 #include "large_indel_finder.h"
 #include "IntervalTree.h"
 
+#include <numeric_limits>
+
 
 LargeIndelFinder::LargeIndelFinder(Args &args) : _args(args)
 {
@@ -63,9 +65,8 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                         this_prev_ratio = (double)prev_depth / (double)this_window_depth;
                     }
                     else {
-                        this_prev_ratio = 0;
+                        this_prev_ratio = std::numeric_limits<double>::max();
                     }
-
                 }
                 else {
                     this_prev_ratio = 0;
