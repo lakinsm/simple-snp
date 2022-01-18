@@ -100,7 +100,7 @@ void Args::_usage()
     std::cout << "\t-D\tBetween-sample minimum read depth to call a variant [10]" << std::endl;
     std::cout << "\t-f\tMinimum within-sample alternate allele frequency to call a minor variant [0.3]" << std::endl;
     std::cout << "\t-f\tMinimum within-sample alternate allele frequency to call a major variant [0.5]" << std::endl;
-    std::cout << "\t-n\tFILE\tComma-separated file linking reference ID to subregions of interest (.ann extension)";
+    std::cout << "\t-n\tFlag indicating that a <reference>.ann file is present (use parent-child relations)";
     std::cout << std::endl;
     std::cout << "\t-t\tThreads to use, minimum 3 [3]" << std::endl;
     std::cout << std::endl << std::endl;
