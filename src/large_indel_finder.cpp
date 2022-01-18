@@ -140,30 +140,33 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(std::s
             }
             prev_depth = this_window_depth;
             if(window_idx >= _args.min_large_indel_len) {
-                std::cout << '\t' << j << '\t' << window_idx;
-                std::cout << "\tloc: " << loc_bool_l << ',' << (!loc_bool_r);
-                std::cout << " (" << this_depth << ", " << this_window_depth << ')';
-                std::cout << "\twindow: " << window_bool_l << ',' << !(window_bool_r);
-                std::cout << " (" << l_accel_avg << ", " << r_accel_avg << ')';
-                std::cout << "\tborder: " << border_bool_l << ',' << border_bool_r << " (";
-                std::cout << l_prev_ratio << ", " << r_prev_ratio << ')' << std::endl;
-                this_ofs << out_prefix;
-                this_ofs << "deletion," << (j+1) << ',' << (j + window_idx + 1) << ',';
-                this_ofs << std::to_string((double)total_depth / (double)window_idx) << ',';
-                if(border_bool_l) {
-                    this_ofs << "TRUE,";
+                double avg_region_depth = (double)total_depth / (double)window_idx;
+                if(avg_region_depth < _args.large_indel_avg_max_depth) {
+                    std::cout << '\t' << j << '\t' << window_idx;
+                    std::cout << "\tloc: " << loc_bool_l << ',' << (!loc_bool_r);
+                    std::cout << " (" << this_depth << ", " << this_window_depth << ')';
+                    std::cout << "\twindow: " << window_bool_l << ',' << !(window_bool_r);
+                    std::cout << " (" << l_accel_avg << ", " << r_accel_avg << ')';
+                    std::cout << "\tborder: " << border_bool_l << ',' << border_bool_r << " (";
+                    std::cout << l_prev_ratio << ", " << r_prev_ratio << ')' << std::endl;
+                    this_ofs << out_prefix;
+                    this_ofs << "deletion," << (j+1) << ',' << (j + window_idx + 1) << ',';
+                    this_ofs << std::to_string(avg_region_depth) << ',';
+                    if(border_bool_l) {
+                        this_ofs << "TRUE,";
+                    }
+                    else {
+                        this_ofs << "FALSE,";
+                    }
+                    if(border_bool_r) {
+                        this_ofs << "TRUE";
+                    }
+                    else {
+                        this_ofs << "FALSE";
+                    }
+                    this_ofs << std::endl;
+                    return_values.push_back(std::make_pair((long)j, (long)(j + window_idx)));
                 }
-                else {
-                    this_ofs << "FALSE,";
-                }
-                if(border_bool_r) {
-                    this_ofs << "TRUE";
-                }
-                else {
-                    this_ofs << "FALSE";
-                }
-                this_ofs << std::endl;
-                return_values.push_back(std::make_pair((long)j, (long)(j + window_idx)));
             }
             j += window_idx;
         }
