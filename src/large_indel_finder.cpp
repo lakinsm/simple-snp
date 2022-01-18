@@ -86,11 +86,11 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                         r_prev_ratio = (double)prev_depth / (double)this_window_depth;
                     }
                     else {
-                        r_prev_ratio = std::numeric_limits<double>::max();
+                        r_prev_ratio = 0;
                     }
                 }
                 else {
-                    r_prev_ratio = 0;
+                    r_prev_ratio = std::numeric_limits<double>::max();
                 }
                 loc_bool = this_window_depth <= _args.large_indel_max_window_depth;
                 window_bool = accel_avg <= _args.large_indel_max_window_depth;
