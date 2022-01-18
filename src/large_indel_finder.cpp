@@ -59,14 +59,20 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                 }
                 total_depth += this_window_depth;
                 if(this_window_depth != 0) {
-                    this_prev_ratio = (double)prev_depth / (double)this_window_depth;
+                    if(prev_depth != 0) {
+                        this_prev_ratio = (double)prev_depth / (double)this_window_depth;
+                    }
+                    else {
+                        this_prev_ratio = 0;
+                    }
+
                 }
                 else {
                     this_prev_ratio = 0;
                 }
                 bool loc_bool = this_window_depth <= _args.large_indel_max_window_depth;
                 bool window_bool = ((double)total_depth / (double)window_idx) <= _args.large_indel_max_window_depth;
-                bool border_bool = (this_prev_ratio > 0) && (this_prev_ratio <= _args.large_indel_border_ratio);
+                bool border_bool = (this_window_depth > 0) && (this_prev_ratio <= _args.large_indel_border_ratio);
                 std::cout << "\t\tWINDOW\t" << (j + window_idx) << "\tloc: " << loc_bool << " (" << this_window_depth << ')';
                 std::cout << "\twindow: " << window_bool << " (" << ((double)total_depth / (double)window_idx) << ')';
                 std::cout << "\tborder: " << border_bool << " (" << this_prev_ratio << ')' << std::endl;
