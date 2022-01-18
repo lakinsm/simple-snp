@@ -2,6 +2,7 @@
 #include "IntervalTree.h"
 
 #include <limits>
+#include <fstream>
 
 
 LargeIndelFinder::LargeIndelFinder(Args &args) : _args(args)
@@ -15,13 +16,20 @@ void LargeIndelFinder::findLargeIndels(const std::unordered_map< std::string,
                                        std::vector< std::vector< int > > > > &nucleotide_counts)
 {
     // Find candidate ranges in each sample and order them by ascending size in a prio queue
+    // Write this list out
+    std::ofstream ofs1(_args.output_dir + "/large_indels.csv");
+    ofs1 << "Sample,Reference,ReferenceAvgCoverage,Type,Start,Stop,RegionAvgCoverage,LeftBorderSharp,RightBorderSharp";
+    ofs1 << std::endl;
     for(auto &[sample, ref_map] : nucleotide_counts) {
         for(auto &[this_ref, nucl] : ref_map) {
+            ofs1 << sample << ',' << this_ref << ',';
             std::cout << sample << '\t' << this_ref << std::endl;
             std::vector< std::pair< long, long > > this_ref_ranges;
-            this_ref_ranges = _determineRanges(nucl);
+            this_ref_ranges = _determineRanges(nucl, ofs1);
+            ofs1 << std::endl;
         }
     }
+    ofs1.close();
 
     // Pop the smallest range, insert other ranges into the interval tree, extract intersecting
     // ranges, re-build the prio queue with updates ranges, and repeat until all ranges have been consumed.
@@ -29,7 +37,8 @@ void LargeIndelFinder::findLargeIndels(const std::unordered_map< std::string,
 }
 
 
-std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const std::vector< std::vector< int > > &nucl)
+std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const std::vector< std::vector< int > > &nucl,
+                                                                          std::ofstream &this_ofs)
 {
     std::vector< std::pair< long, long > > return_values;
     int ref_len = nucl[0].size();
@@ -63,17 +72,16 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
         else {
             l_prev_ratio = 0;
         }
-//        std::cout << '\t' << j << '\t' << this_depth << std::endl;
         bool loc_bool_l, loc_bool_r, window_bool_l, window_bool_r, border_bool_l, border_bool_r;
         border_bool_l = (prev_depth > 0) && (l_prev_ratio <= _args.large_indel_border_ratio);
         loc_bool_l = this_depth <= _args.large_indel_max_window_depth;
         window_bool_l = l_accel_avg <= _args.large_indel_max_window_depth;
         if((loc_bool_l && window_bool_l) || border_bool_l) {
-//            std::cout << '\t' << j << '\t' << "Window Trigger" << std::endl;
             int r_accel_depth;
             double r_accel_avg;
             int this_window_depth = this_depth;
             int window_idx = 0;
+            long total_depth = this_depth;
             double r_prev_ratio = 0;
             while(true) {
                 if((j + window_idx + 1) == ref_len) {
@@ -85,6 +93,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                     this_window_depth += nucl[i][j + window_idx];
                 }
                 r_accel_depth = this_window_depth;
+                total_depth += this_window_depth;
                 int r_accel_len = 1;
                 for(int k = 1; k < _args.indel_accel_window_size; ++k) {
                     if((j + window_idx - k) >= 0) {
@@ -112,23 +121,18 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                         && (r_prev_ratio <= _args.large_indel_border_ratio);
 
                 if(border_bool_r) {
-//                    std::cout << "\t\tWINDOW\t" << (j + window_idx) << "\tloc: " << loc_bool << " (" << this_window_depth << ')';
-//                    std::cout << "\twindow: " << window_bool << " (" << ((double)total_depth / (double)window_idx) << ')';
-//                    std::cout << "\tborder: " << border_bool << " (" << this_prev_ratio << ')' << std::endl;
+                    total_depth -= this_window_depth;
                     window_idx--;
                     break;
                 }
                 if((!window_bool_r) && (!loc_bool_r)) {
-//                    std::cout << "\t\tWINDOW\t" << (j + window_idx) << "\tloc: " << loc_bool << " (" << this_window_depth << ')';
-//                    std::cout << "\twindow: " << window_bool << " (" << ((double)total_depth / (double)window_idx) << ')';
-//                    std::cout << "\tborder: " << border_bool << " (" << this_prev_ratio << ')' << std::endl;
+                    total_depth -= this_window_depth;
                     window_idx--;
                     break;
                 }
                 prev_depth = this_window_depth;
             }
             prev_depth = this_window_depth;
-//            std::cout << '\t' << j << '\t' << window_idx << '\t' << "CANDIDATE" << std::endl;
             if(window_idx >= _args.min_large_indel_len) {
                 std::cout << '\t' << j << '\t' << window_idx;
                 std::cout << "\tloc: " << loc_bool_l << ',' << (!loc_bool_r);
@@ -137,10 +141,23 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                 std::cout << " (" << l_accel_avg << ", " << r_accel_avg << ')';
                 std::cout << "\tborder: " << border_bool_l << ',' << border_bool_r << " (";
                 std::cout << l_prev_ratio << ", " << r_prev_ratio << ')' << std::endl;
+                this_ofs << "deletion," << (j+1) << ',' << (j + window_idx + 1) << ',';
+                this_ofs << std::to_string((double)total_depth / (double)window_idx) << ',';
+                if(border_bool_l) {
+                    this_ofs << "TRUE,";
+                }
+                else {
+                    this_ofs << "FALSE,";
+                }
+                if(border_bool_r) {
+                    this_ofs << "TRUE";
+                }
+                else {
+                    this_ofs << "FALSE";
+                }
                 return_values.push_back(std::make_pair((long)j, (long)(j + window_idx)));
             }
-//            std::cout << "\t\t\tEnd idx: " << (j + window_idx) << std::endl;
-            j += window_idx;  // TODO check
+            j += window_idx;
         }
         else {
             prev_depth = this_depth;
