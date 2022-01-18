@@ -150,6 +150,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(std::s
                 this_ofs << out_prefix;
                 this_ofs << "deletion," << (j+1) << ',' << (j + window_idx + 1) << ',';
                 this_ofs << std::to_string((double)total_depth / (double)window_idx) << ',';
+                this_ofs << std::endl;
                 if(border_bool_l) {
                     this_ofs << "TRUE,";
                 }
