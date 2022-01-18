@@ -127,9 +127,9 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
 //            std::cout << '\t' << j << '\t' << window_idx << '\t' << "CANDIDATE" << std::endl;
             if(window_idx >= _args.min_large_indel_len) {
                 std::cout << '\t' << j << '\t' << window_idx;
-                std::cout << "\tloc: " << loc_bool_l << ',' << loc_bool_r;
+                std::cout << "\tloc: " << loc_bool_l << ',' << (!loc_bool_r);
                 std::cout << " (" << this_depth << ", " << this_window_depth << ')';
-                std::cout << "\twindow: " << window_bool_l << ',' << window_bool_r;
+                std::cout << "\twindow: " << window_bool_l << ',' << !(window_bool_r);
                 std::cout << " (" << l_accel_avg << ", " << r_accel_avg << ')';
                 std::cout << "\tborder: " << border_bool_l << ',' << border_bool_r << " (";
                 std::cout << l_prev_ratio << ", " << r_prev_ratio << ')' << std::endl;
