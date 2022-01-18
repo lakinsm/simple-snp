@@ -50,6 +50,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
             long total_depth = (long)this_depth;
             int this_window_depth = this_depth;
             int window_idx = 0;
+            bool loc_bool, window_bool, border_bool;
             while(true) {
                 if((j + window_idx + 1) == ref_len) {
                     break;
@@ -71,9 +72,9 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                 else {
                     this_prev_ratio = 0;
                 }
-                bool loc_bool = this_window_depth <= _args.large_indel_max_window_depth;
-                bool window_bool = ((double)total_depth / (double)window_idx) <= _args.large_indel_max_window_depth;
-                bool border_bool = (this_window_depth > 0) && (this_prev_ratio <= _args.large_indel_border_ratio);
+                loc_bool = this_window_depth <= _args.large_indel_max_window_depth;
+                window_bool = ((double)total_depth / (double)window_idx) <= _args.large_indel_max_window_depth;
+                border_bool = (this_window_depth > 0) && (this_prev_ratio <= _args.large_indel_border_ratio);
 
                 if(border_bool) {
 //                    std::cout << "\t\tWINDOW\t" << (j + window_idx) << "\tloc: " << loc_bool << " (" << this_window_depth << ')';
@@ -94,7 +95,11 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
             prev_depth = this_window_depth;
 //            std::cout << '\t' << j << '\t' << window_idx << '\t' << "CANDIDATE" << std::endl;
             if(window_idx >= _args.min_large_indel_len) {
-                std::cout << '\t' << j << '\t' << window_idx << '\t' << "SELECTED" << std::endl;
+                std::cout << '\t' << j << '\t' << window_idx;
+                std::cour << "\tloc: " << loc_bool << " (" << this_window_depth << ')';
+                std::cout << "\twindow: " << window_bool << " (" << ((double)total_depth / (double)window_idx) << ')';
+                std::cout << "\tborder: " << border_bool << " (" << this_prev_ratio << ')' << std::endl;
+                std::cout << '\t' << "SELECTED" << std::endl;
                 return_values.push_back(std::make_pair((long)j, (long)(j + window_idx)));
             }
 //            std::cout << "\t\t\tEnd idx: " << (j + window_idx) << std::endl;
