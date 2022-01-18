@@ -39,18 +39,19 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
         for(int i = 0; i < nucl.size(); ++i) {
             this_depth += nucl[i][j];
         }
-        double this_prev_ratio = 0;
+        double l_prev_ratio = 0;
         if(this_depth != 0) {
-            this_prev_ratio = (double)this_depth / (double)prev_depth;
+            l_prev_ratio = (double)this_depth / (double)prev_depth;
         }
 //        std::cout << '\t' << j << '\t' << this_depth << std::endl;
         bool loc_bool, window_bool, border_bool_l, border_bool_r;
-        border_bool_l = (prev_depth > 0) && (this_prev_ratio <= _args.large_indel_border_ratio);
+        border_bool_l = (prev_depth > 0) && (l_prev_ratio <= _args.large_indel_border_ratio);
         if((this_depth <= _args.large_indel_max_window_depth) || border_bool_l) {
 //            std::cout << '\t' << j << '\t' << "Window Trigger" << std::endl;
             long total_depth = (long)this_depth;
             int this_window_depth = this_depth;
             int window_idx = 0;
+            double r_prev_ratio = 0;
             while(true) {
                 if((j + window_idx + 1) == ref_len) {
                     break;
@@ -63,18 +64,18 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                 total_depth += this_window_depth;
                 if(this_window_depth != 0) {
                     if(prev_depth != 0) {
-                        this_prev_ratio = (double)prev_depth / (double)this_window_depth;
+                        r_prev_ratio = (double)prev_depth / (double)this_window_depth;
                     }
                     else {
-                        this_prev_ratio = std::numeric_limits<double>::max();
+                        r_prev_ratio = std::numeric_limits<double>::max();
                     }
                 }
                 else {
-                    this_prev_ratio = 0;
+                    r_prev_ratio = 0;
                 }
                 loc_bool = this_window_depth <= _args.large_indel_max_window_depth;
                 window_bool = ((double)total_depth / (double)window_idx) <= _args.large_indel_max_window_depth;
-                border_bool_r = (this_window_depth > 0) && (this_prev_ratio <= _args.large_indel_border_ratio);
+                border_bool_r = (this_window_depth > 0) && (r_prev_ratio <= _args.large_indel_border_ratio);
 
                 if(border_bool_r) {
 //                    std::cout << "\t\tWINDOW\t" << (j + window_idx) << "\tloc: " << loc_bool << " (" << this_window_depth << ')';
@@ -98,7 +99,8 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                 std::cout << '\t' << j << '\t' << window_idx;
                 std::cout << "\tloc: " << loc_bool << " (" << this_window_depth << ')';
                 std::cout << "\twindow: " << window_bool << " (" << ((double)total_depth / (double)window_idx) << ')';
-                std::cout << "\tl_border: " << border_bool_l << "\tr_border: " << border_bool_r;
+                std::cout << "\tl_border: " << border_bool_l << " (" << l_prev_ratio << ')';
+                std::cout << "\tr_border: " << border_bool_r << " (" << l_prev_ratio << ')';
                 std::cout << '\t' << "SELECTED" << std::endl;
                 return_values.push_back(std::make_pair((long)j, (long)(j + window_idx)));
             }
