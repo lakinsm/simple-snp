@@ -40,8 +40,10 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
         if(this_depth != 0) {
             this_prev_ratio = (double)this_depth / (double)prev_depth;
         }
+        std::cout << '\t' << i << '\t' << this_depth << std::endl;
         if((this_depth <= _args.large_indel_max_window_depth) ||
            ((this_prev_ratio > 0) && (this_prev_ratio <= _args.large_indel_border_ratio))) {
+            std::cout << "\t\t" << "Window Trigger" << std::endl;
             long total_depth = (long)this_depth;
             int this_window_depth = this_depth;
             int window_idx = 0;
