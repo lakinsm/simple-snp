@@ -46,7 +46,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
 //        std::cout << '\t' << j << '\t' << this_depth << std::endl;
         if((this_depth <= _args.large_indel_max_window_depth) ||
            ((this_prev_ratio > 0) && (this_prev_ratio <= _args.large_indel_border_ratio))) {
-            std::cout << '\t' << j << '\t' << "Window Trigger" << std::endl;
+//            std::cout << '\t' << j << '\t' << "Window Trigger" << std::endl;
             long total_depth = (long)this_depth;
             int this_window_depth = this_depth;
             int window_idx = 0;
@@ -92,7 +92,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                 prev_depth = this_window_depth;
             }
             prev_depth = this_window_depth;
-            std::cout << '\t' << j << '\t' << window_idx << '\t' << "CANDIDATE" << std::endl;
+//            std::cout << '\t' << j << '\t' << window_idx << '\t' << "CANDIDATE" << std::endl;
             if(window_idx >= _args.min_large_indel_len) {
                 std::cout << '\t' << j << '\t' << window_idx << '\t' << "SELECTED" << std::endl;
                 return_values.push_back(std::make_pair((long)j, (long)(j + window_idx)));
