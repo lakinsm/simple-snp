@@ -30,17 +30,18 @@ void LargeIndelFinder::findLargeIndels(const std::unordered_map< std::string,
 std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const std::vector< std::vector< int > > &nucl)
 {
     std::vector< std::pair< long, long > > return_values;
-    for(int i = 0; i < nucl.size(); ++i) {
+    int ref_len = nucl[0].size();
+    for(int j = 0; j < ref_len; ++j) {
         int this_depth = 0;
         int prev_depth = 0;
-        for(int j = 0; j < nucl[i].size(); ++j) {
+        for(int i = 0; i < nucl.size(); ++i) {
             this_depth += nucl[i][j];
         }
         double this_prev_ratio = 0;
         if(this_depth != 0) {
             this_prev_ratio = (double)this_depth / (double)prev_depth;
         }
-        std::cout << '\t' << i << '\t' << this_depth << std::endl;
+        std::cout << '\t' << j << '\t' << this_depth << std::endl;
         if((this_depth <= _args.large_indel_max_window_depth) ||
            ((this_prev_ratio > 0) && (this_prev_ratio <= _args.large_indel_border_ratio))) {
             std::cout << "\t\t" << "Window Trigger" << std::endl;
@@ -48,13 +49,13 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
             int this_window_depth = this_depth;
             int window_idx = 0;
             while(true) {
-                if((i + window_idx + 1) == nucl.size()) {
+                if((j + window_idx + 1) == ref_len) {
                     break;
                 }
                 window_idx++;
                 this_window_depth = 0;
-                for(int j = 0; j < nucl[i].size(); ++j) {
-                    this_window_depth += nucl[i + window_idx][j];
+                for(int i = 0; i < nucl.size(); ++i) {
+                    this_window_depth += nucl[i][j + window_idx];
                 }
                 total_depth += this_window_depth;
                 if(this_window_depth != 0) {
@@ -77,13 +78,13 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                 prev_depth = this_window_depth;
             }
             prev_depth = this_window_depth;
-            std::cout << '\t' << i << '\t' << window_idx << '\t' << "CANDIDATE" << std::endl;
+            std::cout << '\t' << j << '\t' << window_idx << '\t' << "CANDIDATE" << std::endl;
             if(window_idx >= _args.min_large_indel_len) {
-                std::cout << '\t' << i << '\t' << window_idx << '\t' << "SELECTED" << std::endl;
-                return_values.push_back(std::make_pair((long)i, (long)(i + window_idx)));
+                std::cout << '\t' << j << '\t' << window_idx << '\t' << "SELECTED" << std::endl;
+                return_values.push_back(std::make_pair((long)j, (long)(j + window_idx)));
             }
-            std::cout << "\t\t\tEnd idx: " << (i + window_idx) << std::endl;
-            i += window_idx;  // TODO check
+            std::cout << "\t\t\tEnd idx: " << (j + window_idx) << std::endl;
+            j += window_idx;  // TODO check
         }
         else {
             prev_depth = this_depth;
