@@ -1,7 +1,7 @@
 #include "large_indel_finder.h"
 #include "IntervalTree.h"
 
-#include <numeric_limits>
+#include <limits>
 
 
 LargeIndelFinder::LargeIndelFinder(Args &args) : _args(args)
