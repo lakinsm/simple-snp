@@ -40,6 +40,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
             this_depth += nucl[i][j];
         }
         int l_accel_depth = this_depth;
+        double l_accel_avg;
         for(int k = 1; k < _args.indel_accel_window_size; ++k) {
             if((j + k) < ref_len) {
                 for(int i = 0; i < nucl.size(); ++i) {
@@ -102,7 +103,7 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(const 
                     r_prev_ratio = std::numeric_limits<double>::max();
                 }
                 loc_bool_r = this_window_depth <= _args.large_indel_max_window_depth;
-                window_bool_r = accel_avg <= _args.large_indel_max_window_depth;
+                window_bool_r = r_accel_avg <= _args.large_indel_max_window_depth;
                 border_bool_r = (this_window_depth > _args.large_indel_max_window_depth)
                         && (r_prev_ratio <= _args.large_indel_border_ratio);
 
