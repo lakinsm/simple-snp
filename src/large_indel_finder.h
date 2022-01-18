@@ -7,6 +7,7 @@
 #include <string>
 #include <utility>
 #include <algorithm>
+#include <fstream>
 
 
 class LargeIndelFinder {

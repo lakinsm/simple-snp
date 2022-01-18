@@ -2,7 +2,6 @@
 #include "IntervalTree.h"
 
 #include <limits>
-#include <fstream>
 
 
 LargeIndelFinder::LargeIndelFinder(Args &args) : _args(args)
