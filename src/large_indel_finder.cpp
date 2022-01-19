@@ -63,7 +63,7 @@ void LargeIndelFinder::findLargeIndels(const std::unordered_map< std::string,
     IntervalTree<long, int> interval_tree(std::move(interval_vec));
 
     ITree::interval_vector results = interval_tree.findOverlapping(all_ranges[0].start, all_ranges[0].stop);
-    std::cout << "Size: " << results.size() << std::endl;
+    std::cout << "Query: " << all_ranges[0].start << ", " << all_ranges[0].stop << "\tSize: " << results.size() << std::endl;
     for(int i = 0; i < results.size(); ++i) {
         std::cout << '\t' << results[i].start << ", " << results[i].stop << ", " << results[i].value << std::endl;
     }
