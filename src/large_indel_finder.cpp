@@ -35,7 +35,7 @@ void LargeIndelFinder::findLargeIndels(const std::unordered_map< std::string,
             std::vector< std::pair< long, long > > ref_ranges;
             std::vector< double > region_covs;
             std::vector< bool > range_high_confidence;
-            _determineRanges(out_prefix, nucl, ofs1, ref_ranges, region_covs, ref_high_confidence);
+            _determineRanges(out_prefix, nucl, ofs1, ref_ranges, region_covs, range_high_confidence);
             for(int r = 0; r < ref_ranges.size(); ++r) {
                 GenomicRange this_range(range_idx++,
                                         this_ref,
@@ -54,7 +54,7 @@ void LargeIndelFinder::findLargeIndels(const std::unordered_map< std::string,
     // Pop the smallest range, insert other ranges into the interval tree, extract intersecting
     // ranges, re-build the prio vector with updated ranges, and repeat until all ranges have been consumed.
     GenomicRange* smallest_range = &all_ranges[0];
-    
+
 }
 
 

@@ -22,7 +22,7 @@ struct GenomicRange {
                  start(this_start),
                  stop(this_stop),
                  size(this_size),
-                 high_confidence(this_confidence);
+                 high_confidence(this_confidence) {};
 
     bool operator < (const GenomicRange& other) const
     {
