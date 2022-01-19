@@ -14,11 +14,14 @@ void LargeIndelFinder::findLargeIndels(const std::unordered_map< std::string,
                                        std::unordered_map< std::string,
                                        std::vector< std::vector< int > > > > &nucleotide_counts)
 {
-    // Find candidate ranges in each sample and order them by ascending size in a prio queue
+    // Find candidate ranges in each sample and order them by ascending size in a vector
     // Write this list out
     std::ofstream ofs1(_args.output_dir + "/large_indels.csv");
     ofs1 << "Sample,Reference,ReferenceAvgCoverage,Type,Start,Stop,RegionAvgCoverage,LeftBorderSharp,RightBorderSharp";
     ofs1 << std::endl;
+
+    int range_idx = 0;
+    std::vector< GenomicRange > all_ranges;
     for(auto &[sample, ref_map] : nucleotide_counts) {
         for(auto &[this_ref, nucl] : ref_map) {
             long total_ref_depth = 0;
@@ -29,24 +32,39 @@ void LargeIndelFinder::findLargeIndels(const std::unordered_map< std::string,
             }
             double avg_ref_cov = (double)total_ref_depth / (double)nucl[0].size();
             std::string out_prefix = sample + ',' + this_ref + ',' + std::to_string(avg_ref_cov) + ',';
-            std::cout << sample << '\t' << this_ref << std::endl;
-            std::vector< std::pair< long, long > > this_ref_ranges;
-            this_ref_ranges = _determineRanges(out_prefix, nucl, ofs1);
+            std::vector< std::pair< long, long > > ref_ranges;
+            std::vector< double > region_covs;
+            std::vector< bool > range_high_confidence;
+            _determineRanges(out_prefix, nucl, ofs1, ref_ranges, region_covs, ref_high_confidence);
+            for(int r = 0; r < ref_ranges.size(); ++r) {
+                GenomicRange this_range(range_idx++,
+                                        this_ref,
+                                        ref_ranges[r].first,
+                                        ref_ranges[r].second,
+                                        this_range.stop - this_range.start + 1,
+                                        range_high_confidence[r]);
+
+                all_ranges.push_back(this_range);
+            }
         }
     }
+    std::sort(all_ranges.begin(), all_ranges.end());
     ofs1.close();
 
     // Pop the smallest range, insert other ranges into the interval tree, extract intersecting
-    // ranges, re-build the prio queue with updates ranges, and repeat until all ranges have been consumed.
-
+    // ranges, re-build the prio vector with updated ranges, and repeat until all ranges have been consumed.
+    GenomicRange* smallest_range = &all_ranges[0];
+    
 }
 
 
-std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(std::string &out_prefix,
-                                                                          const std::vector< std::vector< int > > &nucl,
-                                                                          std::ofstream &this_ofs)
+void LargeIndelFinder::_determineRanges(const std::string &out_prefix,
+                                        const std::vector< std::vector< int > > &nucl,
+                                        std::ofstream &this_ofs,
+                                        std::vector< std::pair< long, long > > &ranges,
+                                        std::vector< double > &coverages,
+                                        std::vector< bool > &high_confidence)
 {
-    std::vector< std::pair< long, long > > return_values;
     int ref_len = nucl[0].size();
     int prev_depth = 0;
     for(int j = 0; j < ref_len; ++j) {
@@ -142,13 +160,13 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(std::s
             if(window_idx >= _args.min_large_indel_len) {
                 double avg_region_depth = (double)total_depth / (double)window_idx;
                 if(avg_region_depth < _args.large_indel_avg_max_depth) {
-                    std::cout << '\t' << j << '\t' << window_idx;
-                    std::cout << "\tloc: " << loc_bool_l << ',' << (!loc_bool_r);
-                    std::cout << " (" << this_depth << ", " << this_window_depth << ')';
-                    std::cout << "\twindow: " << window_bool_l << ',' << !(window_bool_r);
-                    std::cout << " (" << l_accel_avg << ", " << r_accel_avg << ')';
-                    std::cout << "\tborder: " << border_bool_l << ',' << border_bool_r << " (";
-                    std::cout << l_prev_ratio << ", " << r_prev_ratio << ')' << std::endl;
+//                    std::cout << '\t' << j << '\t' << window_idx;
+//                    std::cout << "\tloc: " << loc_bool_l << ',' << (!loc_bool_r);
+//                    std::cout << " (" << this_depth << ", " << this_window_depth << ')';
+//                    std::cout << "\twindow: " << window_bool_l << ',' << !(window_bool_r);
+//                    std::cout << " (" << l_accel_avg << ", " << r_accel_avg << ')';
+//                    std::cout << "\tborder: " << border_bool_l << ',' << border_bool_r << " (";
+//                    std::cout << l_prev_ratio << ", " << r_prev_ratio << ')' << std::endl;
                     this_ofs << out_prefix;
                     this_ofs << "deletion," << (j+1) << ',' << (j + window_idx + 1) << ',';
                     this_ofs << std::to_string(avg_region_depth) << ',';
@@ -165,7 +183,14 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(std::s
                         this_ofs << "FALSE";
                     }
                     this_ofs << std::endl;
-                    return_values.push_back(std::make_pair((long)j, (long)(j + window_idx)));
+                    ranges.push_back(std::make_pair((long)j, (long)(j + window_idx)));
+                    coverages.push_back(avg_region_depth);
+                    if(border_bool_l && border_bool_r) {
+                        high_confidence.push_back(true);
+                    }
+                    else {
+                        high_confidence.push_back(false);
+                    }
                 }
             }
             j += window_idx;
@@ -174,5 +199,4 @@ std::vector< std::pair< long, long > > LargeIndelFinder::_determineRanges(std::s
             prev_depth = this_depth;
         }
     }
-    return return_values;
 }
