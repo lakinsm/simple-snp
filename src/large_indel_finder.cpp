@@ -4,6 +4,9 @@
 #include <limits>
 
 
+typedef IntervalTree<long, int> ITree;
+
+
 LargeIndelFinder::LargeIndelFinder(Args &args) : _args(args)
 {
 
@@ -53,8 +56,17 @@ void LargeIndelFinder::findLargeIndels(const std::unordered_map< std::string,
 
     // Pop the smallest range, insert other ranges into the interval tree, extract intersecting
     // ranges, re-build the prio vector with updated ranges, and repeat until all ranges have been consumed.
-    GenomicRange* smallest_range = &all_ranges[0];
+    ITree::interval_vector interval_vec;
+    for(int i = 1; i < all_ranges.size(); ++i) {
+        interval_vec.push_back(ITree::interval(all_ranges[i].start, all_ranges[i].stop, all_ranges[i].id));
+    }
+    IntervalTree<long, int> interval_tree(std::move(interval_vec));
 
+    ITree::interval_vector results = interval_tree.findOverlapping(all_ranges[0].start, all_ranges[0].stop);
+    std::cout << "Size: " << results.size() << std::endl;
+    for(int i = 0; i < results.size(); ++i) {
+        std::cout << '\t' << results[i].start << ", " << results[i].stop << ", " << results[i].value << std::endl;
+    }
 }
 
 
