@@ -23,6 +23,11 @@ public:
     int min_inter_sample_alt = 7;
     int min_intra_sample_depth = 5;
     int min_inter_sample_depth = 10;
+    int min_large_indel_len = 75;
+    int large_indel_max_window_depth = 2;
+    int indel_accel_window_size = 3;
+    double large_indel_avg_max_depth = 1.5;
+    double large_indel_border_ratio = 0.2;
     double min_major_freq = 0.7;
     double min_minor_freq = 0.4;
     int threads = 3;

@@ -3,5 +3,4 @@
 bin/*
 build/*
 lib/*
-include/*
 cmake*
