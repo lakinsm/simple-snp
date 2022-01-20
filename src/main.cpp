@@ -140,7 +140,6 @@ int main(int argc, const char *argv[]) {
     // Section for large indel determination
     LargeIndelFinder indel_finder(args);
     indel_finder.findLargeIndels(concurrent_q->all_nucleotide_counts);
-    return 0;
 
     // Each worker thread has written a file with positional counts and info for each sample.  This section is for
     // variant calling across all samples using the thresholds/options specified in args.
