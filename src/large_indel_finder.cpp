@@ -1,6 +1,5 @@
 #include "large_indel_finder.h"
 #include "IntervalTree.h"
-
 #include <limits>
 
 
@@ -40,13 +39,14 @@ void LargeIndelFinder::findLargeIndels(const std::unordered_map< std::string,
             std::vector< bool > range_high_confidence;
             _determineRanges(out_prefix, nucl, ofs1, ref_ranges, region_covs, range_high_confidence);
             for(int r = 0; r < ref_ranges.size(); ++r) {
-                GenomicRange this_range(range_idx++,
+                GenomicRange this_range(range_idx,
+                                        range_idx,
                                         this_ref,
                                         ref_ranges[r].first,
                                         ref_ranges[r].second,
                                         this_range.stop - this_range.start + 1,
                                         range_high_confidence[r]);
-
+                range_idx++;
                 all_ranges.push_back(this_range);
             }
         }
@@ -54,19 +54,91 @@ void LargeIndelFinder::findLargeIndels(const std::unordered_map< std::string,
     std::sort(all_ranges.begin(), all_ranges.end());
     ofs1.close();
 
-    // Pop the smallest range, insert other ranges into the interval tree, extract intersecting
-    // ranges, re-build the prio vector with updated ranges, and repeat until all ranges have been consumed.
-    ITree::interval_vector interval_vec;
-    for(int i = 1; i < all_ranges.size(); ++i) {
-        interval_vec.push_back(ITree::interval(all_ranges[i].start, all_ranges[i].stop, all_ranges[i].id));
-    }
-    IntervalTree<long, int> interval_tree(std::move(interval_vec));
-
-    ITree::interval_vector results = interval_tree.findOverlapping(all_ranges[0].start, all_ranges[0].stop);
-    std::cout << "Query: " << all_ranges[0].start << ", " << all_ranges[0].stop << "\tSize: " << results.size() << std::endl;
-    for(int i = 0; i < results.size(); ++i) {
-        std::cout << '\t' << results[i].start << ", " << results[i].stop << ", " << results[i].value << std::endl;
-    }
+    // Tabling the below section for now, probably easier to do in R
+//
+//    // Pop the smallest range, insert other ranges into the interval tree, extract intersecting
+//    // ranges, re-build the prio vector with updated ranges, and repeat until all ranges have been consumed.
+//    std::unordered_map< int, bool > parent_range_confidence_map;
+//    for(int i = 0; i < all_ranges.size(); ++i) {
+//        parent_range_confidence_map[all_ranges[i].parent_id] = all_ranges[i].high_confidence;
+//    }
+//    while(!all_ranges.empty()) {
+//        std::unordered_map< int, int > child_range_idx_map;
+//        long query_start = all_ranges[0].start;
+//        long query_stop = all_ranges[0].stop;
+//        for(int i = 0; i < all_ranges.size(); ++i) {
+//            child_range_idx_map[all_ranges[i].id] = i;
+//        }
+//        ITree::interval_vector interval_vec;
+//        for(int i = 1; i < all_ranges.size(); ++i) {
+//            interval_vec.push_back(ITree::interval(all_ranges[i].start, all_ranges[i].stop, all_ranges[i].id));
+//        }
+//        IntervalTree<long, int> interval_tree(std::move(interval_vec));
+//
+//        ITree::interval_vector results = interval_tree.findOverlapping(all_ranges[0].start, all_ranges[0].stop);
+//        std::cout << "Query: " << all_ranges[0].start << ", " << all_ranges[0].stop << "\tSize: " << results.size() << std::endl;
+//
+//        // If the query is non-overlapping, extract and continue
+//        if(results.size() == 0) {
+//            // TODO
+//            continue;
+//        }
+//
+//        // Excise the query range, reformat the intersecting ranges, fill the range vector, and repeat
+//        range_idx = 0;
+//        std::vector< GenomicRange > new_all_ranges;
+//
+//        // First pass determines the nature of the overlaps detected by the interval tree
+//        long from_right_min_idx = std::numeric_limits<long>max();
+//        long from_left_max_idx = -1;
+//        for(int i = 0; i < results.size(); ++i) {
+//            if((results[i].start > query_start) && (results[i].start < from_right_min_idx)) {
+//                from_right_min_idx = results[i].start;
+//            }
+//            if((results[i].stop < query_stop) && (results[i].stop > from_left_max_idx)) {
+//                from_left_max_idx = results[i].stop;
+//            }
+//        }
+//        if((from_left_max_idx < query_start) && (from_right_min_idx > query_stop)) {
+//            // The query is entirely contained within the result intervals
+//            std::string feature_name =
+//        }
+//        else {
+//            if((from_left_max_idx > query_start) && (from_right_min_idx < query_stop)) {
+//                // The query is partially overlapped from both sides: split into three queries and requeue
+//                // TODO
+//            }
+//            else if((from_left_max_idx > query_start) && (from_right_min_idx > query_stop)) {
+//                // The query is partially overlapped from the left only: split into two queries and requeue
+//            }
+//            else if((from_left_max_idx < query_start) && (from_right_min_idx < query_stop)) {
+//                // The query is partially overlapped from the right only: split into two queries and requeue
+//            }
+//        }
+//
+//        for(int i = 0; i < results.size(); ++i) {
+//            std::cout << '\t' << results[i].start << ", " << results[i].stop << ", " << results[i].value << std::endl;
+//            bool left_overhang = results[i].start < all_ranges[0].start;
+//            bool right_overhang = results[i].stop > all_ranges[0].stop;
+//            if(left_overhang) {
+//                GenomicRange this_range(all_ranges[child_range_idx_map[results[i].value]]);
+//                this_range.id = range_idx++;
+//                this_range.stop = results[i].start - 1;
+//                this_range.size = this_range.stop - this_range.start + 1;
+//                new_all_ranges.push_back(this_range);
+//            }
+//            if(right_overhang) {
+//                GenomicRange this_range(all_ranges[child_range_idx_map[results[i].value]]);
+//                this_range.id = range_idx++;
+//                this_range.start = results[i].stop + 1;
+//                this_range.size = this_range.stop - this_range.start + 1;
+//                new_all_ranges.push_back(this_range);
+//            }
+//            if(left_overhang && right_overhang) {
+//
+//            }
+//        }
+//    }
 }
 
 
@@ -212,3 +284,6 @@ void LargeIndelFinder::_determineRanges(const std::string &out_prefix,
         }
     }
 }
+#pragma clang diagnostic pop
+
+#pragma clang diagnostic pop

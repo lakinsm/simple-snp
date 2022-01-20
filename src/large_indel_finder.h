@@ -12,17 +12,21 @@
 
 struct GenomicRange {
     GenomicRange(int this_id,
+                 int this_parent_id,
                  std::string this_ref,
                  long this_start,
                  long this_stop,
                  long this_size,
                  bool this_confidence)
                  : id(this_id),
+                 parent_id(this_parent_id),
                  ref(this_ref),
                  start(this_start),
                  stop(this_stop),
                  size(this_size),
                  high_confidence(this_confidence) {};
+
+
 
     bool operator < (const GenomicRange& other) const
     {
@@ -30,6 +34,7 @@ struct GenomicRange {
     }
 
     int id;
+    int parent_id;
     std::string ref;
     long start;
     long stop;
