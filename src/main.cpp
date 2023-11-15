@@ -89,8 +89,8 @@ int main(int argc, const char *argv[]) {
                         std::cerr << names_parent << " -> " << names_child << std::endl;
                         exit(EXIT_FAILURE);
                     }
-                    args.rev_db_parent_map[names_child] = names_parent;
                 }
+                args.rev_db_parent_map[names_child] = names_parent;
                 if(args.db_child_name_map.count(names_child)) {
                     std::cerr << "ERROR: Child chromosomes must be unique (duplicate detected): ";
                     std::cerr << names_parent << " -> " << names_child << ": " << names_alias << std::endl;
